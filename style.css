@@ -1,0 +1,33 @@
+/* Import For Medieval Sharp Font */
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(43, 43, 43);
+    font-family: 'MedievalSharp', cursive;
+    color: goldenrod;
+}
+
+.center {
+    text-align: center;
+}
+
+.title {
+    /* box-shadow */
+    text-shadow: 0 0 4px goldenrod;
+}
+
+/* Jank Code For Centering Canvas Mabybe */
+/* #game {
+    padding: 0;
+    margin: auto;
+    display: block;
+    position: absolute;
+    top: 30px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: 5px solid black;
+} */
