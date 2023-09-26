@@ -6,7 +6,7 @@ canvas.height = window.innerHeight;
 var ctx = canvas.getContext("2d");
 var player = new Image();
 
-player.src = "/assets/Sprite Sheet.png";
+player.src = "/assets/sprite_sheet.png";
 var sprite1;
 var p
 var x = 0;
