@@ -11,9 +11,27 @@
     <title>Joust Brigade</title>
 </head>
 <body>
-    <h1 class="title center">Joust Brigade</h1>
-    <canvas id="canvas" class="game" width="400" height="400"></canvas> <!--"asher I can see you -matt"-asher -->
-    <script src="sketch.js"></script> 
-    <img src="assets/ostrich.png">
+    <div class="login">
+        <p style="font-size: xx-large;">Joust Brigade</p>
+        <p>Enter Thy Name My Lord!</p>
+        <input type="text" placeholder="AAA" id="nameInput"><br><br>
+        <button onclick="startGame()">Next</button><br><br>
+        <p>To Upload High Scores</p>
+        <script src="https://accounts.google.com/gsi/client" async></script>
+        <div id="g_id_onload"
+            data-client_id="YOUR_GOOGLE_CLIENT_ID"
+            data-login_uri="https://your.domain/your_login_endpoint"
+            data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+            data-type="standard"
+            data-size="large"
+            data-theme="outline"
+            data-text="sign_in_with"
+            data-shape="rectangular"
+            data-logo_alignment="left">
+        </div>
+        </div>
+        <script src="menu.js"></script>
 </body>
 </html>

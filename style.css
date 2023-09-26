@@ -19,6 +19,37 @@ body {
     text-shadow: 0 0 4px goldenrod;
 }
 
+.login {
+    text-align: center;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -70%);
+    transform: translate(-50%, -70%);
+}
+
+input[type=text] {
+    background-color: #1a1a1a;
+    box-sizing: border-box;
+    font-family: 'MedievalSharp', cursive;
+    color: goldenrod;
+    text-align: center;
+}
+
+button {
+    background-color: #1a1a1a;
+    color: goldenrod;
+    font-family: 'MedievalSharp', cursive;
+    padding: 5px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+}
+
+
 /* Jank Code For Centering Canvas Mabybe */
 /* #game {
     padding: 0;
