@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico"> <!-- favicon (Github Format)-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Something that makes the page scale right on mobile-->
-    <link rel="stylesheet" href="style.css" type="text/css" />
+    <link rel="stylesheet" href="/css/joust.css" type="text/css" />
     <title>Joust Brigade</title>
 </head>
 <body>
-    <h1 class="title center">Joust Brigade</h1>
-    <canvas id="canvas" class="game" width="400" height="400"></canvas>
-    <script src="sketch.js"></script> 
-    <img src="assets/ostrich.png">
+    <div id="canvas-container">
+        <canvas id="canvas" class="game" width="400" height="400"></canvas>
+    </div>
+    <script src="js/controls.js"></script>
+    <script src="js/sprite.js"></script>
+    <script src="js/keyboard.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/block.js"></script>
+    <script src="js/sketch.js"></script>
 </body>
 </html>

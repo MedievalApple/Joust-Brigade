@@ -8,6 +8,7 @@ body {
     background-color: rgb(43, 43, 43);
     font-family: 'MedievalSharp', cursive;
     color: goldenrod;
+    overflow: hidden;
 }
 
 .center {
@@ -49,33 +50,35 @@ body {
     border: solid rgb(49, 49, 49);
     border-width: 40px;
 }
-  
-  .box {
+
+.box {
     width: 40px;
     height: 40px;
-    clip-path: polygon(25% 0%,50% 0%,25% 100%,0% 100%);
+    clip-path: polygon(25% 0%, 50% 0%, 25% 100%, 0% 100%);
     animation: move 8000ms infinite linear;
-  }
-  
-  .greenBox {
+}
+
+.greenBox {
     background-color: rgb(255, 187, 0);
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
     offset-path: padding-box;
     offset-distance: 8%;
-  }
-  
-  @keyframes move {
+}
+
+@keyframes move {
+
     0%,
     20% {
-      offset-distance: 40px;
+        offset-distance: 40px;
     }
+
     80%,
     100% {
-      offset-distance: 100%;
+        offset-distance: 100%;
     }
-  }
-  
+}
+
 
 input[type=text] {
     background-color: #1a1a1a;
@@ -96,17 +99,3 @@ button {
     font-size: 16px;
     transition-duration: 0.4s;
 }
-
-
-/* Jank Code For Centering Canvas Mabybe */
-/* #game {
-    padding: 0;
-    margin: auto;
-    display: block;
-    position: absolute;
-    top: 30px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    border: 5px solid black;
-} */
