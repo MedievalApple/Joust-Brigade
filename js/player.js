@@ -6,6 +6,7 @@ class Player {
         this.height = height;
         this.gravity = 0.05;
         this.friction = 0.4;
+        this.onBlock = false;
     }
 
     show() {
@@ -18,9 +19,11 @@ class Player {
         if (this.position.y + this.height > canvas.height) {
             this.position.y = canvas.height - this.height;
             this.velocity.y *= -this.friction;
-        } else if (this.position.y < 0) {
+        } else if (this.position.y < 0||this.onBlock) {
             this.position.y = 0;
             this.velocity.y *= -this.friction;
+            console.log(this.onBlock)
+            if(this.onBlock) this.onBlock = false;
         }
     
         if (this.position.x > canvas.width) {
