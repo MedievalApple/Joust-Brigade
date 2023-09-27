@@ -14,18 +14,42 @@ var p = new Player(0, 0, 30, 50);
 var logo = new Image()
 logo.src = "/assets/logo.png"
 
+// On focus on canvas, hide cursor
+canvas.addEventListener("click", function () {
+    canvas.requestPointerLock();
+});
+
+// On escape, show cursor
+document.addEventListener("keydown", function (e) {
+    if (e.code == 27) {
+        document.exitPointerLock();
+    }
+});
+
+// Blocks for top and bottom of screen
+var topScreen = new Block(0, 0, canvas.width, 1);
+var bottomScreen = new Block(0, canvas.height - 1, canvas.width, 1);
+
 var frameCount = 0;
 var block1 = new Block(400, 200, 200, 50);
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(logo, canvas.width / 2 - logo.width / 2, logo.height / 2)
 
-    sprite1.show(12)
-    p.show()
+    sprite1.show(1)
     block1.show()
+
+    p.update()
+    p.show()
+
+    handleCollision(p, block1)
+    // handleCollision(p, topScreen)
+    // handleCollision(p, bottomScreen)
+
     frameCount++;
     requestAnimationFrame(draw);
 }
+
 player.onload = function () {
     sprite1 = new Sprite(player, 2, 2)
     requestAnimationFrame(draw);
@@ -40,5 +64,5 @@ class Entity {
 }
 
 class Enemy extends Entity {
-    ai() {}
+    ai() { }
 }

@@ -1,10 +1,13 @@
 class Block {
     constructor(x, y, w, h) {
-        this.x = x, this.y = y;
-        this.w = w, this.h = h;
+        this.position = new Vector(x, y);
+        this.velocity = new Vector(0, 0);
+        this.width = w;
+        this.height = h;
     }
+
     show () {
         ctx.fillStyle = "blue";
-        ctx.fillRect(this.x, this.y, this.w, this.h)
+        ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 }

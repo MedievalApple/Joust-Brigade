@@ -3,7 +3,7 @@ class Sprite {
         this.spriteSheet = spriteSheet;
         this.images = [];
         this.currentImage = 0;
-        this.maxImage = numCols * numRows;  
+        this.maxImage = numCols * numRows;
         var imageWidth = spriteSheet.width / numCols;
         var imageHeight = spriteSheet.height / numRows;
         for (let row = 0; row < numRows; row++) {
@@ -29,10 +29,11 @@ class Sprite {
             }
         }
     }
+
     show(frameRate) {
         ctx.drawImage(this.images[Math.floor(this.currentImage)], 0, 0, canvas.width, canvas.height);
-        this.currentImage+= frameRate/(30);
-        if(this.currentImage>=this.maxImage) {
+        this.currentImage += frameRate / (30);
+        if (this.currentImage >= this.maxImage) {
             this.currentImage = 0;
         }
 

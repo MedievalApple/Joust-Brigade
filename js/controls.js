@@ -6,25 +6,37 @@ function addEvent(element, eventName, callback) {
     }
 }
 
-addEvent(window, "keydown", Keypress);
+addEvent(window, "keydown", keydown);
 addEvent(window, "keyup", keyup);
 
-function Keypress(e){
+function keydown(e){
     switch (e.keyCode) {
         case keyboardKeys['D']:
-            p.velX = 5;
+            p.velocity.x = 3;
             break;
         case keyboardKeys['A']:
-            p.velX = -5;
+            p.velocity.x = -3;
             break;
         case keyboardKeys['W']:
-            p.velY = -5;
+            p.velocity.y = -3;
             break;
         default:
             break;
     }
 }
 
-function keyup(){
-    p.velX = 0;
+function keyup(e) {
+    switch(e) {
+        case keyboardKeys['D']:
+            p.velocity.x = 0;
+            break;
+        case keyboardKeys['A']:
+            p.velocity.x = 0;
+            break;
+        case keyboardKeys['W']:
+            p.velocity.y = 0;
+            break;
+        default:
+            break;
+    }
 }
