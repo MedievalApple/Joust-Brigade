@@ -26,9 +26,9 @@ function handleCollision(object1, object2) {
             object1.position.x -= overlapX * sign;
             object1.velocity.x *= -1;
         } else {
-            object1.onBlock = true;
             // Resolve the collision on the Y-axis
             const sign = Math.sign(object1.velocity.y - object2.velocity.y);
+            if(sign>0) { object1.blockInfo = {x:object2.position.x, y:object2.position.y, w:object2.width};}
             object1.position.y -= overlapY * sign;
             object1.velocity.y *= -1;
         }

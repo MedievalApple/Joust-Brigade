@@ -5,7 +5,6 @@ canvas.height = window.innerHeight;
 
 var ctx = canvas.getContext("2d");
 var player = new Image();
-
 player.src = "/assets/sprite_sheet.png";
 var sprite1;
 var p
@@ -32,17 +31,23 @@ var bottomScreen = new Block(0, canvas.height - 1, canvas.width, 1);
 
 var frameCount = 0;
 var block1 = new Block(400, 200, 200, 50);
+var block2 = new Block(200, 400, 200, 50);
+var block3 = new Block(800, 300, 200, 50);
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(logo, canvas.width / 2 - logo.width / 2, logo.height / 2)
 
     sprite1.show(1)
     block1.show()
+    block2.show()
+    block3.show()
 
     p.update()
     p.show()
 
     handleCollision(p, block1)
+    handleCollision(p, block2)
+    handleCollision(p, block3)
     // handleCollision(p, topScreen)
     // handleCollision(p, bottomScreen)
 
