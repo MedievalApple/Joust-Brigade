@@ -30,7 +30,7 @@ function handleCollision(object1, object2) {
             const sign = Math.sign(object1.velocity.y - object2.velocity.y);
             if(sign>0) { object1.blockInfo = {x:object2.position.x, y:object2.position.y, w:object2.width};}
             object1.position.y -= overlapY * sign;
-            object1.velocity.y *= -1;
+            object1.velocity.y *= -0.8;
         }
     }
 }
