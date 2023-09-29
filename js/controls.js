@@ -32,9 +32,9 @@ function keydown(e) {
             if (p.velocity.y < -3) {
                 p.velocity.y = -3;
             }
-            if (Math.abs(p.velocity.x) > 0.2&&Math.sign(p.velocity.x)==Math.sign(p/velAcc)) {
-                p.velocity.x = p.MAX_SPEED * Math.sign(p.velocity.x)
-            }
+            // if (Math.abs(p.velocity.x) > 0.2&&Math.sign(p.velocity.x)==Math.sign(p.velAcc)) {
+            //     p.velocity.x = p.MAX_SPEED * Math.sign(p.velocity.x)
+            // }
             break;
         default:
             break;

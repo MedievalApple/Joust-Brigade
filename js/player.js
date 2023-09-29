@@ -43,7 +43,6 @@ class Player {
     update() {
         this.velocity.y += this.gravity;
         this.velocity.x += this.velAcc;
-        console.log(this.velocity.x, this.velAcc)
         if(Math.abs(this.velocity.x)>this.MAX_SPEED) {
             this.velocity.x = this.MAX_SPEED * Math.sign(this.velocity.x)
         }else if(Math.sign(this.velocity.x)==Math.sign(this.velAcc)&&Math.abs(this.velocity.x)<0.5) {
