@@ -24,7 +24,7 @@ logo.src = "/assets/logo.png"
 canvas.addEventListener("click", function () {
     canvas.requestPointerLock();
     //Fullscreen Mode
-    canvas.requestFullscreen();
+    //canvas.requestFullscreen();
 });
 
 // On escape, show cursor
@@ -32,7 +32,7 @@ document.addEventListener("keydown", function (e) {
     if (e.code == 27) {
         document.exitPointerLock();
         //Exit Fullscreen Mode
-        document.exitFullscreen();
+        //document.exitFullscreen();
     }
 });
 
