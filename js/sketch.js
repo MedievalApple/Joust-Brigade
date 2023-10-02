@@ -1,11 +1,4 @@
 var canvas = document.getElementById("canvas");
-var canvasContainer = document.getElementById("canvas-container");
-
-// set canvas width and height to both be that of the smaller of the two window dimensions
-const size = Math.min(window.innerWidth, window.innerHeight);
-
-canvasContainer.width = size;
-canvasContainer.height = size;
 
 var ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
@@ -22,13 +15,17 @@ logo.src = "/assets/logo.png"
 
 // On focus on canvas, hide cursor
 canvas.addEventListener("click", function () {
-    canvas.requestPointerLock();
+    //canvas.requestPointerLock();
+    //Fullscreen Mode
+    //canvas.requestFullscreen();
 });
 
 // On escape, show cursor
 document.addEventListener("keydown", function (e) {
     if (e.code == 27) {
         document.exitPointerLock();
+        //Exit Fullscreen Mode
+        //document.exitFullscreen();
     }
 });
 
