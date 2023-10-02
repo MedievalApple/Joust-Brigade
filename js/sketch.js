@@ -1,16 +1,22 @@
 var canvas = document.getElementById("canvas");
+var canvasContainer = document.getElementById("canvas-container");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// set canvas width and height to both be that of the smaller of the two window dimensions
+const size = Math.min(window.innerWidth, window.innerHeight);
+
+canvasContainer.width = size;
+canvasContainer.height = size;
 
 var ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 var player = new Image();
 player.src = "/assets/sprite_sheet.png";
 var sprite1;
 var p
 var x = 0;
-var p = new Player(0, 0, 30, 50);
+var p = new Player(0, 0, 13*4, 19*4, "red");
 var AIs = [];
+var mapObjects = [];
 var logo = new Image()
 logo.src = "/assets/logo.png"
 
@@ -27,8 +33,8 @@ document.addEventListener("keydown", function (e) {
 });
 
 // Blocks for top and bottom of screen
-var topScreen = new Block(0, 0, canvas.width, 1);
-var bottomScreen = new Block(0, canvas.height - 1, canvas.width, 1);
+// var topScreen = new Block(0, 0, canvas.width, 1);
+// var bottomScreen = new Block(0, canvas.height - 1, canvas.width, 1);
 
 var frameCount = 0;
 function draw() {
@@ -36,7 +42,11 @@ function draw() {
     ctx.drawImage(logo, canvas.width / 2 - logo.width / 2, logo.height / 2)
 
     sprite1.show(5)
-    block1.show()
+
+    mapObjects.forEach(mObject => {
+        mObject.show()
+    });
+    //block1.show()
     // block2.show()
     // block3.show()
 
@@ -46,13 +56,22 @@ function draw() {
     for (let i = 0; i < AIs.length; i++) {
         AIs[i].show();
         AIs[i].update();
-        if (AIs[i].position.y > p.position.y) {
-            AIs[i].velocity.y -= 3;
-            if (AIs[i].velocity.y < -3) {
-                AIs[i].velocity.y = -3;
+        if (Math.random() < 0.1) {
+            if (AIs[i].position.y > p.position.y) {
+                AIs[i].velocity.y -= 3;
+                if (AIs[i].velocity.y < -3) {
+                    AIs[i].velocity.y = -3;
+                }
+            } else {
+                if (Math.random() < 0.1) {
+                    AIs[i].velocity.y -= 3;
+                    if (AIs[i].velocity.y < -3) {
+                        AIs[i].velocity.y = -3;
+                    }
+                }
             }
         }
-        switch (AIs[i].velocity.x>0) {
+        switch (AIs[i].velocity.x > 0) {
             case true:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
                     AIs[i].velocity.x = 1;
@@ -74,11 +93,17 @@ function draw() {
         }
     }
     for (let i = 0; i < AIs.length; i++) {
-        handleCollision(AIs[i], block1)
+        mapObjects.forEach(mObject => {
+            handleCollision(AIs[i], mObject)
+        });
+        // handleCollision(AIs[i], block1)
         // handleCollision(AIs[i], block2)
         // handleCollision(AIs[i], block3)
     }
-    handleCollision(p, block1)
+    mapObjects.forEach(mObject => {
+        handleCollision(p, mObject)
+    });
+    //handleCollision(p, block1)
     // handleCollision(p, block2)
     // handleCollision(p, block3)
     // handleCollision(p, topScreen)
@@ -90,7 +115,7 @@ function draw() {
 
 player.onload = function () {
     for (let i = 0; i < 5; i++) {
-        AIs[i] = new Player(i * canvas.width / 5, 0, 30, 50);
+        AIs[i] = new Player(i * canvas.width / 5, 0, 30, 50, "green");
         switch (Math.floor(Math.random() * 2)) {
             case 0:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
@@ -112,7 +137,7 @@ player.onload = function () {
                 break;
         }
     }
-    sprite1 = new Sprite(player, 2, 2)
+    sprite1 = new Sprite("/assets/Sprite Sheet/Bounder/Walk (Bounder)/Walk", 4)
     requestAnimationFrame(draw);
 };
 

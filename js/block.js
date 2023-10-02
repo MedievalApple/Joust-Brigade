@@ -4,6 +4,8 @@ class Block {
         this.velocity = new Vector(0, 0);
         this.width = w;
         this.height = h;
+
+        mapObjects.push(this);
     }
 
     show () {

@@ -1,3 +1,3 @@
-var block1 = new Block(400, 200, 200, 50);
-var block2 = new Block(200, 400, 200, 50);
-var block3 = new Block(800, 300, 200, 50);
+new Block(0, 200, 140, 30);
+new Block(350, 250, 200, 40);
+new Block(850, 180, 140, 30);

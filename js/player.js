@@ -1,5 +1,6 @@
 class Player {
-    constructor(x, y, width, height) {
+    constructor(x, y, width, height, color) {
+        this.sprite = new Sprite("/assets/Sprite Sheet/Bounder/Walk (Bounder)/Walk", 4)
         this.velocity = new Vector(0, 0);
         this.position = new Vector(x, y);
         this.width = width;
@@ -9,11 +10,13 @@ class Player {
         this.velAcc = 0;
         this.blockInfo = {x:-100, y:-100, w:-100};
         this.MAX_SPEED = 5;
+        this.color = color;
     }
 
     show() {
-        ctx.fillStyle = "red";
-        ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+        ctx.fillStyle = this.color;
+        // ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+        this.sprite.show(5, this.position.x, this.position.y, this.width, this.height)
     }
 
     // Torroidal collision detection
