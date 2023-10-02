@@ -23,12 +23,16 @@ logo.src = "/assets/logo.png"
 // On focus on canvas, hide cursor
 canvas.addEventListener("click", function () {
     canvas.requestPointerLock();
+    //Fullscreen Mode
+    canvas.requestFullscreen();
 });
 
 // On escape, show cursor
 document.addEventListener("keydown", function (e) {
     if (e.code == 27) {
         document.exitPointerLock();
+        //Exit Fullscreen Mode
+        document.exitFullscreen();
     }
 });
 
