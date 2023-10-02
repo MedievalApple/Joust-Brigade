@@ -1,11 +1,11 @@
 var canvas = document.getElementById("canvas");
-var canvasContainer = document.getElementById("canvas-container");
+// var canvasContainer = document.getElementById("canvas-container");
 
 // set canvas width and height to both be that of the smaller of the two window dimensions
 const size = Math.min(window.innerWidth, window.innerHeight);
 
-canvasContainer.width = size;
-canvasContainer.height = size;
+// canvasContainer.width = size;
+// canvasContainer.height = size;
 
 var ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;

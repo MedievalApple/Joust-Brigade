@@ -1,12 +1,16 @@
 #canvas-container {
     overflow: hidden;
+    width: 100%;
+    text-align:center;
 }
 
 #canvas {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-} 
+    position: relative;
+    display: inline;
+    width: 50%;
+    height: 50%;
+    image-rendering: pixelated;
+}
 
 
 .canvas-center {
@@ -15,10 +19,3 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
-
-/* .center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-} */
