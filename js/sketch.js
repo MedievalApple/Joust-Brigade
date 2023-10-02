@@ -7,11 +7,12 @@ player.src = "/assets/sprite_sheet.png";
 var sprite1;
 var p
 var x = 0;
-var p = new Player(0, 0, 13*4, 19*4, "red");
+var p = new Player(50, 310, 13*3, 19*3, "red");
 var AIs = [];
 var mapObjects = [];
-var logo = new Image()
-logo.src = "/assets/logo.png"
+var backgroundColor = "black"
+var mapRef = new Image()
+mapRef.src = "/assets/Sprite Sheet/Map/Map.png"
 
 // On focus on canvas, hide cursor
 canvas.addEventListener("click", function () {
@@ -36,7 +37,10 @@ document.addEventListener("keydown", function (e) {
 var frameCount = 0;
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(logo, canvas.width / 2 - logo.width / 2, logo.height / 2)
+
+    //Background
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     sprite1.show(5)
 
@@ -46,6 +50,9 @@ function draw() {
     //block1.show()
     // block2.show()
     // block3.show()
+
+    //Joust Map Example
+    ctx.drawImage(mapRef, 0, 0, canvas.width,canvas.height)
 
     p.update()
     p.show()
