@@ -22,7 +22,7 @@ logo.src = "/assets/logo.png"
 
 // On focus on canvas, hide cursor
 canvas.addEventListener("click", function () {
-    canvas.requestPointerLock();
+    //canvas.requestPointerLock();
     //Fullscreen Mode
     //canvas.requestFullscreen();
 });
