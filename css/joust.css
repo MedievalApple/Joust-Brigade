@@ -8,24 +8,50 @@ body {
     overflow: hidden;
 }
 
-#canvas-container {
-    overflow: hidden;
-    width: 100%;
-    text-align:center;
+@media screen and (orientation:landscape) {
+    #canvas-container {
+        overflow: hidden;
+        width: 100%;
+        text-align:center;
+    }
+
+    #canvas {
+        position: relative;
+        display: inline;
+        width: 45%;
+        height: 45%;
+        image-rendering: pixelated;
+    }
+
+
+    .canvas-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
 }
 
-#canvas {
-    position: relative;
-    display: inline;
-    width: 50%;
-    height: 50%;
-    image-rendering: pixelated;
-}
+@media screen and (orientation:portrait) {
+    #canvas-container {
+        overflow: hidden;
+        width: 100%;
+        text-align:center;
+    }
+
+    #canvas {
+        position: relative;
+        display: inline;
+        width: 90%;
+        height: 50%;
+        image-rendering: pixelated;
+    }
 
 
-.canvas-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    .canvas-center {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
 }
