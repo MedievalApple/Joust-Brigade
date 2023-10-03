@@ -15,7 +15,7 @@ class Block {
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
 
         if (this.sprite != null) {
-            this.sprite.show(5, this.position.x, this.position.y, this.width, this.height);
+            this.sprite.show(5, this.position.x, this.position.y);
         }
     }
 }
