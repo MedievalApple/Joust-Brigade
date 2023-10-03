@@ -119,7 +119,7 @@ function draw() {
 
 player.onload = function () {
     for (let i = 0; i < 5; i++) {
-        AIs[i] = new Player(i * canvas.width / 5, 0, 30, 50, "green");
+        AIs[i] = new Enemy(i * canvas.width / 5, 0, 30, 50, "green");
         switch (Math.floor(Math.random() * 2)) {
             case 0:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
@@ -141,6 +141,7 @@ player.onload = function () {
                 break;
         }
     }
+
     sprite1 = new Sprite("/assets/Sprite Sheet/Bounder/Walk (Bounder)/Walk", 4)
     requestAnimationFrame(draw);
 };
