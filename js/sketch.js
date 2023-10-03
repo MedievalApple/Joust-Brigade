@@ -7,7 +7,7 @@ player.src = "/assets/sprite_sheet.png";
 var sprite1;
 var p
 var x = 0;
-var p = new Player(50, 310, 13*3, 19*3, "red");
+var p = new Player(50, 310, 13*2, 18*2, "red");
 var AIs = [];
 var mapObjects = [];
 var backgroundColor = "black"
@@ -62,12 +62,14 @@ function draw() {
         AIs[i].update();
         if (Math.random() < 0.1) {
             if (AIs[i].position.y > p.position.y) {
+                // AIs[i].isJumping = true;
                 AIs[i].velocity.y -= 3;
                 if (AIs[i].velocity.y < -3) {
                     AIs[i].velocity.y = -3;
                 }
             } else {
                 if (Math.random() < 0.1) {
+                    // AIs[i].isJumping = true;
                     AIs[i].velocity.y -= 3;
                     if (AIs[i].velocity.y < -3) {
                         AIs[i].velocity.y = -3;
@@ -79,17 +81,17 @@ function draw() {
             case true:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
                     AIs[i].velocity.x = 1;
-                    AIs[i].velAcc = 0.05;
+                    AIs[i].xAccel = 0.05;
                 } else {
-                    AIs[i].velAcc = 0.07;
+                    AIs[i].xAccel = 0.07;
                 }
                 break;
             case false:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
                     AIs[i].velocity.x = -1;
-                    AIs[i].velAcc = -0.05;
+                    AIs[i].xAccel = -0.05;
                 } else {
-                    AIs[i].velAcc = -0.07;
+                    AIs[i].xAccel = -0.07;
                 }
                 break;
             default:
@@ -100,18 +102,10 @@ function draw() {
         mapObjects.forEach(mObject => {
             handleCollision(AIs[i], mObject)
         });
-        // handleCollision(AIs[i], block1)
-        // handleCollision(AIs[i], block2)
-        // handleCollision(AIs[i], block3)
     }
     mapObjects.forEach(mObject => {
         handleCollision(p, mObject)
     });
-    //handleCollision(p, block1)
-    // handleCollision(p, block2)
-    // handleCollision(p, block3)
-    // handleCollision(p, topScreen)
-    // handleCollision(p, bottomScreen)
 
     frameCount++;
     requestAnimationFrame(draw);
@@ -119,28 +113,29 @@ function draw() {
 
 player.onload = function () {
     for (let i = 0; i < 5; i++) {
-        AIs[i] = new Player(i * canvas.width / 5, 0, 30, 50, "green");
+        AIs[i] = new Enemy(50, 310, 13*2, 19*2, "green");
         switch (Math.floor(Math.random() * 2)) {
             case 0:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
                     AIs[i].velocity.x = 1;
-                    AIs[i].velAcc = 0.05;
+                    AIs[i].xAccel = 0.05;
                 } else {
-                    AIs[i].velAcc = 0.07;
+                    AIs[i].xAccel = 0.07;
                 }
                 break;
             case 1:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
                     AIs[i].velocity.x = -1;
-                    AIs[i].velAcc = -0.05;
+                    AIs[i].xAccel = -0.05;
                 } else {
-                    AIs[i].velAcc = -0.07;
+                    AIs[i].xAccel = -0.07;
                 }
                 break;
             default:
                 break;
         }
     }
+
     sprite1 = new Sprite("/assets/Sprite Sheet/Bounder/Walk (Bounder)/Walk", 4)
     requestAnimationFrame(draw);
 };
