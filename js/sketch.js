@@ -118,7 +118,7 @@ function draw() {
 
 player.onload = function () {
     for (let i = 0; i < 5; i++) {
-        AIs[i] = new Enemy(50, 20, 13*2, 19*2, "green");
+        AIs[i] = new Enemy(Math.random() * canvas.width, 20, 13*2, 19*2, "green");
         switch (Math.floor(Math.random() * 2)) {
             case 0:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
