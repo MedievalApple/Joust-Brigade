@@ -19,7 +19,7 @@ class Player {
         this.blockInfo = { x: -100, y: -100, w: -100 };
         this.MAX_SPEED = 5;
         this.color = color;
-        this.jumpDirection = false
+        this.jumpDirection = false;
         this.isJumping = false;
     }
 
