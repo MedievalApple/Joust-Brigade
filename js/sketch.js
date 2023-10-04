@@ -1,5 +1,5 @@
 var canvas = document.getElementById("canvas");
-
+//Test
 var ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 var player = new Image();
