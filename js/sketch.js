@@ -8,10 +8,10 @@ var p
 var x = 0;
 var p = new Player(50, 310, 13*2, 18*2, "red");
 var AIs = [];
-var mapObjects = [];
+var mapBlockCollision = [];
 var backgroundColor = "black"
 var mapRef = new Image()
-mapRef.src = "/assets/Sprite Sheet/Map/Map.png"
+mapRef.src = "/assets/sprite_sheet/map/map.png"
 
 // On focus on canvas, hide cursor
 canvas.addEventListener("click", function () {
@@ -41,9 +41,8 @@ function draw() {
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    sprite1.show(5)
 
-    mapObjects.forEach(mObject => {
+    mapBlockCollision.forEach(mObject => {
         mObject.show()
     });
 
@@ -53,9 +52,17 @@ function draw() {
     p.update()
     p.show()
 
-    for (let i = 0; i < AIs.length; i++) {
+    for (let i = AIs.length - 1; i >= 0; i--) {
         AIs[i].show();
         AIs[i].update();
+        if(isColliding(p, AIs[i])) {
+            if(p.position.y + p.height - (p.currentAnimation.images[0].height*p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].height - (AIs[i].currentAnimation.images[0].height*AIs[i].currentAnimation.scalar)) {
+                AIs.splice(i, 1);
+                continue;
+            }else {
+                console.log("You Died")
+            }
+        }
         if (Math.random() < 0.1) {
             if (AIs[i].position.y > p.position.y) {
                 AIs[i].isJumping = true;
@@ -97,11 +104,11 @@ function draw() {
         }
     }
     for (let i = 0; i < AIs.length; i++) {
-        mapObjects.forEach(mObject => {
+        mapBlockCollision.forEach(mObject => {
             handleCollision(AIs[i], mObject)
         });
     }
-    mapObjects.forEach(mObject => {
+    mapBlockCollision.forEach(mObject => {
         handleCollision(p, mObject)
     });
 
@@ -111,7 +118,7 @@ function draw() {
 
 player.onload = function () {
     for (let i = 0; i < 5; i++) {
-        AIs[i] = new Enemy(50, 310, 13*2, 19*2, "green");
+        AIs[i] = new Enemy(50, 20, 13*2, 19*2, "green");
         switch (Math.floor(Math.random() * 2)) {
             case 0:
                 if (Math.abs(AIs[i].velocity.x) == 0) {
@@ -135,7 +142,6 @@ player.onload = function () {
         }
     }
 
-    sprite1 = new Sprite("/assets/Sprite Sheet/Bounder/Walk (Bounder)/Walk", 4)
     requestAnimationFrame(draw);
 };
 

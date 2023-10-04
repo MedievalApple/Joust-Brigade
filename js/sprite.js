@@ -1,5 +1,5 @@
 class Sprite {
-    constructor(spriteSheet, numImages, frameRate = null, scalar = null) {
+    constructor(spriteSheet, numImages = 1, frameRate = null, scalar = null) {
         this.spriteSheet = spriteSheet;
         this.images = [];
         this.currentImage = 0;
@@ -8,14 +8,21 @@ class Sprite {
         
         this.scalar = scalar || 1
 
-        for (let i = 1; i <= numImages; i++) {
-            var image = new Image()
+        // if (numImages == 1) {
+        //     var image = new Image()
 
-            image.src = `${spriteSheet}${i}.png`
-            this.images[i - 1] = image;
+        //     image.src = spriteSheet;
+        //     this.images.push(image);
+        // } else {
+            for (let i = 1; i <= numImages; i++) {
+                var image = new Image()
 
-            console.log(`${spriteSheet}${i}.png`)
-        }
+                image.src = `${spriteSheet}${i}.png`
+                this.images[i - 1] = image;
+
+                console.log(`${spriteSheet}${i}.png`)
+            }
+        // }
     }
 
     show(frameRate, x, y, options = {}) {

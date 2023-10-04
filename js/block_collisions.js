@@ -1,4 +1,4 @@
-class Block {
+class BlockCollision {
     constructor(x, y, w, h, c, sprite) {
         this.position = new Vector(x, y);
         this.velocity = new Vector(0, 0);
@@ -7,7 +7,7 @@ class Block {
         this.color = c;
         this.sprite = sprite;
 
-        mapObjects.push(this);
+        mapBlockCollision.push(this);
     }
 
     show () {
