@@ -1,11 +1,11 @@
 class Player {
     constructor(x, y, width, height, color) {
-        this.currentAnimation = null; 
+        this.currentAnimation = null;
         this.animations = {
-            running: new Sprite("/assets/Sprite Sheet/Ostrich/Walk (Ostrich)/Walk", 4, null, 2),
-            stop: new Sprite("/assets/Sprite Sheet/Ostrich/Walk (Ostrich)/stop", 1, 60, 2),
-            flap: new Sprite("/assets/Sprite Sheet/Ostrich/Flap (Ostrich)/Flap", 2, null, 2),
-            idle: new Sprite("/assets/Sprite Sheet/Ostrich/Idle (Ostrich)/Idle_Standing", 1, null, 2)
+            running: new Sprite("/assets/sprite_sheet/ostrich/walk_ostrich/walk", 4, null, 2),
+            stop: new Sprite("/assets/sprite_sheet/ostrich/walk_ostrich/stop", 1, 60, 2),
+            flap: new Sprite("/assets/sprite_sheet/ostrich/flap_ostrich/flap", 2, null, 2),
+            idle: new Sprite("/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing", 1, null, 2)
 
         }
 
@@ -19,14 +19,14 @@ class Player {
         this.blockInfo = { x: -100, y: -100, w: -100 };
         this.MAX_SPEED = 5;
         this.color = color;
-        this.jumpDirection = false
+        this.jumpDirection = false;
         this.isJumping = false;
     }
 
     show() {
         ctx.fillStyle = this.color;
 
-        if (this.isJumping) { 
+        if (this.isJumping) {
             this.currentAnimation = this.animations.flap;
         } else if (this.velocity.x == 0) {
             this.currentAnimation = this.animations.idle;
@@ -35,21 +35,23 @@ class Player {
         } else {
             this.currentAnimation = this.animations.running;
         }
-        if (this.currentAnimation!=this.animations.flap) {
+        if (this.currentAnimation != this.animations.flap) {
             this.jumpDirection = false;
         }
-        if (!this.currentAnimation) return;    
-        if ((this.velocity.x < 0&&!this.isJumping)||this.jumpDirection) {
+        if (!this.currentAnimation) return;
+        this.width = this.currentAnimation.images[0].width * this.currentAnimation.scalar;
+        this.height = this.currentAnimation.images[0].width * this.currentAnimation.scalar;
+        if ((this.velocity.x < 0 && !this.isJumping) || this.jumpDirection) {
             ctx.save();
             ctx.scale(-1, 1);
-            this.currentAnimation.show(Math.abs(this.velocity.x*2), -this.position.x - this.width, this.position.y, {
-                size : new Vector(this.width, this.height),
+            this.currentAnimation.show(Math.abs(this.velocity.x * 2), -this.position.x - this.width, this.position.y, {
+                size: new Vector(this.width, this.height),
                 scalar: 2
             });
             ctx.restore();
         } else {
-            this.currentAnimation.show(Math.abs(this.velocity.x*2), this.position.x, this.position.y, {
-                size : new Vector(this.width, this.height),
+            this.currentAnimation.show(Math.abs(this.velocity.x * 2), this.position.x, this.position.y, {
+                size: new Vector(this.width, this.height),
                 scalar: 2
             });
         }
@@ -106,8 +108,8 @@ class Enemy extends Player {
         super(x, y, width, height, color);
 
         this.animations = {
-            running: new Sprite("/assets/Sprite Sheet/Bounder/Walk (Bounder)/Walk", 4, null, 2),
-            flap: new Sprite("/assets/Sprite Sheet/Bounder/Flap (Bounder)/Flap", 2, null, 2),
+            running: new Sprite("/assets/sprite_sheet/bounder/walk_bounder/walk", 4, null, 2),
+            flap: new Sprite("/assets/sprite_sheet/bounder/flap_bounder/flap", 2, null, 2),
             // idle: new Sprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
         }
     }
