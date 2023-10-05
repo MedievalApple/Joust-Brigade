@@ -4,13 +4,14 @@ ctx.imageSmoothingEnabled = false;
 var player = new Image();
 player.src = "/assets/sprite_sheet.png";
 var x = 0;
-var p = new Player(50, 310, 13*2, 18*2, "red");
+var p = new Player(50, 310, 13 * 2, 18 * 2, "red");
 var AIs = [];
 var mapBlockCollision = [];
 var backgroundColor = "black"
 var mapRef = new Image()
 var fire;
 var hand;
+var handPos;
 mapRef.src = "/assets/sprite_sheet/map/map.png"
 // On focus on canvas, hide cursor
 canvas.addEventListener("click", function () {
@@ -46,23 +47,29 @@ function draw() {
     });
 
     //Joust Map Example
-    ctx.drawImage(mapRef, 0, 0, canvas.width,canvas.height)
-    fire.show(2, 28, 388-fire.images[0].height*fire.scalar)
-    fire.show(2, canvas.width-28, 388-fire.images[0].height*fire.scalar)
-    handPos = Vector.lerp(new Vector(28, 388), p.position.clone().add(p.height), hand.currentImage/hand.images.length);
-    hand.show(3, handPos.x, handPos.y-hand.images[Math.floor(hand.currentImage)].height*hand.scalar + p.height/2)
-    //hand.show(0.5, canvas.width-28,interpolate(Math.floor(hand.currentImage) / hand.images.length, 388, p.position.y+p.height)-hand.images[Math.floor(hand.currentImage)].height*hand.scalar)
-    p.update()
+    ctx.drawImage(mapRef, 0, 0, canvas.width, canvas.height)
+    fire.show(2, 28, 388 - fire.images[0].height * fire.scalar)
+    fire.show(2, canvas.width - 28, 388 - fire.images[0].height * fire.scalar)
     p.show()
+    p.update();
+    // if (hand.currentImage < 4.8) {
+    //     handPos = Vector.lerp(new Vector(28, 388), p.position.clone().add(p.height), hand.currentImage / hand.images.length);
+    //     hand.show(1, handPos.x - 30, handPos.y-10)
+    //     p.update()
+    // } else {
+    //     setTimeout(() => hand.currentImage = 0, 1000);
+    //     handPos = Vector.lerp(new Vector(28, 388), p.position.clone().add(p.height), 1);
+    //     hand.show(0, handPos.x - 30, handPos.y-10)
+    // }
 
     for (let i = AIs.length - 1; i >= 0; i--) {
         AIs[i].show();
         AIs[i].update();
-        if(isColliding(p, AIs[i])) {
-            if(p.position.y + p.height - (p.currentAnimation.images[0].height*p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].height - (AIs[i].currentAnimation.images[0].height*AIs[i].currentAnimation.scalar)) {
+        if (isColliding(p, AIs[i])) {
+            if (p.position.y + p.height - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].height - (AIs[i].currentAnimation.images[0].height * AIs[i].currentAnimation.scalar)) {
                 AIs.splice(i, 1);
                 continue;
-            }else {
+            } else {
                 console.log("You Died")
             }
         }
@@ -123,7 +130,7 @@ player.onload = function () {
     hand = new Sprite("/assets/sprite_sheet/lava_troll/troll", 5, null, 2);
     fire = new Sprite("/assets/sprite_sheet/lava_troll/fire", 4, null, 2);
     for (let i = 0; i < 5; i++) {
-        AIs[i] = new Enemy(Math.random() * canvas.width, 20, 13*2, 19*2, "green");
+        AIs[i] = new Enemy(Math.random() * canvas.width, 20, 13 * 2, 19 * 2, "green");
         switch (Math.floor(Math.random() * 2)) {
             case 0:
                 if (Math.abs(AIs[i].velocity.x) == 0) {

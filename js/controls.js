@@ -36,6 +36,7 @@ function keydown(e) {
             }
             break;
         case keyboardKeys['W']:
+            p.currentAnimation.currentImage++;
             p.isJumping = true;
             p.velocity.y -= 3;
             if (p.velocity.y < -3) {
