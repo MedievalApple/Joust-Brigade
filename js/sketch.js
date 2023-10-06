@@ -4,7 +4,8 @@ ctx.imageSmoothingEnabled = false;
 var player = new Image();
 player.src = "/assets/sprite_sheet.png";
 var x = 0;
-var p = new Player(50, 310, 13 * 2, 18 * 2, "red");
+var p = new Player(50, 310, 13 * 2, 18 * 2, "red", localStorage.getItem("username"));
+var otherClients = [];
 var AIs = [];
 var mapBlockCollision = [];
 var backgroundColor = "black"
@@ -29,12 +30,66 @@ document.addEventListener("keydown", function (e) {
     }
 });
 
+const socket = new WebSocket("ws://10.223.16.17:8765");
+
+socket.onopen = (event) => {
+    // Connection opened, you can send data now
+    socket.send(JSON.stringify({
+        action: "joined",
+        user: p.name
+    }))
+
+    requestAnimationFrame(draw);
+};
+
+socket.onclose = (event) => {
+    // Connection closed, handle this event if needed
+};
 // Blocks for top and bottom of screen
 // var topScreen = new Block(0, 0, canvas.width, 1);
 // var bottomScreen = new Block(0, canvas.height - 1, canvas.width, 1);
 
 var frameCount = 0;
-function draw() {
+socket.onmessage = (event) => {
+    // Handle incoming messages from the server
+    const data = JSON.parse(event.data);
+
+    // Skip if the message is from the current user
+    if (data.user != p.name) {
+        // console.log(data)
+        if (data.action == "join") {
+            otherClients.push(new Player(50, 310, 13 * 2, 18 * 2, "red", data.user));
+        } else if (data.action == "update") {
+            for (let client of otherClients) {
+                if (client.name == data.user) {
+                    client.position.x = data.x;
+                    client.position.y = data.y;
+                    
+                    client.velocity.x = data.velocity.x;
+                    client.velocity.y = data.velocity.y;
+                }
+            }
+        }
+    }
+};
+
+async function draw() {
+    const message = {
+        action: "update",
+        user: p.name,
+        content: {
+            position: {
+                x: p.position.x,
+                y: p.position.y
+            },
+            velocity: {
+                x: p.velocity.x,
+                y: p.velocity.y
+            }
+        },
+    };
+
+    socket.send(JSON.stringify(message));
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     //Background
@@ -52,6 +107,12 @@ function draw() {
     fire.show(2, canvas.width - 28, 388 - fire.images[0].height * fire.scalar)
     p.show()
     p.update();
+
+    for (let client of otherClients) {
+        client.show();
+        client.update();
+    }
+
     // if (hand.currentImage < 4.8) {
     //     handPos = Vector.lerp(new Vector(28, 388), p.position.clone().add(p.height), hand.currentImage / hand.images.length);
     //     hand.show(1, handPos.x - 30, handPos.y-10)
@@ -153,14 +214,4 @@ player.onload = function () {
                 break;
         }
     }
-
-    requestAnimationFrame(draw);
 };
-
-class Entity {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.sprite;
-    }
-}

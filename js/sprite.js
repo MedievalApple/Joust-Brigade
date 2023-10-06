@@ -19,8 +19,6 @@ class Sprite {
 
                 image.src = `${spriteSheet}${i}.png`
                 this.images[i - 1] = image;
-
-                console.log(`${spriteSheet}${i}.png`)
             }
         // }
     }
