@@ -11,7 +11,7 @@ addEvent(window, "keyup", keyup);
 
 function keydown(e) {
     switch (e.keyCode) {
-        case keyboardKeys['D']:
+        case keyboardKeys['Right Arrow']:
             if (p.currentAnimation==p.animations.flap) {
                 p.jumpDirection = false;
             }
@@ -22,7 +22,7 @@ function keydown(e) {
                 p.xAccel = 0.07;
             }
             break;
-        case keyboardKeys['A']:
+        case keyboardKeys['Left Arrow']:
             if (p.currentAnimation==p.animations.flap) {
                 p.jumpDirection = true;
             }else {
@@ -35,7 +35,7 @@ function keydown(e) {
                 p.xAccel = -0.07;
             }
             break;
-        case keyboardKeys['W']:
+        case keyboardKeys['Up Arrow']:
             p.isJumping = true;
             p.velocity.y -= 3;
             if (p.velocity.y < -3) {

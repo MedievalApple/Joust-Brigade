@@ -41,10 +41,9 @@ function draw() {
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-
-    mapBlockCollision.forEach(mObject => {
-        mObject.show()
-    });
+    for (var i = 0; i < mapBlockCollision.length; i++) {
+        mapBlockCollision[i].show()
+    }
 
     //Joust Map Example
     ctx.drawImage(mapRef, 0, 0, canvas.width,canvas.height)
@@ -52,7 +51,7 @@ function draw() {
     p.update()
     p.show()
 
-    for (let i = AIs.length - 1; i >= 0; i--) {
+    for (var i = AIs.length - 1; i >= 0; i--) {
         AIs[i].show();
         AIs[i].update();
         if(isColliding(p, AIs[i])) {
@@ -103,21 +102,26 @@ function draw() {
                 break;
         }
     }
-    for (let i = 0; i < AIs.length; i++) {
-        mapBlockCollision.forEach(mObject => {
-            handleCollision(AIs[i], mObject)
-        });
+    for (var i = 0; i < AIs.length; i++) {
+        for (var o = 0; o < mapBlockCollision.length; o++) {
+            handleCollision(AIs[i], mapBlockCollision[o])
+        }
     }
-    mapBlockCollision.forEach(mObject => {
-        handleCollision(p, mObject)
-    });
+    for (var o = 0; o < mapBlockCollision.length; o++) {
+        handleCollision(p, mapBlockCollision[o])
+    }
+    
 
     frameCount++;
-    requestAnimationFrame(draw);
+    if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)){
+        requestAnimationFrame(draw);
+    }else{
+        webkitRequestAnimationFrame(draw);
+    }
 }
 
 player.onload = function () {
-    for (let i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
         AIs[i] = new Enemy(Math.random() * canvas.width, 20, 13*2, 19*2, "green");
         switch (Math.floor(Math.random() * 2)) {
             case 0:
@@ -142,13 +146,16 @@ player.onload = function () {
         }
     }
 
-    requestAnimationFrame(draw);
+    if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)){
+        requestAnimationFrame(draw);
+    }else{
+        webkitRequestAnimationFrame(draw);
+    }
 };
 
-class Entity {
-    constructor(x, y) {
+
+    function Entity(x, y) {
         this.x = x;
         this.y = y;
         this.sprite;
     }
-}

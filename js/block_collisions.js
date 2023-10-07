@@ -1,5 +1,5 @@
-class BlockCollision {
-    constructor(x, y, w, h, c, sprite) {
+
+    function BlockCollision(x, y, w, h, c, sprite) {
         this.position = new Vector(x, y);
         this.velocity = new Vector(0, 0);
         this.width = w;
@@ -10,7 +10,7 @@ class BlockCollision {
         mapBlockCollision.push(this);
     }
 
-    show () {
+    BlockCollision.prototype.show = function() {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
 
@@ -18,4 +18,3 @@ class BlockCollision {
             this.sprite.show(5, this.position.x, this.position.y);
         }
     }
-}

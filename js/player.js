@@ -1,5 +1,5 @@
-class Player {
-    constructor(x, y, width, height, color) {
+
+    function Player(x, y, width, height, color) {
         this.currentAnimation = null;
         this.animations = {
             running: new Sprite("/assets/sprite_sheet/ostrich/walk_ostrich/walk", 4, null, 2),
@@ -23,7 +23,7 @@ class Player {
         this.isJumping = false;
     }
 
-    show() {
+    Player.prototype.show = function() {
         ctx.fillStyle = this.color;
 
         if (this.isJumping) {
@@ -58,7 +58,7 @@ class Player {
     }
 
     // Torroidal collision detection
-    handleCollisions() {
+    Player.prototype.handleCollisions = function() {
         if (!(this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w)) this.blockInfo = { x: -100, y: -100, w: -100 };
         if (this.position.y + this.height > canvas.height || (this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w && this.position.y + this.height > this.blockInfo.y)) {
             if ((this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w)) {
@@ -83,7 +83,8 @@ class Player {
         }
     }
 
-    update() {
+    Player.prototype.update = function() {
+        if (!Math.sign) Math.sign = function(x) { return ((x > 0) - (x < 0)) || +x; };
         this.velocity.y += this.gravity;
         this.velocity.x += this.xAccel;
         if (Math.abs(this.velocity.x) > this.MAX_SPEED) {
@@ -101,16 +102,25 @@ class Player {
 
         this.handleCollisions();
     }
-}
 
-class Enemy extends Player {
-    constructor(x, y, width, height, color) {
-        super(x, y, width, height, color);
-
-        this.animations = {
-            running: new Sprite("/assets/sprite_sheet/bounder/walk_bounder/walk", 4, null, 2),
-            flap: new Sprite("/assets/sprite_sheet/bounder/flap_bounder/flap", 2, null, 2),
-            // idle: new Sprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
-        }
+var __extends = function(enemy, player){
+    function fn(){
+        this.constructor = enemy
     }
+    fn.prototype = player.prototype
+    enemy.prototype = new fn()
 }
+
+
+    var Enemy = (function(Player){
+        __extends(Enemy, Player)
+        function Enemy(x, y, width, height, color){
+            Player.call(this)
+            this.animations = {
+                running: new Sprite("/assets/sprite_sheet/bounder/walk_bounder/walk", 4, null, 2),
+                flap: new Sprite("/assets/sprite_sheet/bounder/flap_bounder/flap", 2, null, 2),
+                // idle: new Sprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
+            }
+        }
+        return Enemy;
+    })(Player)
