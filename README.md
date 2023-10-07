@@ -4,9 +4,9 @@
 
 **Tested On:**
 
- **The Wii U Internet Broswer (Webkit Version 536.30)**
+ The Wii U Internet Broswer (Webkit Version 536.30)
  
- **Internet Explorer 11 (On Windows 10)**
+ Internet Explorer 11 (On Windows 10)
 
 
 **A massive multiplayer drop-in game inspired by Joust**
