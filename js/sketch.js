@@ -1,3 +1,13 @@
+const server = localStorage.getItem("server");
+
+if (!server) {
+    window.location.replace("index.html");
+}
+
+const frameRate = 60;
+const frameDelay = 1000 / frameRate;
+let lastFrameTime = 0;
+
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
@@ -15,7 +25,7 @@ var hand;
 var handPos;
 mapRef.src = "/assets/sprite_sheet/map/map.png"
 // On focus on canvas, hide cursor
-canvas.addEventListener("click", function () {
+canvas.addEventListener("click", function (e) {
     //canvas.requestPointerLock();
     //Fullscreen Mode
     //canvas.requestFullscreen();
@@ -30,7 +40,8 @@ document.addEventListener("keydown", function (e) {
     }
 });
 
-const socket = new WebSocket("ws://10.223.16.17:8765");
+// 10.223.16.17
+const socket = new WebSocket(`ws://${server}`);
 
 socket.onopen = (event) => {
     // Connection opened, you can send data now
@@ -56,14 +67,14 @@ socket.onmessage = (event) => {
 
     // Skip if the message is from the current user
     if (data.user != p.name) {
-        // console.log(data)
+        console.log(data)
         if (data.action == "join") {
-            otherClients.push(new Player(50, 310, 13 * 2, 18 * 2, "red", data.user));
+            otherClients.push(new Player(50, 310, 13 * 2, 18 * 2, `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`, data.user));
         } else if (data.action == "update") {
             for (let client of otherClients) {
                 if (client.name == data.user) {
-                    client.position.x = data.x;
-                    client.position.y = data.y;
+                    client.position.x = data.position.x;
+                    client.position.y = data.position.y;
                     
                     client.velocity.x = data.velocity.x;
                     client.velocity.y = data.velocity.y;
@@ -73,7 +84,17 @@ socket.onmessage = (event) => {
     }
 };
 
-async function draw() {
+let lastSent;
+
+function draw() {
+    let currentTime = performance.now();
+
+    // Calculate the time elapsed since the last frame
+    const elapsed = currentTime - lastFrameTime;
+
+    // Only draw if enough time has passed
+    if (elapsed < frameDelay) return requestAnimationFrame(draw);
+
     const message = {
         action: "update",
         user: p.name,
@@ -89,7 +110,16 @@ async function draw() {
         },
     };
 
-    socket.send(JSON.stringify(message));
+    // Only send if the message has changed
+    if (JSON.stringify(message) !== JSON.stringify(lastSent)) {
+        socket.send(JSON.stringify(message));
+        lastSent = message;
+    }
+
+    if (!lastSent) {
+        lastSent = message;
+    }
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     //Background
@@ -103,8 +133,11 @@ async function draw() {
 
     //Joust Map Example
     ctx.drawImage(mapRef, 0, 0, canvas.width, canvas.height)
-    fire.show(2, 28, 388 - fire.images[0].height * fire.scalar)
-    fire.show(2, canvas.width - 28, 388 - fire.images[0].height * fire.scalar)
+
+    if (fire) {
+        fire.show(2, 28, 388 - fire.images[0].height * fire.scalar)
+        fire.show(2, canvas.width - 28, 388 - fire.images[0].height * fire.scalar)
+    }
     p.show()
     p.update();
 
