@@ -19,8 +19,6 @@ class Sprite {
 
                 image.src = `${spriteSheet}${i}.png`
                 this.images[i - 1] = image;
-
-                console.log(`${spriteSheet}${i}.png`)
             }
         // }
     }
@@ -52,6 +50,9 @@ class Sprite {
 
         // Continue looping (animation)
         if (loop) {
+            if (this.currentImage >= this.maxImage) {
+                this.currentImage = 0;
+            }
             let image = this.images[Math.floor(this.currentImage)];
             if (size) {
                 ctx.drawImage(image, x + size.x - image.width * this.scalar, y + size.y - image.height * this.scalar, image.width * this.scalar, image.height * this.scalar);
@@ -59,9 +60,7 @@ class Sprite {
                 ctx.drawImage(image, x, y, image.width * this.scalar, image.height * this.scalar);
             }
             this.currentImage += (this.frameRate || frameRate) / (30);
-            if (this.currentImage >= this.maxImage) {
-                this.currentImage = 0;
-            }
+
         }
 
         // Show nth frame of animation

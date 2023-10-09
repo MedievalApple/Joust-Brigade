@@ -1,5 +1,5 @@
 class Player {
-    constructor(x, y, width, height, color) {
+    constructor(x, y, width, height, color, name) {
         this.currentAnimation = null;
         this.animations = {
             running: new Sprite("/assets/sprite_sheet/ostrich/walk_ostrich/walk", 4, null, 2),
@@ -9,6 +9,7 @@ class Player {
 
         }
 
+        this.name = name;
         this.velocity = new Vector(0, 0);
         this.position = new Vector(x, y);
         this.width = width;
@@ -25,6 +26,10 @@ class Player {
 
     show() {
         ctx.fillStyle = this.color;
+
+        // Draw name above player
+        ctx.font = "10px Arial";
+        ctx.fillText(this.name, this.position.x, this.position.y - 25);
 
         if (this.isJumping) {
             this.currentAnimation = this.animations.flap;
@@ -103,10 +108,13 @@ class Player {
     }
 }
 
-class Enemy extends Player {
-    constructor(x, y, width, height, color) {
-        super(x, y, width, height, color);
+var counter = 0;
 
+class Enemy extends Player {
+    constructor(x, y, width, height, color, name) {
+        super(x, y, width, height, color, name);
+
+        this.name = `AI${++counter}`
         this.animations = {
             running: new Sprite("/assets/sprite_sheet/bounder/walk_bounder/walk", 4, null, 2),
             flap: new Sprite("/assets/sprite_sheet/bounder/flap_bounder/flap", 2, null, 2),
