@@ -1,9 +1,5 @@
 const server = localStorage.getItem("server");
 
-if (!server) {
-    window.location.replace("index.html");
-}
-
 const frameRate = 60;
 const frameDelay = 1000 / frameRate;
 let lastFrameTime = 0;
@@ -40,49 +36,57 @@ document.addEventListener("keydown", function (e) {
     }
 });
 
+var socket;
+
 // 10.223.16.17
-const socket = new WebSocket(`ws://${server}`);
+if (server != null && server != undefined && server != "") {
+    console.log(server)
+    socket = new WebSocket(`ws://${server}`);
 
-socket.onopen = (event) => {
-    // Connection opened, you can send data now
-    socket.send(JSON.stringify({
-        action: "joined",
-        user: p.name
-    }))
+    socket.onopen = (event) => {
+        // Connection opened, you can send data now
+        socket.send(JSON.stringify({
+            action: "joined",
+            user: p.name
+        }))
+    
+        requestAnimationFrame(draw);
+    };
+    
+    socket.onclose = (event) => {
+        // Connection closed, handle this event if needed
+    };
 
-    requestAnimationFrame(draw);
-};
+    socket.onmessage = (event) => {
+        // Handle incoming messages from the server
+        const data = JSON.parse(event.data);
+    
+        // Skip if the message is from the current user
+        if (data.user != p.name) {
+            console.log(data)
+            if (data.action == "join") {
+                otherClients.push(new Player(50, 310, 13 * 2, 18 * 2, `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`, data.user));
+            } else if (data.action == "update") {
+                for (let client of otherClients) {
+                    if (client.name == data.user) {
+                        client.position.x = data.position.x;
+                        client.position.y = data.position.y;
+                        
+                        client.velocity.x = data.velocity.x;
+                        client.velocity.y = data.velocity.y;
+                    }
+                }
+            }
+        }
+    };
+    
+}
 
-socket.onclose = (event) => {
-    // Connection closed, handle this event if needed
-};
 // Blocks for top and bottom of screen
 // var topScreen = new Block(0, 0, canvas.width, 1);
 // var bottomScreen = new Block(0, canvas.height - 1, canvas.width, 1);
 
 var frameCount = 0;
-socket.onmessage = (event) => {
-    // Handle incoming messages from the server
-    const data = JSON.parse(event.data);
-
-    // Skip if the message is from the current user
-    if (data.user != p.name) {
-        console.log(data)
-        if (data.action == "join") {
-            otherClients.push(new Player(50, 310, 13 * 2, 18 * 2, `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`, data.user));
-        } else if (data.action == "update") {
-            for (let client of otherClients) {
-                if (client.name == data.user) {
-                    client.position.x = data.position.x;
-                    client.position.y = data.position.y;
-                    
-                    client.velocity.x = data.velocity.x;
-                    client.velocity.y = data.velocity.y;
-                }
-            }
-        }
-    }
-};
 
 let lastSent;
 
@@ -111,9 +115,11 @@ function draw() {
     };
 
     // Only send if the message has changed
-    if (JSON.stringify(message) !== JSON.stringify(lastSent)) {
-        socket.send(JSON.stringify(message));
-        lastSent = message;
+    if (socket) {
+        if (JSON.stringify(message) !== JSON.stringify(lastSent)) {
+            socket.send(JSON.stringify(message));
+            lastSent = message;
+        }
     }
 
     if (!lastSent) {
@@ -248,3 +254,7 @@ player.onload = function () {
         }
     }
 };
+
+if (!socket) {
+    requestAnimationFrame(draw);
+}
