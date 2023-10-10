@@ -27,9 +27,9 @@ class Player {
     show() {
         ctx.fillStyle = this.color;
 
-        // Draw name above player
+        // Draw name above player, centered
         ctx.font = "10px Arial";
-        ctx.fillText(this.name, this.position.x, this.position.y - 25);
+        ctx.fillText(this.name, this.position.x + this.width / 2 - ctx.measureText(this.name).width / 2, this.position.y - 20);
 
         if (this.isJumping) {
             this.currentAnimation = this.animations.flap;

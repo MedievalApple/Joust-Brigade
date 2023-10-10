@@ -46,7 +46,7 @@ if (server != null && server != undefined && server != "") {
     socket.onopen = (event) => {
         // Connection opened, you can send data now
         socket.send(JSON.stringify({
-            action: "joined",
+            action: "join",
             user: p.name
         }))
     
@@ -54,6 +54,10 @@ if (server != null && server != undefined && server != "") {
     };
     
     socket.onclose = (event) => {
+        // socket.send(JSON.stringify({
+        //     action: "remove",
+        //     user: p.name
+        // }))
         // Connection closed, handle this event if needed
     };
 
@@ -63,8 +67,9 @@ if (server != null && server != undefined && server != "") {
     
         // Skip if the message is from the current user
         if (data.user != p.name) {
-            console.log(data)
-            if (data.action == "join") {
+            // console.log(data)
+            if (data.action == "join") { 
+                console.log(`Recieved new player ${data.user}`)   
                 otherClients.push(new Player(50, 310, 13 * 2, 18 * 2, `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`, data.user));
             } else if (data.action == "update") {
                 for (let client of otherClients) {
@@ -75,6 +80,20 @@ if (server != null && server != undefined && server != "") {
                         client.velocity.x = data.velocity.x;
                         client.velocity.y = data.velocity.y;
                     }
+                }
+            }else if (data.action == "remove") {
+                console.log(data)
+                let index = -1;
+
+                for (let i=0; i<otherClients.length; i++) {
+                    if (otherClients[i].name == data.user) {
+                        index = i;
+                    }
+                } 
+
+                console.log(index)
+                if(index !== -1) {
+                    otherClients.splice(index, 1)
                 }
             }
         }
@@ -150,6 +169,11 @@ function draw() {
     for (let client of otherClients) {
         client.show();
         client.update();
+
+        // mapBlockCollision.forEach(mObject => {
+        //     handleCollision(client, mObject)
+        // });
+    
     }
 
     // if (hand.currentImage < 4.8) {
@@ -221,6 +245,8 @@ function draw() {
     mapBlockCollision.forEach(mObject => {
         handleCollision(p, mObject)
     });
+
+
 
     frameCount++;
     requestAnimationFrame(draw);
