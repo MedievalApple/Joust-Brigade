@@ -18,7 +18,7 @@ class Player {
         this.friction = 0.4;
         this.xAccel = 0;
         this.blockInfo = { x: -100, y: -100, w: -100 };
-        this.MAX_SPEED = 5;
+        this.maxSpeed = new Vector(4, 5)
         this.color = color;
         this.jumpDirection = false;
         this.isJumping = false;
@@ -91,12 +91,10 @@ class Player {
     update() {
         this.velocity.y += this.gravity;
         this.velocity.x += this.xAccel;
-        if (Math.abs(this.velocity.x) > this.MAX_SPEED) {
-            this.velocity.x = this.MAX_SPEED * Math.sign(this.velocity.x)
+        if (Math.abs(this.velocity.x) > this.maxSpeed.x) {
+            this.velocity.x = this.maxSpeed.x * Math.sign(this.velocity.x)
         } else if (Math.sign(this.velocity.x) == Math.sign(this.xAccel) && Math.abs(this.velocity.x) < 0.5) {
             // draw sprite in direction player was going
-            this.show();
-
             this.velocity.x = 0;
             this.xAccel = 0;
         }

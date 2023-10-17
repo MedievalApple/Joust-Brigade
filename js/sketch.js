@@ -1,64 +1,112 @@
-const server = localStorage.getItem("server");
-
-const frameRate = 60;
-const frameDelay = 1000 / frameRate;
+// Constants for readability
+const FRAME_RATE = 60;
 let lastFrameTime = 0;
+let lastUpdateTime = 0;
 
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
+const SERVER_ADDRESS = localStorage.getItem("server");
+const PLAYER_WIDTH = 13 * 2;
+const PLAYER_HEIGHT = 18 * 2;
+const PLAYER_COLOR = "red";
+const LOCAL_USERNAME = localStorage.getItem("username");
+
+// Canvas and context initialization
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
-var player = new Image();
+
+// Player image loading
+const player = new Image();
 player.src = "/assets/sprite_sheet.png";
-var x = 0;
-var p = new Player(50, 310, 13 * 2, 18 * 2, "red", localStorage.getItem("username"));
-var otherClients = [];
-var AIs = [];
-var mapBlockCollision = [];
-var backgroundColor = "black"
-var mapRef = new Image()
-var fire;
-var hand;
-var handPos;
-mapRef.src = "/assets/sprite_sheet/map/map.png"
-// On focus on canvas, hide cursor
-canvas.addEventListener("click", function (e) {
-    //canvas.requestPointerLock();
-    //Fullscreen Mode
-    //canvas.requestFullscreen();
-});
 
-// On escape, show cursor
-document.addEventListener("keydown", function (e) {
-    if (e.code == 27) {
-        document.exitPointerLock();
-        //Exit Fullscreen Mode
-        //document.exitFullscreen();
+// Arrays for other clients, AIs, and map blocks
+const otherClients = [];
+const AIs = [];
+const mapBlockCollision = [];
+
+// Background color
+const backgroundColor = "black";
+
+// Map reference image loading
+const mapRef = new Image();
+mapRef.src = "/assets/sprite_sheet/map/map.png";
+
+// Variables for fire and hand
+let fire;
+let hand;
+
+// Hand position
+let handPos;
+
+// WebSocket connection
+let socket;
+
+// Frame count and lastSent data
+let frameCount = 0;
+let lastSent;
+
+// Player creation
+const p = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
+
+// Load player image before starting the game
+player.onload = function () {
+    hand = new Sprite("/assets/sprite_sheet/lava_troll/troll", 5, null, 2);
+    fire = new Sprite("/assets/sprite_sheet/lava_troll/fire", 4, null, 2);
+    for (let i = 0; i < 5; i++) {
+        AIs[i] = new Enemy(Math.random() * canvas.width, 20, PLAYER_WIDTH, PLAYER_HEIGHT, "green");
+        switch (Math.floor(Math.random() * 2)) {
+            case 0:
+                if (Math.abs(AIs[i].velocity.x) == 0) {
+                    AIs[i].velocity.x = 1;
+                    AIs[i].xAccel = 0.05;
+                } else {
+                    AIs[i].xAccel = 0.07;
+                }
+                break;
+            case 1:
+                this.jumpDirection = true;
+                if (Math.abs(AIs[i].velocity.x) == 0) {
+                    AIs[i].velocity.x = -1;
+                    AIs[i].xAccel = -0.05;
+                } else {
+                    AIs[i].xAccel = -0.07;
+                }
+                break;
+            default:
+                break;
+        }
     }
-});
+};
 
-var socket;
-
-// 10.223.16.17
-if (server != null && server != undefined && server != "") {
-    console.log(server)
-    socket = new WebSocket(`ws://${server}`);
-
-    socket.onopen = (event) => {
-        // Connection opened, you can send data now
+// Function to perform the authentication handshake
+async function performAuthentication() {
+    // Check if the user is authenticated, and if not, prompt for authentication credentials
+    if (!localStorage.getItem("authToken")) {
+        // Send a registration request to the server to obtain an authentication token
         socket.send(JSON.stringify({
-            action: "join",
-            user: p.name
-        }))
-    
+            action: "register",
+            LOCAL_USERNAME
+        }));
+    }
+}
+
+let interval;
+
+// WebSocket initialization
+if (SERVER_ADDRESS) {
+    socket = new WebSocket(`ws://${SERVER_ADDRESS}`);
+    socket.onopen = (event) => {
+        // Connection opened, send data
+        // socket.send(JSON.stringify({
+        //     action: "join",
+        //     user: p.name
+        // }));
+        performAuthentication();
         requestAnimationFrame(draw);
+        update();
     };
     
     socket.onclose = (event) => {
-        // socket.send(JSON.stringify({
-        //     action: "remove",
-        //     user: p.name
-        // }))
-        // Connection closed, handle this event if needed
+        // Connection closed
     };
 
     socket.onmessage = (event) => {
@@ -67,11 +115,11 @@ if (server != null && server != undefined && server != "") {
     
         // Skip if the message is from the current user
         if (data.user != p.name) {
-            // console.log(data)
             if (data.action == "join") { 
-                console.log(`Recieved new player ${data.user}`)   
-                otherClients.push(new Player(50, 310, 13 * 2, 18 * 2, `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`, data.user));
+                // Handle new player joining
+                otherClients.push(new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`, data.user));
             } else if (data.action == "update") {
+                // Handle player updates
                 for (let client of otherClients) {
                     if (client.name == data.user) {
                         client.position.x = data.position.x;
@@ -81,43 +129,70 @@ if (server != null && server != undefined && server != "") {
                         client.velocity.y = data.velocity.y;
                     }
                 }
-            }else if (data.action == "remove") {
-                console.log(data)
+            } else if (data.action == "remove") {
+                // Handle player removal
                 let index = -1;
-
-                for (let i=0; i<otherClients.length; i++) {
+                for (let i = 0; i < otherClients.length; i++) {
                     if (otherClients[i].name == data.user) {
                         index = i;
                     }
                 } 
-
-                console.log(index)
-                if(index !== -1) {
-                    otherClients.splice(index, 1)
+                if (index !== -1) {
+                    otherClients.splice(index, 1);
                 }
+            } else if (data.action === "register_response") {
+                // Handle the registration response, store the authentication token, and perform subsequent actions
+                const authToken = data.token; // Receive the authentication token from the server
+                localStorage.setItem("authToken", authToken);
             }
         }
     };
-    
 }
 
-// Blocks for top and bottom of screen
-// var topScreen = new Block(0, 0, canvas.width, 1);
-// var bottomScreen = new Block(0, canvas.height - 1, canvas.width, 1);
+// Game loop
+function draw() {    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-var frameCount = 0;
+    // Background
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-let lastSent;
+    mapBlockCollision.forEach(mObject => {
+        mObject.show();
+    });
 
-function draw() {
-    let currentTime = performance.now();
+    // Joust Map Example
+    ctx.drawImage(mapRef, 0, 0, canvas.width, canvas.height);
 
-    // Calculate the time elapsed since the last frame
-    const elapsed = currentTime - lastFrameTime;
+    if (fire) {
+        fire.show(2, 28, 388 - fire.images[0].height * fire.scalar);
+        fire.show(2, canvas.width - 28, 388 - fire.images[0].height * fire.scalar);
+    }
 
-    // Only draw if enough time has passed
-    if (elapsed < frameDelay) return requestAnimationFrame(draw);
+    p.show();
 
+    for (let client of otherClients) {
+        client.show();
+    }
+
+    for (let i = AIs.length - 1; i >= 0; i--) {
+        AIs[i].show();
+    }
+
+    // Draw fps
+    ctx.font = "10px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText(`FPS: ${Math.round(1000 / (performance.now() - lastFrameTime))}`, 10, 20);
+
+    // Draw ping
+    ctx.fillText(`Ping: ${Math.round(performance.now() - lastUpdateTime)}ms`, 10, 40); 
+
+    lastFrameTime = performance.now();
+    frameCount++;
+    requestAnimationFrame(draw);
+};
+
+function update() {
     const message = {
         action: "update",
         user: p.name,
@@ -136,7 +211,7 @@ function draw() {
     // Only send if the message has changed
     if (socket) {
         if (JSON.stringify(message) !== JSON.stringify(lastSent)) {
-            socket.send(JSON.stringify(message));
+            // socket.send(JSON.stringify(message));
             lastSent = message;
         }
     }
@@ -144,57 +219,21 @@ function draw() {
     if (!lastSent) {
         lastSent = message;
     }
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    //Background
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-
-    mapBlockCollision.forEach(mObject => {
-        mObject.show()
-    });
-
-    //Joust Map Example
-    ctx.drawImage(mapRef, 0, 0, canvas.width, canvas.height)
-
-    if (fire) {
-        fire.show(2, 28, 388 - fire.images[0].height * fire.scalar)
-        fire.show(2, canvas.width - 28, 388 - fire.images[0].height * fire.scalar)
-    }
-    p.show()
     p.update();
 
     for (let client of otherClients) {
-        client.show();
         client.update();
-
-        // mapBlockCollision.forEach(mObject => {
-        //     handleCollision(client, mObject)
-        // });
-    
     }
 
-    // if (hand.currentImage < 4.8) {
-    //     handPos = Vector.lerp(new Vector(28, 388), p.position.clone().add(p.height), hand.currentImage / hand.images.length);
-    //     hand.show(1, handPos.x - 30, handPos.y-10)
-    //     p.update()
-    // } else {
-    //     setTimeout(() => hand.currentImage = 0, 1000);
-    //     handPos = Vector.lerp(new Vector(28, 388), p.position.clone().add(p.height), 1);
-    //     hand.show(0, handPos.x - 30, handPos.y-10)
-    // }
-
     for (let i = AIs.length - 1; i >= 0; i--) {
-        AIs[i].show();
         AIs[i].update();
         if (isColliding(p, AIs[i])) {
             if (p.position.y + p.height - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].height - (AIs[i].currentAnimation.images[0].height * AIs[i].currentAnimation.scalar)) {
                 AIs.splice(i, 1);
                 continue;
             } else {
-                console.log("You Died")
+                console.log("You Died");
             }
         }
         if (Math.random() < 0.1) {
@@ -237,50 +276,22 @@ function draw() {
                 break;
         }
     }
+
     for (let i = 0; i < AIs.length; i++) {
         mapBlockCollision.forEach(mObject => {
-            handleCollision(AIs[i], mObject)
+            handleCollision(AIs[i], mObject);
         });
     }
+
     mapBlockCollision.forEach(mObject => {
-        handleCollision(p, mObject)
+        handleCollision(p, mObject);
     });
 
-
-
-    frameCount++;
-    requestAnimationFrame(draw);
+    lastUpdateTime = performance.now();
+    setTimeout(update, 1000 / FRAME_RATE);
 }
-
-player.onload = function () {
-    hand = new Sprite("/assets/sprite_sheet/lava_troll/troll", 5, null, 2);
-    fire = new Sprite("/assets/sprite_sheet/lava_troll/fire", 4, null, 2);
-    for (let i = 0; i < 5; i++) {
-        AIs[i] = new Enemy(Math.random() * canvas.width, 20, 13 * 2, 19 * 2, "green");
-        switch (Math.floor(Math.random() * 2)) {
-            case 0:
-                if (Math.abs(AIs[i].velocity.x) == 0) {
-                    AIs[i].velocity.x = 1;
-                    AIs[i].xAccel = 0.05;
-                } else {
-                    AIs[i].xAccel = 0.07;
-                }
-                break;
-            case 1:
-                this.jumpDirection = true;
-                if (Math.abs(AIs[i].velocity.x) == 0) {
-                    AIs[i].velocity.x = -1;
-                    AIs[i].xAccel = -0.05;
-                } else {
-                    AIs[i].xAccel = -0.07;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-};
 
 if (!socket) {
     requestAnimationFrame(draw);
+    update();
 }

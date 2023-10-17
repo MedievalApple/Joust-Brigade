@@ -2,7 +2,7 @@ function startGame() {
     const username = document.getElementById("nameInput").value;
     const server = document.getElementById("serverInput").value;
     
-    if (!server == " ") {
+    if (server !== " ") {
         localStorage.setItem("server", server);
     }
 
