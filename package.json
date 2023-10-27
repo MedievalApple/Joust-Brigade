@@ -1,0 +1,15 @@
+{
+  "name": "joust-brigade",
+  "version": "1.0.0",
+  "description": "A massive multiplayer drop-in game inspired by Joust",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Medieval Apple",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}
