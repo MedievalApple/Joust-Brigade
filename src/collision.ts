@@ -1,4 +1,4 @@
-function isColliding(object1, object2) {
+export function isColliding(object1, object2) {
     return (
         object1.position.x < object2.position.x + object2.width &&
         object1.position.x + object1.width > object2.position.x &&
@@ -7,7 +7,7 @@ function isColliding(object1, object2) {
     );
 }
 
-function handleCollision(object1, object2) {
+export function handleCollision(object1, object2) {
     if (isColliding(object1, object2)) {
         // Calculate the overlap on each axis
         const overlapX = Math.min(

@@ -1,5 +1,15 @@
-class BlockCollision {
-    constructor(x, y, w, h, c, sprite) {
+import { Vector } from "./vector";
+import { ctx, mapBlockCollision } from "./joust";
+
+export class BlockCollision {
+    position: any;
+    velocity: any;
+    width: any;
+    height: any;
+    color: any;
+    sprite: any;
+
+    constructor(x: number, y: number, w: number, h: number, c: any, sprite?: any) {
         this.position = new Vector(x, y);
         this.velocity = new Vector(0, 0);
         this.width = w;

@@ -1,5 +1,25 @@
-class Player {
-    constructor(x, y, width, height, color, name) {
+import { Sprite } from "./sprite";
+import { Vector } from "./vector";
+import { ctx, canvas } from "./joust";
+
+export class Player {
+    currentAnimation: Sprite | null;
+    animations: { [key: string]: Sprite};
+    name: string;
+    velocity: Vector;
+    position: Vector;
+    width: number;
+    height: number;
+    gravity: number;
+    friction: number;
+    xAccel: number;
+    blockInfo: { x: number; y: number; w: number; };
+    maxSpeed: Vector;
+    color: string;
+    jumpDirection: boolean;
+    isJumping: boolean;
+
+    constructor(x: number, y: number, width: number, height: number, color: string, name: string) {
         this.currentAnimation = null;
         this.animations = {
             running: new Sprite("/assets/sprite_sheet/ostrich/walk_ostrich/walk", 4, null, 2),
@@ -108,8 +128,8 @@ class Player {
 
 var counter = 0;
 
-class Enemy extends Player {
-    constructor(x, y, width, height, color, name) {
+export class Enemy extends Player {
+    constructor(x: number, y: number, width: number, height: number, color: string, name?: string) {
         super(x, y, width, height, color, name);
 
         this.name = `AI${++counter}`

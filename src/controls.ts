@@ -1,4 +1,9 @@
-function addEvent(element, eventName, callback) {
+import { keyboardKeys } from "./keyboard";
+import { p } from "./joust";
+
+console.log("controls.ts loaded");
+
+function addEvent(element: any, eventName: any, callback: (e: any) => void) {
     if (element.addEventListener) {
         element.addEventListener(eventName, callback, false);
     } else if (element.attachEvent) {
@@ -12,7 +17,8 @@ addEvent(window, "keyup", keyup);
 function keydown(e) {
     switch (e.keyCode) {
         case keyboardKeys['D']:
-            if (p.currentAnimation==p.animations.flap) {
+            console.log("d pressed")
+            if (p.currentAnimation == p.animations.flap) {
                 p.jumpDirection = false;
             }
             if (Math.abs(p.velocity.x) == 0) {
@@ -23,9 +29,10 @@ function keydown(e) {
             }
             break;
         case keyboardKeys['A']:
-            if (p.currentAnimation==p.animations.flap) {
+            console.log("a pressed")
+            if (p.currentAnimation == p.animations.flap) {
                 p.jumpDirection = true;
-            }else {
+            } else {
                 p.jumpDirection = false;
             }
             if (Math.abs(p.velocity.x) == 0) {
@@ -36,6 +43,7 @@ function keydown(e) {
             }
             break;
         case keyboardKeys['W']:
+            console.log("w pressed")
             p.currentAnimation.currentImage++;
             p.isJumping = true;
             p.velocity.y -= 3;

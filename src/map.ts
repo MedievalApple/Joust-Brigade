@@ -1,4 +1,8 @@
-//PlatForms
+import { BlockCollision } from "./block_collisions";
+import { canvas, ctx } from "./joust";
+import { Vector } from "./vector";
+
+// Platforms
 new BlockCollision(0, 72, 49, 15, "null", /*new Sprite("/assets/sprite_sheet.png")*/); //1
 new BlockCollision(132, 99, 143, 22, "null"); //2
 new BlockCollision(403, 73, 77, 22, "null"); //3
@@ -10,7 +14,13 @@ new BlockCollision(409, 225, 71, 15, "null"); //7
 new BlockCollision(-5, 388, canvas.width + 5, 100, "red"); //Test
 
 class MapObject {
-    constructor(x, y, sprite) {
+    position: Vector;
+    sprite: any;
+    color: string | CanvasGradient | CanvasPattern;
+    width: number;
+    height: number;
+
+    constructor(x: number, y: number, sprite?: any) {
         this.position = new Vector(x, y);
         this.sprite = sprite;
     }

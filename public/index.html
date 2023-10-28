@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico"> <!-- favicon (Github Format)-->
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/logo.png"> <!-- favicon (Github Format)-->
     <meta name="description" content="A massive multiplayer drop-in game inspired by Joust"> <!-- Search engine description-->
     <meta name="keywords" content="JavaScript, Joust, multiplayer, Arcade, Game"> <!-- Search engine Keywords -->
     <meta property="og:image" content="assets/embed.png"> <!-- Embed Image -->
@@ -21,7 +21,7 @@
             <input type="text" placeholder="username" maxlength="7" id="nameInput"><br><br>
             <p>Enter Server and Port</p>
             <input type="text" placeholder="10.0.0.1:8080" id="serverInput"><br><br>
-            <button onclick="startGame()">Next</button><br><br>
+            <button id="next-button">Next</button><br><br>
             <p>To Upload High Scores</p>
             <script src="https://accounts.google.com/gsi/client" async></script>
             <div id="g_id_onload"
@@ -39,6 +39,5 @@
             </div>
         </div>
     </div>
-    <script src="js/menu.js"></script>
 </body>
 </html>

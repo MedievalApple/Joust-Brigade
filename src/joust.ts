@@ -1,3 +1,9 @@
+// import '../css/joust.css';
+import { Player, Enemy } from './player';
+import { Sprite } from './sprite';
+import { isColliding, handleCollision } from './collision';
+import { WebSocket } from 'ws';
+
 // Constants for readability
 const FRAME_RATE = 60;
 let lastFrameTime = 0;
@@ -10,7 +16,7 @@ const PLAYER_COLOR = "red";
 const LOCAL_USERNAME = localStorage.getItem("username");
 
 // Canvas and context initialization
-const canvas = document.getElementById("canvas");
+const canvas = <HTMLCanvasElement>document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
@@ -63,7 +69,7 @@ player.onload = function () {
                 }
                 break;
             case 1:
-                this.jumpDirection = true;
+                AIs[i].jumpDirection = true;
                 if (Math.abs(AIs[i].velocity.x) == 0) {
                     AIs[i].velocity.x = -1;
                     AIs[i].xAccel = -0.05;
@@ -104,7 +110,7 @@ if (SERVER_ADDRESS) {
         requestAnimationFrame(draw);
         update();
     };
-    
+
     socket.onclose = (event) => {
         // Connection closed
     };
@@ -112,10 +118,10 @@ if (SERVER_ADDRESS) {
     socket.onmessage = (event) => {
         // Handle incoming messages from the server
         const data = JSON.parse(event.data);
-    
+
         // Skip if the message is from the current user
         if (data.user != p.name) {
-            if (data.action == "join") { 
+            if (data.action == "join") {
                 // Handle new player joining
                 otherClients.push(new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`, data.user));
             } else if (data.action == "update") {
@@ -124,7 +130,7 @@ if (SERVER_ADDRESS) {
                     if (client.name == data.user) {
                         client.position.x = data.position.x;
                         client.position.y = data.position.y;
-                        
+
                         client.velocity.x = data.velocity.x;
                         client.velocity.y = data.velocity.y;
                     }
@@ -136,7 +142,7 @@ if (SERVER_ADDRESS) {
                     if (otherClients[i].name == data.user) {
                         index = i;
                     }
-                } 
+                }
                 if (index !== -1) {
                     otherClients.splice(index, 1);
                 }
@@ -150,7 +156,7 @@ if (SERVER_ADDRESS) {
 }
 
 // Game loop
-function draw() {    
+function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Background
@@ -185,7 +191,7 @@ function draw() {
     ctx.fillText(`FPS: ${Math.round(1000 / (performance.now() - lastFrameTime))}`, 10, 20);
 
     // Draw ping
-    ctx.fillText(`Ping: ${Math.round(performance.now() - lastUpdateTime)}ms`, 10, 40); 
+    ctx.fillText(`Ping: ${Math.round(performance.now() - lastUpdateTime)}ms`, 10, 40);
 
     lastFrameTime = performance.now();
     frameCount++;
@@ -295,3 +301,5 @@ if (!socket) {
     requestAnimationFrame(draw);
     update();
 }
+
+export { ctx, mapBlockCollision, canvas, p };
