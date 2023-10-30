@@ -23,7 +23,7 @@ jobs:
       env:
         cache-name: Webpack-Build
       with:
-        path: ~build
+        path: build
         key: WebPackBuildCache
 
     - name: Use Node.js ${{ matrix.node-version }}
