@@ -35,4 +35,4 @@ jobs:
       run: |
         npm install
         npx webpack
-        echo ${{ matrix.paths }}
+        ls
