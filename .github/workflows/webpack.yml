@@ -1,4 +1,4 @@
-name: NodeJS with Webpack
+name: Webpack and Pages Deploy
 
 on:
   push:
@@ -12,10 +12,19 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [18.x]
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Cache Webpack Build
+      id: cache-npm
+      uses: actions/cache@v3
+      env:
+        cache-name: Webpack-Build
+      with:
+        path: ~/.build
+        key: WebPackBuildCache
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
