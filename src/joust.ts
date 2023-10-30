@@ -3,6 +3,7 @@ import { Player, Enemy } from './player';
 import { Sprite } from './sprite';
 import { isColliding, handleCollision } from './collision';
 import { WebSocket } from 'ws';
+import { InputHandler } from './controls';
 
 // Constants for readability
 const FRAME_RATE = 60;
@@ -52,6 +53,19 @@ let lastSent;
 
 // Player creation
 const p = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
+
+// REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
+new InputHandler({
+    "a": {
+        keydown: p.handleLeft.bind(p)
+    },
+    "d": {
+        keydown: p.handleRight.bind(p)
+    },
+    "w": {
+        keydown: p.handleJump.bind(p)
+    },
+})
 
 // Load player image before starting the game
 player.onload = function () {

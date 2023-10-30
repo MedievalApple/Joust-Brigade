@@ -1,6 +1,3 @@
-import { keyboardKeys } from "./keyboard";
-import { p } from "./joust";
-
 console.log("controls.ts loaded");
 
 function addEvent(element: any, eventName: any, callback: (e: any) => void) {
@@ -11,69 +8,37 @@ function addEvent(element: any, eventName: any, callback: (e: any) => void) {
     }
 }
 
-addEvent(window, "keydown", keydown);
-addEvent(window, "keyup", keyup);
+const inputHandlers: InputHandler[] = [];
 
-function keydown(e) {
-    switch (e.keyCode) {
-        case keyboardKeys['D']:
-            console.log("d pressed")
-            if (p.currentAnimation == p.animations.flap) {
-                p.jumpDirection = false;
-            }
-            if (Math.abs(p.velocity.x) == 0) {
-                p.velocity.x = 1;
-                p.xAccel = 0.05;
-            } else {
-                p.xAccel = 0.07;
-            }
-            break;
-        case keyboardKeys['A']:
-            console.log("a pressed")
-            if (p.currentAnimation == p.animations.flap) {
-                p.jumpDirection = true;
-            } else {
-                p.jumpDirection = false;
-            }
-            if (Math.abs(p.velocity.x) == 0) {
-                p.velocity.x = -1;
-                p.xAccel = -0.05;
-            } else {
-                p.xAccel = -0.07;
-            }
-            break;
-        case keyboardKeys['W']:
-            console.log("w pressed")
-            p.currentAnimation.currentImage++;
-            p.isJumping = true;
-            p.velocity.y -= 3;
-            if (p.velocity.y < -3) {
-                p.velocity.y = -3;
-            }
-            // if (Math.abs(p.velocity.x) > 0.2&&Math.sign(p.velocity.x)==Math.sign(p.xAccel)) {
-            //     p.velocity.x = p.MAX_SPEED * Math.sign(p.velocity.x)
-            // }
-            break;
-        default:
-            break;
-    }
+interface InputHandlerConfig {
+    [key: string]: {
+        keydown?: () => void;
+        keyup?: () => void;
+    };
 }
 
-function keyup(e) {
-    // switch(e) {
-    //     case keyboardKeys['D']:
-    //         p.xAccel = 0.2;
-    //         if(Math.abs(p.velocity.x)>0) {
-    //             p.velocity.x = 1;
-    //         }
-    //         break;
-    //     case keyboardKeys['A']:
-    //         p.velocity.x = 0;
-    //         break;
-    //     case keyboardKeys['W']:
-    //         p.velocity.y = 0;
-    //         break;
-    //     default:
-    //         break;
-    // }
+export class InputHandler {
+    keyCallbacks: InputHandlerConfig;
+
+    constructor(keyCallbacks: InputHandlerConfig) {
+        this.keyCallbacks = keyCallbacks
+
+        // Bind the keydown method to 
+        this.keydown = this.keydown.bind(this);
+        inputHandlers.push(this)
+
+        addEvent(window, "keydown", this.keydown);
+    }
+    keydown(e: KeyboardEvent) {
+        console.log(e.key)
+            
+        for (let handler of inputHandlers) {
+            for (let key in handler.keyCallbacks) {
+                const callbackObject = handler.keyCallbacks[key];
+                if (callbackObject.keydown && e.key === key) {
+                    callbackObject.keydown();
+                }
+            }
+        }
+    }
 }

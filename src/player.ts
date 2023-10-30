@@ -121,8 +121,44 @@ export class Player {
 
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
-
         this.handleCollisions();
+    }
+
+    handleLeft() {
+        
+        if (this.currentAnimation == this.animations.flap) {
+            this.jumpDirection = true;
+        } else {
+            this.jumpDirection = false;
+        }
+        if (Math.abs(this.velocity.x) == 0) {
+            this.velocity.x = -1;
+            this.xAccel = -0.05;
+        } else {
+            this.xAccel = -0.07;
+        }
+    }
+
+    handleRight() {
+        if (this.currentAnimation == this.animations.flap) {
+            this.jumpDirection = false;
+        }
+
+        if (Math.abs(this.velocity.x) == 0) {
+            this.velocity.x = 1;
+            this.xAccel = 0.05;
+        } else {
+            this.xAccel = 0.07;
+        }
+    }
+
+    handleJump() {
+        this.currentAnimation.currentImage++;
+        this.isJumping = true;
+        this.velocity.y -= 3;
+        if (this.velocity.y < -3) {
+            this.velocity.y = -3;
+        }
     }
 }
 

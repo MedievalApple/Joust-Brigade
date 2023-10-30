@@ -5,8 +5,7 @@ module.exports = {
     mode: "development", // or 'production' for production mode
     entry: {
         index: "./src/index.ts",
-        joust: "./src/joust.ts",
-        controls: "./src/controls.ts",
+        joust: ["./src/joust.ts", "./src/controls.ts", "./src/map.ts"]
     },
     output: {
         filename: "[name].js", // Name of generated bundle after build
@@ -45,7 +44,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: "joust.html",
             template: "./public/joust.html",
-            chunks: ["joust", "controls"],
+            chunks: ["joust"]
         }),
     ],
 };

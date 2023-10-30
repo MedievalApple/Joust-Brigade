@@ -20,7 +20,7 @@ export class BlockCollision {
         mapBlockCollision.push(this);
     }
 
-    show () {
+    show() {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
 
@@ -29,3 +29,5 @@ export class BlockCollision {
         }
     }
 }
+
+export { mapBlockCollision }

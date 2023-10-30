@@ -1,3 +1,5 @@
+console.log("map.ts loaded");
+
 import { BlockCollision } from "./block_collisions";
 import { canvas, ctx } from "./joust";
 import { Vector } from "./vector";
