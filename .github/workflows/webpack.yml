@@ -1,4 +1,4 @@
-name: Webpack and Pages Deploy
+name: Webpack
 
 on:
   push:
@@ -35,4 +35,3 @@ jobs:
       run: |
         npm install
         npx webpack
-        ls
