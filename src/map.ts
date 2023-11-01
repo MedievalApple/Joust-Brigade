@@ -13,7 +13,7 @@ new BlockCollision(165, 282, 103, 17, "null"); //5
 new BlockCollision(321, 205, 94, 25, "null"); //6
 new BlockCollision(409, 225, 71, 15, "null"); //7
 // new Block(79, 388, 303, 100, null); //8
-new BlockCollision(-5, 388, canvas.width + 5, 100, "red"); //Test
+const ground = new BlockCollision(-5, 388, canvas.width + 5, 100, "red"); //Test
 
 class MapObject {
     position: Vector;
@@ -36,3 +36,5 @@ class MapObject {
         }
     }
 }
+
+export { ground }

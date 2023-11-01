@@ -212,6 +212,8 @@ function draw() {
     requestAnimationFrame(draw);
 };
 
+import { ground } from './map'
+
 function update() {
     const message = {
         action: "update",
@@ -251,6 +253,10 @@ function update() {
         if (isColliding(p, AIs[i])) {
             if (p.position.y + p.height - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].height - (AIs[i].currentAnimation.images[0].height * AIs[i].currentAnimation.scalar)) {
                 AIs.splice(i, 1);
+                if(AIs.length==0){
+                    ground.position.x = 79;
+                    ground.width = 303;
+                }
                 continue;
             } else {
                 console.log("You Died");
