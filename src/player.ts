@@ -1,10 +1,10 @@
-import { Sprite } from "./sprite";
+import { AniSprite } from "./sprite";
 import { Vector } from "./vector";
 import { ctx, canvas } from "./joust";
-
+import { FRAME_RATE } from "./joust";
 export class Player {
-    currentAnimation: Sprite | null;
-    animations: { [key: string]: Sprite};
+    currentAnimation: AniSprite | null;
+    animations: { [key: string]: AniSprite };
     name: string;
     velocity: Vector;
     position: Vector;
@@ -22,10 +22,10 @@ export class Player {
     constructor(x: number, y: number, width: number, height: number, color: string, name: string) {
         this.currentAnimation = null;
         this.animations = {
-            running: new Sprite("/assets/sprite_sheet/ostrich/walk_ostrich/walk", 4, null, 2),
-            stop: new Sprite("/assets/sprite_sheet/ostrich/walk_ostrich/stop", 1, 60, 2),
-            flap: new Sprite("/assets/sprite_sheet/ostrich/flap_ostrich/flap", 2, null, 2),
-            idle: new Sprite("/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing", 1, null, 2)
+            running: new AniSprite("/assets/sprite_sheet/ostrich/walk_ostrich/walk", 4, 15, 2),
+            stop: new AniSprite("/assets/sprite_sheet/ostrich/walk_ostrich/stop", 1, 60, 2),
+            flap: new AniSprite("/assets/sprite_sheet/ostrich/flap_ostrich/flap", 2, null, 2),
+            idle: new AniSprite("/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing", 1, null, 2)
 
         }
 
@@ -38,7 +38,7 @@ export class Player {
         this.friction = 0.4;
         this.xAccel = 0;
         this.blockInfo = { x: -100, y: -100, w: -100 };
-        this.maxSpeed = new Vector(4, 5)
+        this.maxSpeed = new Vector(3, 5)
         this.color = color;
         this.jumpDirection = false;
         this.isJumping = false;
@@ -125,7 +125,7 @@ export class Player {
     }
 
     handleLeft() {
-        
+
         if (this.currentAnimation == this.animations.flap) {
             this.jumpDirection = true;
         } else {
@@ -168,11 +168,42 @@ export class Enemy extends Player {
     constructor(x: number, y: number, width: number, height: number, color: string, name?: string) {
         super(x, y, width, height, color, name);
 
-        this.name = `AI${++counter}`
+        this.name = `Enemy ${++counter}`
         this.animations = {
-            running: new Sprite("/assets/sprite_sheet/bounder/walk_bounder/walk", 4, null, 2),
-            flap: new Sprite("/assets/sprite_sheet/bounder/flap_bounder/flap", 2, null, 2),
-            // idle: new Sprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
+            running: new AniSprite("/assets/sprite_sheet/bounder/walk_bounder/walk", 4, null, 2),
+            flap: new AniSprite("/assets/sprite_sheet/bounder/flap_bounder/flap", 2, null, 2),
+            // idle: new AniSprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
         }
     }
+}
+export function startDeathAnimation(position: Vector, velocity: Vector, isAi: boolean) {
+    if (isAi) { } else { 
+        var unmountrunning = new AniSprite("/assets/sprite_sheet/bounder/walk_unmounted/walk", 4, null, 2);
+        // var unmountflapping = new AniSprite("/assets/sprite_sheet/bounder/flap_unmounted/flap", 2, null, 2);
+        loopDeath(unmountrunning, position);
+    }
+}  
+function loopDeath(sprite: AniSprite, position:Vector) {
+    sprite.show(2, position.x, position.y, {
+        size: new Vector(12*2, 13*2),
+        scalar: 2
+    });
+    setTimeout(() => { loopDeath(sprite, position) }, 1000 / FRAME_RATE);
+}
+export class DeathAnimation {
+    position: Vector;
+    velocity: Vector;
+    unmountrunning: AniSprite;
+    constructor(position: Vector, velocity: Vector) {
+        this.position = position;
+        this.velocity = velocity;
+        this.unmountrunning = new AniSprite("/assets/sprite_sheet/bounder/walk_unmounted/walk", 4, null, 2);
+    }
+    show() {
+        this.unmountrunning.show(2, this.position.x, this.position.y, {
+            size: new Vector(12*2, 13*2),
+            scalar: 2
+        });
+    }
+    
 }

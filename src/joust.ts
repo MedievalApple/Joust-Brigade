@@ -1,12 +1,12 @@
 // import '../css/joust.css';
-import { Player, Enemy } from './player';
-import { Sprite } from './sprite';
+import { Player, Enemy, DeathAnimation } from './player';
+import { AniSprite } from './sprite';
 import { isColliding, handleCollision } from './collision';
 import { WebSocket } from 'ws';
 import { InputHandler } from './controls';
 
 // Constants for readability
-const FRAME_RATE = 60;
+export const FRAME_RATE = 60;
 let lastFrameTime = 0;
 let lastUpdateTime = 0;
 
@@ -51,6 +51,7 @@ let socket;
 let frameCount = 0;
 let lastSent;
 
+const deaths = [];
 // Player creation
 const p = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
 
@@ -69,8 +70,8 @@ new InputHandler({
 
 // Load player image before starting the game
 player.onload = function () {
-    hand = new Sprite("/assets/sprite_sheet/lava_troll/troll", 5, null, 2);
-    fire = new Sprite("/assets/sprite_sheet/lava_troll/fire", 4, null, 2);
+    hand = new AniSprite("/assets/sprite_sheet/lava_troll/troll", 5, null, 2);
+    fire = new AniSprite("/assets/sprite_sheet/lava_troll/fire", 4, null, 2);
     for (let i = 0; i < 5; i++) {
         AIs[i] = new Enemy(Math.random() * canvas.width, 20, PLAYER_WIDTH, PLAYER_HEIGHT, "green");
         switch (Math.floor(Math.random() * 2)) {
@@ -198,14 +199,16 @@ function draw() {
     for (let i = AIs.length - 1; i >= 0; i--) {
         AIs[i].show();
     }
-
+    for (let death of deaths) {
+        death.show();
+    }
     // Draw fps
     ctx.font = "10px Arial";
     ctx.fillStyle = "white";
     ctx.fillText(`FPS: ${Math.round(1000 / (performance.now() - lastFrameTime))}`, 10, 20);
 
-    // Draw ping
-    ctx.fillText(`Ping: ${Math.round(performance.now() - lastUpdateTime)}ms`, 10, 40);
+    // Draw delta
+    ctx.fillText(`Delta: ${Math.round(performance.now() - lastUpdateTime)}ms`, 10, 40);
 
     lastFrameTime = performance.now();
     frameCount++;
@@ -252,6 +255,8 @@ function update() {
         AIs[i].update();
         if (isColliding(p, AIs[i])) {
             if (p.position.y + p.height - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].height - (AIs[i].currentAnimation.images[0].height * AIs[i].currentAnimation.scalar)) {
+                deaths.push(new DeathAnimation(AIs[i].position, AIs[i].velocity));
+
                 AIs.splice(i, 1);
                 if(AIs.length==0){
                     ground.position.x = 79;

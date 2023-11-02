@@ -1,14 +1,40 @@
 import { ctx } from "./joust";
 import { Vector } from "./vector";
 
-type SpriteOptions = {
+type AniSpriteOptions = {
     loop?: boolean,
     n?: number,
     size?: Vector,
     scalar?: number
 }
 
-export class Sprite {
+export type Sprite = ImgSprite | AniSprite;
+
+export class ImgSprite {
+    image: HTMLImageElement;
+    scalar?: number;
+
+    constructor (filePath: string, scalar=1,) {
+        // FIXME: Check if file exists
+        
+        const image = new Image();
+        image.src = filePath;
+        image.onload = () => this.image = image;
+
+        this.scalar = scalar;
+    }
+
+    show(x: number, y: number){
+        let image = this.image
+        if (!image) return;
+
+        ctx.drawImage(image, x, y, image.width * this.scalar, image.height * this.scalar);
+
+        return;
+    }
+}
+
+export class AniSprite{
     spriteSheet: string;
     images: HTMLImageElement[];
     currentImage: number;
@@ -33,7 +59,9 @@ export class Sprite {
         }
     }
 
-    show(frameRate: number, x: number, y: number, options: SpriteOptions={}) {
+    
+
+    show(frameRate: number, x: number, y: number, options: AniSpriteOptions={}) {
         let {
             loop: loop,
             n: n,

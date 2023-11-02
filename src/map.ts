@@ -1,40 +1,20 @@
 console.log("map.ts loaded");
 
-import { BlockCollision } from "./block_collisions";
+import { MapObject } from "./map_object";
 import { canvas, ctx } from "./joust";
+import { ImgSprite, Sprite } from "./sprite";
 import { Vector } from "./vector";
 
 // Platforms
-new BlockCollision(0, 72, 49, 15, "null", /*new Sprite("/assets/sprite_sheet.png")*/); //1
-new BlockCollision(132, 99, 143, 22, "null"); //2
-new BlockCollision(403, 73, 77, 22, "null"); //3
-new BlockCollision(0, 225, 100, 17, "null"); //4
-new BlockCollision(165, 282, 103, 17, "null"); //5
-new BlockCollision(321, 205, 94, 25, "null"); //6
-new BlockCollision(409, 225, 71, 15, "null"); //7
+new MapObject(0, 72, 49, 15, "null")
+new MapObject(132, 99, 143, 22, "null"); //2
+new MapObject(403, 73, 77, 22, "null"); //3
+new MapObject(0, 225, 100, 17, "null"); //4
+new MapObject(165, 282, 103, 17, "null"); //5
+new MapObject(321, 205, 94, 25, "null"); //6
+new MapObject(409, 225, 71, 15, "null"); //7
 // new Block(79, 388, 303, 100, null); //8
-const ground = new BlockCollision(-5, 388, canvas.width + 5, 100, "red"); //Test
+const ground = new MapObject(-5, 388, canvas.width + 5, 100, "red", new ImgSprite("/assets/sprite_sheet/map/map.png")); //Test
 
-class MapObject {
-    position: Vector;
-    sprite: any;
-    color: string | CanvasGradient | CanvasPattern;
-    width: number;
-    height: number;
-
-    constructor(x: number, y: number, sprite?: any) {
-        this.position = new Vector(x, y);
-        this.sprite = sprite;
-    }
-
-    show () {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-
-        if (this.sprite != null) {
-            this.sprite.show(5, this.position.x, this.position.y);
-        }
-    }
-}
 
 export { ground }

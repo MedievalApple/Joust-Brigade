@@ -1,23 +1,24 @@
 import { Vector } from "./vector";
 import { ctx, mapBlockCollision } from "./joust";
+import { Sprite } from "./sprite";
 
-export class BlockCollision {
-    position: any;
-    velocity: any;
-    width: any;
-    height: any;
-    color: any;
-    sprite: any;
+type MapObjectColor = string | CanvasGradient | CanvasPattern;
 
-    constructor(x: number, y: number, w: number, h: number, c: any, sprite?: any) {
+export class MapObject {
+    position: Vector;
+    velocity: Vector;
+    width: number;
+    height: number;
+    color: MapObjectColor;
+    sprite: Sprite;
+
+    constructor(x: number, y: number, w: number, h: number, c: MapObjectColor, sprite?: Sprite) {
         this.position = new Vector(x, y);
         this.velocity = new Vector(0, 0);
         this.width = w;
         this.height = h;
         this.color = c;
         this.sprite = sprite;
-
-        mapBlockCollision.push(this);
     }
 
     show() {
@@ -27,6 +28,13 @@ export class BlockCollision {
         if (this.sprite != null) {
             this.sprite.show(5, this.position.x, this.position.y);
         }
+    }
+}
+
+export class Hitbox extends MapObject{
+    constructor() {
+        super()
+        
     }
 }
 
