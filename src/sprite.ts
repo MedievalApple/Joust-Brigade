@@ -14,7 +14,7 @@ export class ImgSprite {
     image: HTMLImageElement;
     scalar?: number;
 
-    constructor (filePath: string, scalar=1,) {
+    constructor (filePath: string, scalar=1) {
         // FIXME: Check if file exists
         
         const image = new Image();

@@ -186,8 +186,8 @@ function draw() {
     ctx.drawImage(mapRef, 0, 0, canvas.width, canvas.height);
 
     if (fire) {
-        fire.show(2, 28, 388 - fire.images[0].height * fire.scalar);
-        fire.show(2, canvas.width - 28, 388 - fire.images[0].height * fire.scalar);
+        fire.show(2, 28, 388 - fire.images[0].size.y * fire.scalar);
+        fire.show(2, canvas.width - 28, 388 - fire.images[0].size.y * fire.scalar);
     }
 
     p.show();
@@ -254,13 +254,13 @@ function update() {
     for (let i = AIs.length - 1; i >= 0; i--) {
         AIs[i].update();
         if (isColliding(p, AIs[i])) {
-            if (p.position.y + p.height - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].height - (AIs[i].currentAnimation.images[0].height * AIs[i].currentAnimation.scalar)) {
+            if (p.position.y + p.size.y - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].size.y - (AIs[i].currentAnimation.images[0].size.y * AIs[i].currentAnimation.scalar)) {
                 deaths.push(new DeathAnimation(AIs[i].position, AIs[i].velocity));
 
                 AIs.splice(i, 1);
                 if(AIs.length==0){
                     ground.position.x = 79;
-                    ground.width = 303;
+                    ground.size.x = 303;
                 }
                 continue;
             } else {

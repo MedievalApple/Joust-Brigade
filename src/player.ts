@@ -8,8 +8,7 @@ export class Player {
     name: string;
     velocity: Vector;
     position: Vector;
-    width: number;
-    height: number;
+    size: Vector;
     gravity: number;
     friction: number;
     xAccel: number;
@@ -32,8 +31,7 @@ export class Player {
         this.name = name;
         this.velocity = new Vector(0, 0);
         this.position = new Vector(x, y);
-        this.width = width;
-        this.height = height;
+        this.size = new Vector(width, height);
         this.gravity = 0.05;
         this.friction = 0.4;
         this.xAccel = 0;
@@ -49,7 +47,7 @@ export class Player {
 
         // Draw name above player, centered
         ctx.font = "10px Arial";
-        ctx.fillText(this.name, this.position.x + this.width / 2 - ctx.measureText(this.name).width / 2, this.position.y - 20);
+        ctx.fillText(this.name, this.position.x + this.size.x / 2 - ctx.measureText(this.name).width / 2, this.position.y - 20);
 
         if (this.isJumping) {
             this.currentAnimation = this.animations.flap;
@@ -64,19 +62,19 @@ export class Player {
             this.jumpDirection = false;
         }
         if (!this.currentAnimation) return;
-        this.width = this.currentAnimation.images[0].width * this.currentAnimation.scalar;
-        this.height = this.currentAnimation.images[0].width * this.currentAnimation.scalar;
+        this.size.x = this.currentAnimation.images[0].width * this.currentAnimation.scalar;
+        this.size.y = this.currentAnimation.images[0].height * this.currentAnimation.scalar;
         if ((this.velocity.x < 0 && !this.isJumping) || this.jumpDirection) {
             ctx.save();
             ctx.scale(-1, 1);
-            this.currentAnimation.show(Math.abs(this.velocity.x * 2), -this.position.x - this.width, this.position.y, {
-                size: new Vector(this.width, this.height),
+            this.currentAnimation.show(Math.abs(this.velocity.x * 2), -this.position.x - this.size.x, this.position.y, {
+                size: new Vector(this.size.x, this.size.y),
                 scalar: 2
             });
             ctx.restore();
         } else {
             this.currentAnimation.show(Math.abs(this.velocity.x * 2), this.position.x, this.position.y, {
-                size: new Vector(this.width, this.height),
+                size: new Vector(this.size.x, this.size.y),
                 scalar: 2
             });
         }
@@ -85,15 +83,15 @@ export class Player {
     // Torroidal collision detection
     handleCollisions() {
         if (!(this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w)) this.blockInfo = { x: -100, y: -100, w: -100 };
-        if (this.position.y + this.height > canvas.height || (this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w && this.position.y + this.height > this.blockInfo.y)) {
+        if (this.position.y + this.size.y > canvas.height || (this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w && this.position.y + this.size.y > this.blockInfo.y)) {
             if ((this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w)) {
                 this.isJumping = false;
-                this.position.y = this.blockInfo.y - this.height;
+                this.position.y = this.blockInfo.y - this.size.y;
                 this.velocity.y *= -this.friction;
                 this.blockInfo = { x: -100, y: -100, w: -100 };
             } else {
                 this.isJumping = true;
-                this.position.y = canvas.height - this.height;
+                this.position.y = canvas.height - this.size.y;
                 this.velocity.y *= -this.friction;
             }
         } else if (this.position.y < 0) {
@@ -177,15 +175,15 @@ export class Enemy extends Player {
     }
 }
 export function startDeathAnimation(position: Vector, velocity: Vector, isAi: boolean) {
-    if (isAi) { } else { 
+    if (isAi) { } else {
         var unmountrunning = new AniSprite("/assets/sprite_sheet/bounder/walk_unmounted/walk", 4, null, 2);
         // var unmountflapping = new AniSprite("/assets/sprite_sheet/bounder/flap_unmounted/flap", 2, null, 2);
         loopDeath(unmountrunning, position);
     }
-}  
-function loopDeath(sprite: AniSprite, position:Vector) {
+}
+function loopDeath(sprite: AniSprite, position: Vector) {
     sprite.show(2, position.x, position.y, {
-        size: new Vector(12*2, 13*2),
+        size: new Vector(12 * 2, 13 * 2),
         scalar: 2
     });
     setTimeout(() => { loopDeath(sprite, position) }, 1000 / FRAME_RATE);
@@ -201,9 +199,9 @@ export class DeathAnimation {
     }
     show() {
         this.unmountrunning.show(2, this.position.x, this.position.y, {
-            size: new Vector(12*2, 13*2),
+            size: new Vector(12 * 2, 13 * 2),
             scalar: 2
         });
     }
-    
+
 }
