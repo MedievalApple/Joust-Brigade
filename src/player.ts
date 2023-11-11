@@ -79,8 +79,14 @@ export class Player {
             this.jumpDirection = false;
         }
         if (!this.currentAnimation) return;
+        let oldSize = this.size.clone();
         this.size.x = this.currentAnimation.images[0].width * this.currentAnimation.scalar;
         this.size.y = this.currentAnimation.images[0].height * this.currentAnimation.scalar;
+        if(!(oldSize.y==this.size.y)) {
+            this.position.y += oldSize.subtract(this.size).y;
+            console.log(oldSize.subtract(this.size))
+            console.log("Change in Animation")
+        }
         if ((this.velocity.x < 0 && !this.isJumping) || this.jumpDirection) {
             ctx.save();
             ctx.scale(-1, 1);

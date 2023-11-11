@@ -13,8 +13,8 @@ import { Vector } from "./vector";
 // }
 
 export function handleCollision(
-    gameObject1: { position: Vector, velocity: Vector, static?: boolean },
-    gameObject2: { position: Vector, velocity: Vector, static?: boolean },
+    gameObject1: { position: Vector, velocity: Vector, isJumping?:boolean, static?: boolean },
+    gameObject2: { position: Vector, velocity: Vector, isJumping?:boolean, static?: boolean },
     collider1: Collider,
     collider2: Collider
 ) {
@@ -51,8 +51,14 @@ export function handleCollision(
             // Resolve the collision on the Y-axis
             const sign = Math.sign(gameObject1.velocity.y - gameObject2.velocity.y);
             // if(sign>0) { collider1.blockInfo = {x:collider2.position.x, y:collider2.position.y, w:collider2.size.x};}
-            if (!gameObject1.static) gameObject1.position.y -= overlapY * sign;
-            if (!gameObject2.static) gameObject2.velocity.y *= -0.8;
+            if (!gameObject1.static) { 
+                gameObject1.position.y -= overlapY * sign; 
+                gameObject1.isJumping = false;
+            }
+            if (!gameObject2.static) {
+                gameObject2.velocity.y *= -0.8;
+                gameObject2.isJumping = false;
+             }
         }
     }
 
