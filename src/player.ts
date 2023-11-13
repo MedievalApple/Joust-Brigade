@@ -1,13 +1,15 @@
 import { AniSprite } from "./sprite";
 import { Vector } from "./vector";
-import { ctx, canvas } from "./joust";
+import { ctx, canvas, GAME_OBJECTS } from "./joust";
 import { FRAME_RATE } from "./joust";
+import { Collider, OffsetHitbox } from "./map_object";
+import { DEBUG } from "./debug";
+
 export class Player {
     currentAnimation: AniSprite | null;
     animations: { [key: string]: AniSprite };
     name: string;
     velocity: Vector;
-    position: Vector;
     size: Vector;
     gravity: number;
     friction: number;
@@ -17,6 +19,8 @@ export class Player {
     color: string;
     jumpDirection: boolean;
     isJumping: boolean;
+    collider: Collider;
+    position: Vector;
 
     constructor(x: number, y: number, width: number, height: number, color: string, name: string) {
         this.currentAnimation = null;
@@ -40,10 +44,23 @@ export class Player {
         this.color = color;
         this.jumpDirection = false;
         this.isJumping = false;
+        this.collider = new Collider();
+        this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
+
+        GAME_OBJECTS.push(this);
+    }
+
+    updateCollider(vector: Vector) {
+        if (!this.collider) return;
+        this.collider.position = vector
     }
 
     show() {
         ctx.fillStyle = this.color;
+
+        if (DEBUG) {
+            this.collider.show();
+        }
 
         // Draw name above player, centered
         ctx.font = "10px Arial";
@@ -62,8 +79,14 @@ export class Player {
             this.jumpDirection = false;
         }
         if (!this.currentAnimation) return;
+        let oldSize = this.size.clone();
         this.size.x = this.currentAnimation.images[0].width * this.currentAnimation.scalar;
         this.size.y = this.currentAnimation.images[0].height * this.currentAnimation.scalar;
+        if(!(oldSize.y==this.size.y)) {
+            this.position.y += oldSize.subtract(this.size).y;
+            console.log(oldSize.subtract(this.size))
+            console.log("Change in Animation")
+        }
         if ((this.velocity.x < 0 && !this.isJumping) || this.jumpDirection) {
             ctx.save();
             ctx.scale(-1, 1);
@@ -120,6 +143,9 @@ export class Player {
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
         this.handleCollisions();
+        
+        this.updateCollider(this.position);
+        
     }
 
     handleLeft() {
@@ -172,6 +198,10 @@ export class Enemy extends Player {
             flap: new AniSprite("/assets/sprite_sheet/bounder/flap_bounder/flap", 2, null, 2),
             // idle: new AniSprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
         }
+
+        this.collider = new Collider()
+        this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
+        GAME_OBJECTS.push(this);
     }
 }
 export function startDeathAnimation(position: Vector, velocity: Vector, isAi: boolean) {
@@ -192,6 +222,7 @@ export class DeathAnimation {
     position: Vector;
     velocity: Vector;
     unmountrunning: AniSprite;
+
     constructor(position: Vector, velocity: Vector) {
         this.position = position;
         this.velocity = velocity;

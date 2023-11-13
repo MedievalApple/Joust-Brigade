@@ -94,7 +94,6 @@ export class AniSprite{
                 ctx.drawImage(image, x, y, image.width * this.scalar, image.height * this.scalar);
             }
             this.currentImage += (this.frameRate || frameRate) / (30);
-
         }
 
         // Show nth frame of animation

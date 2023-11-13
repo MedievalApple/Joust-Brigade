@@ -1,8 +1,8 @@
 import { Vector } from "./vector";
-import { ctx, mapBlockCollision } from "./joust";
+import { ctx, GAME_OBJECTS } from "./joust";
 import { Sprite } from "./sprite";
-
-type MapObjectColor = string | CanvasGradient | CanvasPattern;
+import { Player } from "./player";
+import { DEBUG } from "./debug";
 
 export interface IHitbox {
     offset: Vector;
@@ -13,15 +13,15 @@ export class OffsetHitbox implements IHitbox {
     offset: Vector;
     size: Vector;
 
-    constructor(parentPosition: Vector, offset: Vector, size: Vector) {
-        this.offset = parentPosition.add(offset);
+    constructor(offset: Vector, size: Vector) {
+        this.offset = offset;
         this.size = size;
     }
 }
 
 export class Collider {
     position: Vector;
-    private hitbox: IHitbox;
+    hitbox: IHitbox;
 
     get collisionX() {
         return this.position.x + this.hitbox.offset.x;
@@ -34,6 +34,11 @@ export class Collider {
     get collisionSize() {
         return this.hitbox.size;
     }
+
+    show() {
+        ctx.fillStyle = "red";
+        ctx.fillRect(this.collisionX, this.collisionY, this.hitbox.size.x, this.hitbox.size.y);
+    }
 }
 
 export class MapObject {
@@ -42,6 +47,7 @@ export class MapObject {
     size: Vector;
     sprite: Sprite;
     collider: Collider;
+    static: boolean = true;
 
     constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite) {
         this.position = new Vector(x, y);
@@ -49,13 +55,14 @@ export class MapObject {
         this.size = new Vector(w, h);
         this.sprite = sprite;
         this.collider = collider;
-
-        // mapBlockCollision.push(this.hitbox);
+        this.collider.position = this.position;
+        this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
     }
 
-
-
     show() {
+        if (DEBUG) {
+            this.collider.show();
+        }
         ctx.fillRect(this.position.x, this.position.y, this.size.x, this.size.y);
 
         if (this.sprite != null) {
@@ -64,4 +71,8 @@ export class MapObject {
     }
 }
 
-export { mapBlockCollision }
+export function addObjects(objects: Array<MapObject | Player>) {
+    for (let object of objects) {
+        GAME_OBJECTS.push(object);
+    }
+}

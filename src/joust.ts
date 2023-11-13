@@ -1,7 +1,7 @@
 // import '../css/joust.css';
 import { Player, Enemy, DeathAnimation } from './player';
 import { AniSprite } from './sprite';
-import { isColliding, handleCollision } from './collision';
+import { handleCollision } from './collision';
 import { WebSocket } from 'ws';
 import { InputHandler } from './controls';
 
@@ -26,9 +26,9 @@ const player = new Image();
 player.src = "/assets/sprite_sheet.png";
 
 // Arrays for other clients, AIs, and map blocks
+const GAME_OBJECTS = [];
 const otherClients = [];
 const AIs = [];
-const mapBlockCollision = [];
 
 // Background color
 const backgroundColor = "black";
@@ -178,17 +178,19 @@ function draw() {
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    mapBlockCollision.forEach(mObject => {
-        mObject.show();
+    GAME_OBJECTS.forEach(mObject => {
+        if (mObject.show) {
+            mObject.show();
+        }
     });
 
     // Joust Map Example
     ctx.drawImage(mapRef, 0, 0, canvas.width, canvas.height);
 
-    if (fire) {
-        fire.show(2, 28, 388 - fire.images[0].size.y * fire.scalar);
-        fire.show(2, canvas.width - 28, 388 - fire.images[0].size.y * fire.scalar);
-    }
+    // if (fire) {
+    //     fire.show(2, 28, 388 - fire.images[0].size.y * fire.scalar);
+    //     fire.show(2, canvas.width - 28, 388 - fire.images[0].size.y * fire.scalar);
+    // }
 
     p.show();
 
@@ -196,9 +198,9 @@ function draw() {
         client.show();
     }
 
-    for (let i = AIs.length - 1; i >= 0; i--) {
-        AIs[i].show();
-    }
+    // for (let i = AIs.length - 1; i >= 0; i--) {
+    //     AIs[i].show();
+    // }
     for (let death of deaths) {
         death.show();
     }
@@ -215,7 +217,6 @@ function draw() {
     requestAnimationFrame(draw);
 };
 
-import { ground } from './map'
 
 function update() {
     const message = {
@@ -253,69 +254,79 @@ function update() {
 
     for (let i = AIs.length - 1; i >= 0; i--) {
         AIs[i].update();
-        if (isColliding(p, AIs[i])) {
-            if (p.position.y + p.size.y - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].size.y - (AIs[i].currentAnimation.images[0].size.y * AIs[i].currentAnimation.scalar)) {
-                deaths.push(new DeathAnimation(AIs[i].position, AIs[i].velocity));
+    }
+    //     if (isColliding(p, AIs[i])) {
+    //         if (p.position.y + p.size.y - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].size.y - (AIs[i].currentAnimation.images[0].size.y * AIs[i].currentAnimation.scalar)) {
+    //             deaths.push(new DeathAnimation(AIs[i].position, AIs[i].velocity));
 
-                AIs.splice(i, 1);
-                if(AIs.length==0){
-                    ground.position.x = 79;
-                    ground.size.x = 303;
-                }
-                continue;
-            } else {
-                console.log("You Died");
-            }
-        }
-        if (Math.random() < 0.1) {
-            if (AIs[i].position.y > p.position.y) {
-                AIs[i].isJumping = true;
-                AIs[i].velocity.y -= 3;
-                if (AIs[i].velocity.y < -3) {
-                    AIs[i].velocity.y = -3;
-                }
-            } else {
-                if (Math.random() < 0.1) {
-                    AIs[i].isJumping = true;
-                    AIs[i].velocity.y -= 3;
-                    if (AIs[i].velocity.y < -3) {
-                        AIs[i].velocity.y = -3;
-                    }
-                }
-            }
-        }
-        switch (AIs[i].velocity.x > 0) {
-            case true:
-                AIs[i].jumpDirection = false;
-                if (Math.abs(AIs[i].velocity.x) == 0) {
-                    AIs[i].velocity.x = 1;
-                    AIs[i].xAccel = 0.05;
-                } else {
-                    AIs[i].xAccel = 0.07;
-                }
-                break;
-            case false:
-                AIs[i].jumpDirection = true;
-                if (Math.abs(AIs[i].velocity.x) == 0) {
-                    AIs[i].velocity.x = -1;
-                    AIs[i].xAccel = -0.05;
-                } else {
-                    AIs[i].xAccel = -0.07;
-                }
-                break;
-            default:
-                break;
-        }
+    //             AIs.splice(i, 1);
+    //             if(AIs.length==0){
+    //                 ground.position.x = 79;
+    //                 ground.size.x = 303;
+    //             }
+    //             continue;
+    //         } else {
+    //             console.log("You Died");
+    //         }
+    //     }
+    //     if (Math.random() < 0.1) {
+    //         if (AIs[i].position.y > p.position.y) {
+    //             AIs[i].isJumping = true;
+    //             AIs[i].velocity.y -= 3;
+    //             if (AIs[i].velocity.y < -3) {
+    //                 AIs[i].velocity.y = -3;
+    //             }
+    //         } else {
+    //             if (Math.random() < 0.1) {
+    //                 AIs[i].isJumping = true;
+    //                 AIs[i].velocity.y -= 3;
+    //                 if (AIs[i].velocity.y < -3) {
+    //                     AIs[i].velocity.y = -3;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     switch (AIs[i].velocity.x > 0) {
+    //         case true:
+    //             AIs[i].jumpDirection = false;
+    //             if (Math.abs(AIs[i].velocity.x) == 0) {
+    //                 AIs[i].velocity.x = 1;
+    //                 AIs[i].xAccel = 0.05;
+    //             } else {
+    //                 AIs[i].xAccel = 0.07;
+    //             }
+    //             break;
+    //         case false:
+    //             AIs[i].jumpDirection = true;
+    //             if (Math.abs(AIs[i].velocity.x) == 0) {
+    //                 AIs[i].velocity.x = -1;
+    //                 AIs[i].xAccel = -0.05;
+    //             } else {
+    //                 AIs[i].xAccel = -0.07;
+    //             }
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
+
+    // for (let i = 0; i < AIs.length; i++) {
+    //     mapBlockCollision.forEach(mObject => {
+    //         handleCollision(AIs[i], mObject);
+    //     });
+    // }
+
+    for (let ai in AIs) {
+        
     }
 
-    for (let i = 0; i < AIs.length; i++) {
-        mapBlockCollision.forEach(mObject => {
-            handleCollision(AIs[i], mObject);
+
+    GAME_OBJECTS.forEach(mObject1 => {
+        GAME_OBJECTS.forEach(mObject2 => {
+            if (mObject1 !== mObject2) {
+                handleCollision(mObject1, mObject2, mObject1.collider, mObject2.collider);
+            }
         });
-    }
-
-    mapBlockCollision.forEach(mObject => {
-        handleCollision(p, mObject);
     });
 
     lastUpdateTime = performance.now();
@@ -327,4 +338,4 @@ if (!socket) {
     update();
 }
 
-export { ctx, mapBlockCollision, canvas, p };
+export { ctx, GAME_OBJECTS, canvas, p };
