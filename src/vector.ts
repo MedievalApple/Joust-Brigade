@@ -18,7 +18,7 @@ export class Vector {
         else return new Vector(this.x + v, this.y + v, this.z + v);
     }
 
-    subtract(v: Vector | number): Vector {
+    sub(v: Vector | number): Vector {
         if (v instanceof Vector) return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
         else return new Vector(this.x - v, this.y - v, this.z - v);
     }
@@ -98,7 +98,7 @@ export class Vector {
     }
 
     static lerp(a: Vector, b: Vector, fraction: number): Vector {
-        return b.subtract(a).multiply(fraction).add(a);
+        return b.sub(a).multiply(fraction).add(a);
     }
 
     static fromArray(a: number[]): Vector {

@@ -1,6 +1,6 @@
 import { AniSprite } from "./sprite";
 import { Vector } from "./vector";
-import { ctx, canvas, GAME_OBJECTS } from "./joust";
+import { ctx, canvas, GAME_OBJECTS, player } from "./joust";
 import { FRAME_RATE } from "./joust";
 import { Collider, OffsetHitbox } from "./map_object";
 import { DEBUG } from "./debug";
@@ -21,6 +21,7 @@ export class Player {
     isJumping: boolean;
     collider: Collider;
     position: Vector;
+    oldSize: Vector;
 
     constructor(x: number, y: number, width: number, height: number, color: string, name: string) {
         this.currentAnimation = null;
@@ -46,8 +47,8 @@ export class Player {
         this.isJumping = false;
         this.collider = new Collider();
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
-
-        GAME_OBJECTS.push(this);
+        this.oldSize = new Vector();
+        GAME_OBJECTS.unshift(this);
     }
 
     updateCollider(vector: Vector) {
@@ -78,25 +79,30 @@ export class Player {
         if (this.currentAnimation != this.animations.flap) {
             this.jumpDirection = false;
         }
-        if (!this.currentAnimation) return;
-        let oldSize = this.size.clone();
-        this.size.x = this.currentAnimation.images[0].width * this.currentAnimation.scalar;
-        this.size.y = this.currentAnimation.images[0].height * this.currentAnimation.scalar;
-        if(!(oldSize.y==this.size.y)) {
-            this.position.y += oldSize.subtract(this.size).y;
-            console.log(oldSize.subtract(this.size))
-            console.log("Change in Animation")
+        if (!this.currentAnimation) {
+            this.currentAnimation = this.animations.running;
         }
+
+        this.collider.hitbox.size.x = this.currentAnimation.images[0].width * 2;
+        this.collider.hitbox.size.y = this.currentAnimation.images[0].height * 2;
+
+        if (this.oldSize.y !== this.collider.hitbox.size.y) {
+            console.log("Change in Animation");
+            this.position = this.position.add(this.oldSize.sub(this.collider.hitbox.size));
+        }
+
+        this.oldSize = this.collider.hitbox.size.clone();
+
         if ((this.velocity.x < 0 && !this.isJumping) || this.jumpDirection) {
             ctx.save();
             ctx.scale(-1, 1);
-            this.currentAnimation.show(Math.abs(this.velocity.x * 2), -this.position.x - this.size.x, this.position.y, {
+            this.currentAnimation.show(-this.position.x - this.size.x, this.position.y, Math.abs(this.velocity.x * 2), {
                 size: new Vector(this.size.x, this.size.y),
                 scalar: 2
             });
             ctx.restore();
         } else {
-            this.currentAnimation.show(Math.abs(this.velocity.x * 2), this.position.x, this.position.y, {
+            this.currentAnimation.show(this.position.x, this.position.y, Math.abs(this.velocity.x * 2), {
                 size: new Vector(this.size.x, this.size.y),
                 scalar: 2
             });
@@ -105,18 +111,10 @@ export class Player {
 
     // Torroidal collision detection
     handleCollisions() {
-        if (!(this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w)) this.blockInfo = { x: -100, y: -100, w: -100 };
-        if (this.position.y + this.size.y > canvas.height || (this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w && this.position.y + this.size.y > this.blockInfo.y)) {
-            if ((this.blockInfo.x < this.position.x && this.position.x < this.blockInfo.x + this.blockInfo.w)) {
-                this.isJumping = false;
-                this.position.y = this.blockInfo.y - this.size.y;
-                this.velocity.y *= -this.friction;
-                this.blockInfo = { x: -100, y: -100, w: -100 };
-            } else {
-                this.isJumping = true;
-                this.position.y = canvas.height - this.size.y;
-                this.velocity.y *= -this.friction;
-            }
+        if (this.position.y + this.size.y > canvas.height) {
+            this.isJumping = true;
+            this.position.y = canvas.height - this.size.y;
+            this.velocity.y *= -this.friction;
         } else if (this.position.y < 0) {
             this.position.y = 0;
             this.velocity.y *= -this.friction;
@@ -143,13 +141,12 @@ export class Player {
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
         this.handleCollisions();
-        
+
         this.updateCollider(this.position);
-        
+
     }
 
     handleLeft() {
-
         if (this.currentAnimation == this.animations.flap) {
             this.jumpDirection = true;
         } else {
@@ -189,19 +186,78 @@ export class Player {
 var counter = 0;
 
 export class Enemy extends Player {
+    dead: boolean;
     constructor(x: number, y: number, width: number, height: number, color: string, name?: string) {
         super(x, y, width, height, color, name);
-
+        this.dead = false;
         this.name = `Enemy ${++counter}`
         this.animations = {
             running: new AniSprite("/assets/sprite_sheet/bounder/walk_bounder/walk", 4, null, 2),
             flap: new AniSprite("/assets/sprite_sheet/bounder/flap_bounder/flap", 2, null, 2),
             // idle: new AniSprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
         }
-
-        this.collider = new Collider()
-        this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
-        GAME_OBJECTS.push(this);
+        switch (Math.floor(Math.random() * 2)) {
+            case 0:
+                if (this.velocity.x == 0) {
+                    this.velocity.x = 1;
+                    this.xAccel = 0.05;
+                } else {
+                    this.xAccel = 0.07;
+                }
+                break;
+            case 1:
+                this.jumpDirection = true;
+                if (Math.abs(this.velocity.x) == 0) {
+                    this.velocity.x = -1;
+                    this.velocity.x = -0.05;
+                } else {
+                    this.xAccel = -0.07;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    dumbAI() {
+        if (Math.random() < 0.1) {
+            if (this.position.y > player.position.y) {
+                this.isJumping = true;
+                this.velocity.y -= 3;
+                if (this.velocity.y < -3) {
+                    this.velocity.y = -3;
+                }
+            } else {
+                if (Math.random() < 0.1) {
+                    this.isJumping = true;
+                    this.velocity.y -= 3;
+                    if (this.velocity.y < -3) {
+                        this.velocity.y = -3;
+                    }
+                }
+            }
+        }
+        switch (this.velocity.x > 0) {
+            case true:
+                this.jumpDirection = false;
+                if (Math.abs(this.velocity.x) == 0) {
+                    this.velocity.x = 1;
+                    this.xAccel = 0.05;
+                } else {
+                    this.xAccel = 0.07;
+                }
+                break;
+            case false:
+                this.jumpDirection = true;
+                if (Math.abs(this.velocity.x) == 0) {
+                    this.velocity.x = -1;
+                    this.xAccel = -0.05;
+                } else {
+                    this.xAccel = -0.07;
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
 export function startDeathAnimation(position: Vector, velocity: Vector, isAi: boolean) {
@@ -212,10 +268,11 @@ export function startDeathAnimation(position: Vector, velocity: Vector, isAi: bo
     }
 }
 function loopDeath(sprite: AniSprite, position: Vector) {
-    sprite.show(2, position.x, position.y, {
+    sprite.show(position.x, position.y, 2, {
         size: new Vector(12 * 2, 13 * 2),
         scalar: 2
     });
+    this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
     setTimeout(() => { loopDeath(sprite, position) }, 1000 / FRAME_RATE);
 }
 export class DeathAnimation {

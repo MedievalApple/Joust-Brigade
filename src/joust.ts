@@ -22,13 +22,12 @@ const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
 // Player image loading
-const player = new Image();
-player.src = "/assets/sprite_sheet.png";
+const playerImage = new Image();
+playerImage.src = "/assets/sprite_sheet.png";
 
 // Arrays for other clients, AIs, and map blocks
 const GAME_OBJECTS = [];
 const otherClients = [];
-const AIs = [];
 
 // Background color
 const backgroundColor = "black";
@@ -53,49 +52,29 @@ let lastSent;
 
 const deaths = [];
 // Player creation
-const p = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
+const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
 
+for (let i = 0; i < 5; i++) {
+    new Enemy(Math.random() * canvas.width, 20, PLAYER_WIDTH, PLAYER_HEIGHT, "green");
+}
 // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
 new InputHandler({
     "a": {
-        keydown: p.handleLeft.bind(p)
+        keydown: player.handleLeft.bind(player)
     },
     "d": {
-        keydown: p.handleRight.bind(p)
+        keydown: player.handleRight.bind(player)
     },
     "w": {
-        keydown: p.handleJump.bind(p)
+        keydown: player.handleJump.bind(player)
     },
 })
 
 // Load player image before starting the game
-player.onload = function () {
+playerImage.onload = function () {
     hand = new AniSprite("/assets/sprite_sheet/lava_troll/troll", 5, null, 2);
     fire = new AniSprite("/assets/sprite_sheet/lava_troll/fire", 4, null, 2);
-    for (let i = 0; i < 5; i++) {
-        AIs[i] = new Enemy(Math.random() * canvas.width, 20, PLAYER_WIDTH, PLAYER_HEIGHT, "green");
-        switch (Math.floor(Math.random() * 2)) {
-            case 0:
-                if (Math.abs(AIs[i].velocity.x) == 0) {
-                    AIs[i].velocity.x = 1;
-                    AIs[i].xAccel = 0.05;
-                } else {
-                    AIs[i].xAccel = 0.07;
-                }
-                break;
-            case 1:
-                AIs[i].jumpDirection = true;
-                if (Math.abs(AIs[i].velocity.x) == 0) {
-                    AIs[i].velocity.x = -1;
-                    AIs[i].xAccel = -0.05;
-                } else {
-                    AIs[i].xAccel = -0.07;
-                }
-                break;
-            default:
-                break;
-        }
-    }
+
 };
 
 // Function to perform the authentication handshake
@@ -135,7 +114,7 @@ if (SERVER_ADDRESS) {
         const data = JSON.parse(event.data);
 
         // Skip if the message is from the current user
-        if (data.user != p.name) {
+        if (data.user != player.name) {
             if (data.action == "join") {
                 // Handle new player joining
                 otherClients.push(new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`, data.user));
@@ -185,22 +164,17 @@ function draw() {
     });
 
     // Joust Map Example
-    ctx.drawImage(mapRef, 0, 0, canvas.width, canvas.height);
+    // ctx.drawImage(mapRef, 0, 0, canvas.width, canvas.height);
 
     // if (fire) {
     //     fire.show(2, 28, 388 - fire.images[0].size.y * fire.scalar);
     //     fire.show(2, canvas.width - 28, 388 - fire.images[0].size.y * fire.scalar);
     // }
 
-    p.show();
-
     for (let client of otherClients) {
         client.show();
     }
 
-    // for (let i = AIs.length - 1; i >= 0; i--) {
-    //     AIs[i].show();
-    // }
     for (let death of deaths) {
         death.show();
     }
@@ -221,18 +195,19 @@ function draw() {
 function update() {
     const message = {
         action: "update",
-        user: p.name,
+        user: player.name,
         content: {
             position: {
-                x: p.position.x,
-                y: p.position.y
+                x: player.position.x,
+                y: player.position.y
             },
             velocity: {
-                x: p.velocity.x,
-                y: p.velocity.y
+                x: player.velocity.x,
+                y: player.velocity.y
             }
         },
     };
+
 
     // Only send if the message has changed
     if (socket) {
@@ -246,29 +221,38 @@ function update() {
         lastSent = message;
     }
 
-    p.update();
-
+    GAME_OBJECTS.forEach(mObject => {
+        if (mObject.update) {
+            mObject.update();
+        }
+        if (mObject.dumbAI) {
+            mObject.dumbAI();
+        }
+    });
     for (let client of otherClients) {
         client.update();
     }
 
-    for (let i = AIs.length - 1; i >= 0; i--) {
-        AIs[i].update();
+    for (let i = GAME_OBJECTS.length - 1; i >= 0; i--) {
+        if (GAME_OBJECTS[i].dead) {
+            GAME_OBJECTS.splice(i, 1);
+        }
     }
-    //     if (isColliding(p, AIs[i])) {
-    //         if (p.position.y + p.size.y - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].size.y - (AIs[i].currentAnimation.images[0].size.y * AIs[i].currentAnimation.scalar)) {
-    //             deaths.push(new DeathAnimation(AIs[i].position, AIs[i].velocity));
+    // }
+    //     // if (isColliding(p, AIs[i])) {
+    //     //     if (p.position.y + p.size.y - (p.currentAnimation.images[0].height * p.currentAnimation.scalar) < AIs[i].position.y + AIs[i].size.y - (AIs[i].currentAnimation.images[0].size.y * AIs[i].currentAnimation.scalar)) {
+    //     //         deaths.push(new DeathAnimation(AIs[i].position, AIs[i].velocity));
 
-    //             AIs.splice(i, 1);
-    //             if(AIs.length==0){
-    //                 ground.position.x = 79;
-    //                 ground.size.x = 303;
-    //             }
-    //             continue;
-    //         } else {
-    //             console.log("You Died");
-    //         }
-    //     }
+    //     //         AIs.splice(i, 1);
+    //     //         if(AIs.length==0){
+    //     //             ground.position.x = 79;
+    //     //             ground.size.x = 303;
+    //     //         }
+    //     //         continue;
+    //     //     } else {
+    //     //         console.log("You Died");
+    //     //     }
+    //     // }
     //     if (Math.random() < 0.1) {
     //         if (AIs[i].position.y > p.position.y) {
     //             AIs[i].isJumping = true;
@@ -316,10 +300,6 @@ function update() {
     //     });
     // }
 
-    for (let ai in AIs) {
-        
-    }
-
 
     GAME_OBJECTS.forEach(mObject1 => {
         GAME_OBJECTS.forEach(mObject2 => {
@@ -337,5 +317,7 @@ if (!socket) {
     requestAnimationFrame(draw);
     update();
 }
-
-export { ctx, GAME_OBJECTS, canvas, p };
+export function spawnNewAi() {
+    new Enemy(Math.random() * 800, 20, 13 * 2, 18 * 2, "green");
+}
+export { ctx, GAME_OBJECTS, canvas, player };

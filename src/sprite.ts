@@ -12,23 +12,23 @@ export type Sprite = ImgSprite | AniSprite;
 
 export class ImgSprite {
     image: HTMLImageElement;
-    scalar?: number;
+    scale?: Vector;
 
-    constructor (filePath: string, scalar=1) {
+    constructor (filePath: string, scalar=new Vector()) {
         // FIXME: Check if file exists
         
         const image = new Image();
         image.src = filePath;
         image.onload = () => this.image = image;
 
-        this.scalar = scalar;
+        this.scale = scalar;
     }
 
     show(x: number, y: number){
         let image = this.image
         if (!image) return;
 
-        ctx.drawImage(image, x, y, image.width * this.scalar, image.height * this.scalar);
+        ctx.drawImage(image, x, y, image.width * this.scale.x, image.height * this.scale.y);
 
         return;
     }
@@ -61,7 +61,7 @@ export class AniSprite{
 
     
 
-    show(frameRate: number, x: number, y: number, options: AniSpriteOptions={}) {
+    show(x: number, y: number, frameRate: number, options: AniSpriteOptions={}) {
         let {
             loop: loop,
             n: n,

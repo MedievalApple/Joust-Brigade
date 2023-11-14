@@ -1,6 +1,6 @@
 import { Vector } from "./vector";
 import { ctx, GAME_OBJECTS } from "./joust";
-import { Sprite } from "./sprite";
+import { AniSprite, ImgSprite, Sprite } from "./sprite";
 import { Player } from "./player";
 import { DEBUG } from "./debug";
 
@@ -22,6 +22,7 @@ export class OffsetHitbox implements IHitbox {
 export class Collider {
     position: Vector;
     hitbox: IHitbox;
+    friction: number = 0.8;
 
     get collisionX() {
         return this.position.x + this.hitbox.offset.x;
@@ -61,12 +62,18 @@ export class MapObject {
 
     show() {
         if (DEBUG) {
+            ctx.fillStyle = "red";
             this.collider.show();
+            ctx.fillRect(this.position.x, this.position.y, this.size.x, this.size.y);
         }
-        ctx.fillRect(this.position.x, this.position.y, this.size.x, this.size.y);
 
-        if (this.sprite != null) {
-            this.sprite.show(5, this.position.x, this.position.y);
+        if (this.sprite instanceof ImgSprite) {
+            if (!this.sprite.image) return;
+            this.sprite.scale = new Vector(this.size.x / this.sprite.image.width, this.size.y / this.sprite.image.height);
+            this.sprite.show(this.position.x, this.position.y);
+        } else if (this.sprite instanceof AniSprite) {
+            this.sprite.show(this.position.x, this.position.y, 5);
+        
         }
     }
 }
