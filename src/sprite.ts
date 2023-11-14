@@ -14,11 +14,17 @@ export class ImgSprite {
     image: HTMLImageElement;
     scale?: Vector;
 
-    constructor (filePath: string, scalar=new Vector()) {
+    constructor (input: string | HTMLImageElement, scalar=new Vector()) {
         // FIXME: Check if file exists
         
+        if (input instanceof HTMLImageElement) {
+            this.image = input;
+            this.scale = scalar;
+            return;
+        }
+
         const image = new Image();
-        image.src = filePath;
+        image.src = input;
         image.onload = () => this.image = image;
 
         this.scale = scalar;

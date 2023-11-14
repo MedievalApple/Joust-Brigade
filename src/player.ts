@@ -5,63 +5,71 @@ import { FRAME_RATE } from "./joust";
 import { Collider, OffsetHitbox } from "./map_object";
 import { DEBUG } from "./debug";
 
+enum Direction {
+    Left,
+    Right
+}
+
 export class Player {
     currentAnimation: AniSprite | null;
-    animations: { [key: string]: AniSprite };
+    animations: { [key: string]: AniSprite } = {
+        running: new AniSprite("/assets/sprite_sheet/ostrich/walk_ostrich/walk", 4, 15, 2),
+        stop: new AniSprite("/assets/sprite_sheet/ostrich/walk_ostrich/stop", 1, 60, 2),
+        flap: new AniSprite("/assets/sprite_sheet/ostrich/flap_ostrich/flap", 2, null, 2),
+        idle: new AniSprite("/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing", 1, null, 2)
+
+    };
     name: string;
-    velocity: Vector;
+    velocity: Vector = new Vector(0, 0);
     size: Vector;
-    gravity: number;
-    friction: number;
-    xAccel: number;
-    blockInfo: { x: number; y: number; w: number; };
-    maxSpeed: Vector;
+    gravity: number = 0.05;
+    friction: number = 0.4;
+    xAccel: number = 0;
+    maxSpeed: Vector = new Vector(3, 5);
     color: string;
-    jumpDirection: boolean;
-    isJumping: boolean;
+    direction: Direction = Direction.Right;
+    isJumping: boolean = false;
     collider: Collider;
     position: Vector;
-    oldSize: Vector;
+    oldSize: Vector = new Vector();
+    lance: Collider;
 
     constructor(x: number, y: number, width: number, height: number, color: string, name: string) {
-        this.currentAnimation = null;
-        this.animations = {
-            running: new AniSprite("/assets/sprite_sheet/ostrich/walk_ostrich/walk", 4, 15, 2),
-            stop: new AniSprite("/assets/sprite_sheet/ostrich/walk_ostrich/stop", 1, 60, 2),
-            flap: new AniSprite("/assets/sprite_sheet/ostrich/flap_ostrich/flap", 2, null, 2),
-            idle: new AniSprite("/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing", 1, null, 2)
-
-        }
-
-        this.name = name;
-        this.velocity = new Vector(0, 0);
         this.position = new Vector(x, y);
         this.size = new Vector(width, height);
-        this.gravity = 0.05;
-        this.friction = 0.4;
-        this.xAccel = 0;
-        this.blockInfo = { x: -100, y: -100, w: -100 };
-        this.maxSpeed = new Vector(3, 5)
         this.color = color;
-        this.jumpDirection = false;
-        this.isJumping = false;
+        this.name = name;
+
         this.collider = new Collider();
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
-        this.oldSize = new Vector();
+
+        this.lance = new Collider();
+        this.lance.hitbox = new OffsetHitbox(new Vector(14, 6), new Vector(12, 6));
+
         GAME_OBJECTS.unshift(this);
+    }
+
+    toggleDirection(): Direction {
+        return this.direction === Direction.Left ? Direction.Right : Direction.Left;
     }
 
     updateCollider(vector: Vector) {
         if (!this.collider) return;
         this.collider.position = vector
+
+        if (!this.lance) return;
+        this.lance.position = vector;;
+
+        if ((this.velocity.x < 0 && !this.isJumping)) {
+            this.lance.hitbox.offset = new Vector(0, 6);
+            console.log(this.lance.hitbox.offset);
+        } else {
+            this.lance.hitbox.offset = new Vector(14, 6);
+        }
     }
 
     show() {
         ctx.fillStyle = this.color;
-
-        if (DEBUG) {
-            this.collider.show();
-        }
 
         // Draw name above player, centered
         ctx.font = "10px Arial";
@@ -75,9 +83,6 @@ export class Player {
             this.currentAnimation = this.animations.stop;
         } else {
             this.currentAnimation = this.animations.running;
-        }
-        if (this.currentAnimation != this.animations.flap) {
-            this.jumpDirection = false;
         }
         if (!this.currentAnimation) {
             this.currentAnimation = this.animations.running;
@@ -93,7 +98,7 @@ export class Player {
 
         this.oldSize = this.collider.hitbox.size.clone();
 
-        if ((this.velocity.x < 0 && !this.isJumping) || this.jumpDirection) {
+        if ((this.velocity.x < 0 && !this.isJumping) || this.direction == Direction.Left) {
             ctx.save();
             ctx.scale(-1, 1);
             this.currentAnimation.show(-this.position.x - this.size.x, this.position.y, Math.abs(this.velocity.x * 2), {
@@ -106,6 +111,11 @@ export class Player {
                 size: new Vector(this.size.x, this.size.y),
                 scalar: 2
             });
+        }
+
+        if (DEBUG) {
+            // this.collider.show();
+            this.lance.show();
         }
     }
 
@@ -140,18 +150,17 @@ export class Player {
 
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
-        this.handleCollisions();
 
+        this.handleCollisions();
         this.updateCollider(this.position);
 
     }
 
     handleLeft() {
-        if (this.currentAnimation == this.animations.flap) {
-            this.jumpDirection = true;
-        } else {
-            this.jumpDirection = false;
+        if(this.isJumping) {
+            this.direction = Direction.Left
         }
+
         if (Math.abs(this.velocity.x) == 0) {
             this.velocity.x = -1;
             this.xAccel = -0.05;
@@ -161,8 +170,8 @@ export class Player {
     }
 
     handleRight() {
-        if (this.currentAnimation == this.animations.flap) {
-            this.jumpDirection = false;
+        if(this.isJumping) {
+            this.direction = Direction.Right
         }
 
         if (Math.abs(this.velocity.x) == 0) {
@@ -206,7 +215,7 @@ export class Enemy extends Player {
                 }
                 break;
             case 1:
-                this.jumpDirection = true;
+                this.direction = Direction.Left;
                 if (Math.abs(this.velocity.x) == 0) {
                     this.velocity.x = -1;
                     this.velocity.x = -0.05;
@@ -238,7 +247,7 @@ export class Enemy extends Player {
         }
         switch (this.velocity.x > 0) {
             case true:
-                this.jumpDirection = false;
+                this.direction = Direction.Right;
                 if (Math.abs(this.velocity.x) == 0) {
                     this.velocity.x = 1;
                     this.xAccel = 0.05;
@@ -247,7 +256,7 @@ export class Enemy extends Player {
                 }
                 break;
             case false:
-                this.jumpDirection = true;
+                this.direction = Direction.Left;
                 if (Math.abs(this.velocity.x) == 0) {
                     this.velocity.x = -1;
                     this.xAccel = -0.05;

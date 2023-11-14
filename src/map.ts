@@ -14,7 +14,8 @@ addObjects([
     new MapObject(165, 282, 103, 17, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_5.png")), //5
     new MapObject(321, 205, 94, 25, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_6.png")), //6
     new MapObject(409, 225, 71, 15, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_7.png")), //7
-    new MapObject(-10, 388, canvas.width + 10, 100, new Collider()), // Bridge
+    new MapObject(-10, 388, canvas.width + 10, 100, new Collider()), // Ground
     new MapObject(91, 388, 298, 60, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_8.png")), //8
 ]);
+
 // new Block(79, 388, 303, 100, null); //8

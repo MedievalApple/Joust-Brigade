@@ -22,7 +22,7 @@ export class OffsetHitbox implements IHitbox {
 export class Collider {
     position: Vector;
     hitbox: IHitbox;
-    friction: number = 0.8;
+    friction: number = 0.6;
 
     get collisionX() {
         return this.position.x + this.hitbox.offset.x;
@@ -37,8 +37,8 @@ export class Collider {
     }
 
     show() {
-        ctx.fillStyle = "red";
-        ctx.fillRect(this.collisionX, this.collisionY, this.hitbox.size.x, this.hitbox.size.y);
+        ctx.strokeStyle = "red";
+        ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
     }
 }
 
@@ -63,8 +63,8 @@ export class MapObject {
     show() {
         if (DEBUG) {
             ctx.fillStyle = "red";
-            this.collider.show();
-            ctx.fillRect(this.position.x, this.position.y, this.size.x, this.size.y);
+            // this.collider.show();
+            // ctx.fillRect(this.position.x, this.position.y, this.size.x, this.size.y);
         }
 
         if (this.sprite instanceof ImgSprite) {
