@@ -54,7 +54,7 @@ const deaths = [];
 // Player creation
 const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
 
-for (let i = 0; i < 0; i++) {
+for (let i = 0; i < 5; i++) {
     new Enemy(Math.random() * canvas.width, 20, PLAYER_WIDTH, PLAYER_HEIGHT, "green");
 }
 // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
@@ -236,6 +236,8 @@ function update() {
     for (let i = GAME_OBJECTS.length - 1; i >= 0; i--) {
         if (GAME_OBJECTS[i].dead) {
             GAME_OBJECTS.splice(i, 1);
+        } else if (GAME_OBJECTS[i].collisionObjects) {
+            GAME_OBJECTS[i].collisionObjects = [];
         }
     }
     // }

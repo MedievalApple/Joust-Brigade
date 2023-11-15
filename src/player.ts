@@ -4,6 +4,7 @@ import { ctx, canvas, GAME_OBJECTS, player } from "./joust";
 import { FRAME_RATE } from "./joust";
 import { Collider, OffsetHitbox } from "./map_object";
 import { DEBUG } from "./debug";
+import { ICollisionObject } from "./collision";
 
 enum Direction {
     Left,
@@ -29,10 +30,12 @@ export class Player {
     color: string;
     direction: Direction = Direction.Right;
     isJumping: boolean = false;
-    collider: Collider;
     position: Vector;
     oldSize: Vector = new Vector();
+    collider: Collider;
     lance: Collider;
+    head: Collider;
+    collisionObjects: Array<ICollisionObject> = [];
 
     constructor(x: number, y: number, width: number, height: number, color: string, name: string) {
         this.position = new Vector(x, y);
@@ -46,6 +49,9 @@ export class Player {
         this.lance = new Collider();
         this.lance.hitbox = new OffsetHitbox(new Vector(14, 6), new Vector(12, 6));
 
+        this.head = new Collider();
+        this.head.hitbox = new OffsetHitbox(new Vector(4, 0), new Vector(18, 6));
+
         GAME_OBJECTS.unshift(this);
     }
 
@@ -54,18 +60,20 @@ export class Player {
     }
 
     updateCollider(vector: Vector) {
-        if (!this.collider) return;
-        this.collider.position = vector
+        if (this.collider) this.collider.position = vector
 
-        if (!this.lance) return;
-        this.lance.position = vector;;
+        if (this.lance) {
+            this.lance.position = vector;;
 
-        if ((this.velocity.x < 0 && !this.isJumping)) {
-            this.lance.hitbox.offset = new Vector(0, 6);
-            console.log(this.lance.hitbox.offset);
-        } else {
-            this.lance.hitbox.offset = new Vector(14, 6);
+            if ((this.velocity.x < 0 && !this.isJumping)) {
+                this.lance.hitbox.offset = new Vector(0, 6);
+                console.log(this.lance.hitbox.offset);
+            } else {
+                this.lance.hitbox.offset = new Vector(14, 6);
+            }
         }
+
+        if (this.head) this.head.position = vector;
     }
 
     show() {
@@ -114,8 +122,9 @@ export class Player {
         }
 
         if (DEBUG) {
-            // this.collider.show();
+            this.collider.show();
             this.lance.show();
+            this.head.show();
         }
     }
 
@@ -138,6 +147,8 @@ export class Player {
     }
 
     update() {
+        console.log(this.collisionObjects);
+    
         this.velocity.y += this.gravity;
         this.velocity.x += this.xAccel;
         if (Math.abs(this.velocity.x) > this.maxSpeed.x) {

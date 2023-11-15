@@ -12,7 +12,7 @@ import { Vector } from "./vector";
 //     );
 // }
 
-interface ICollisionObject {
+export interface ICollisionObject {
     position: Vector;
     velocity: Vector;
     isJumping?: boolean;
@@ -48,6 +48,14 @@ export function handleCollision(
     );
 
     if (overlapX >= 0 && overlapY >= 0) {
+        if (gameObject1.collisionObjects) {
+            gameObject1.collisionObjects.push(gameObject2);
+        }
+
+        if (gameObject2.collisionObjects) {
+            gameObject2.collisionObjects.push(gameObject1);
+        }
+
         if ((gameObject1.constructor.name == "Player" && gameObject2.constructor.name == "Enemy")||(gameObject2.constructor.name == "Player" && gameObject1.constructor.name == "Enemy")) {
             console.log(gameObject1, gameObject2)
             if (gameObject1 instanceof Enemy&&gameObject1.constructor.name == "Enemy") {

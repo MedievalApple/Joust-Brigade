@@ -1,6 +1,6 @@
 import { Vector } from "./vector";
 import { ctx, GAME_OBJECTS } from "./joust";
-import { AniSprite, ImgSprite, Sprite } from "./sprite";
+import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
 import { Player } from "./player";
 import { DEBUG } from "./debug";
 
@@ -37,7 +37,9 @@ export class Collider {
     }
 
     show() {
-        ctx.strokeStyle = "red";
+        ctx.strokeStyle = "white"
+        ctx.lineWidth = 1;
+        ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
         ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
     }
 }
@@ -62,18 +64,15 @@ export class MapObject {
 
     show() {
         if (DEBUG) {
-            ctx.fillStyle = "red";
-            // this.collider.show();
-            // ctx.fillRect(this.position.x, this.position.y, this.size.x, this.size.y);
+            this.collider.show();
         }
 
-        if (this.sprite instanceof ImgSprite) {
+        if (this.sprite instanceof ImgSprite || this.sprite instanceof ColorSprite) {
             if (!this.sprite.image) return;
             this.sprite.scale = new Vector(this.size.x / this.sprite.image.width, this.size.y / this.sprite.image.height);
             this.sprite.show(this.position.x, this.position.y);
         } else if (this.sprite instanceof AniSprite) {
             this.sprite.show(this.position.x, this.position.y, 5);
-        
         }
     }
 }

@@ -8,7 +8,41 @@ type AniSpriteOptions = {
     scalar?: number
 }
 
-export type Sprite = ImgSprite | AniSprite;
+export type Sprite = ImgSprite | AniSprite | ColorSprite;
+
+export class ColorSprite {
+    image: HTMLImageElement = new Image();
+    color: string | CanvasGradient | CanvasPattern;
+    scale?: Vector;
+
+    constructor (color: string) {
+        this.color = color;
+
+        // Create a canvas element
+        const tempCanv = document.createElement('canvas');
+        tempCanv.width = 1;
+        tempCanv.height = 1;
+
+        // Get the 2D rendering context
+        const context = tempCanv.getContext('2d');
+
+        // Draw a colored rectangle
+        context.fillStyle = color;
+        context.fillRect(0, 0, 1, 1);
+
+        // Set the image data to the canvas data
+        this.image.src = tempCanv.toDataURL();
+    }
+
+    show(x: number, y: number){
+        let image = this.image
+        if (!image) return;
+
+        ctx.drawImage(image, x, y, image.width * this.scale.x, image.height * this.scale.y);
+
+        return;
+    }
+}
 
 export class ImgSprite {
     image: HTMLImageElement;

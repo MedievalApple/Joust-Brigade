@@ -1,9 +1,8 @@
 console.log("map.ts loaded");
 
 import { Collider, MapObject, addObjects } from "./map_object";
-import { canvas, ctx } from "./joust";
-import { ImgSprite, Sprite } from "./sprite";
-import { Vector } from "./vector";
+import { canvas } from "./joust";
+import { ColorSprite, ImgSprite } from "./sprite";
 
 // Platforms
 addObjects([
@@ -14,7 +13,7 @@ addObjects([
     new MapObject(165, 282, 103, 17, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_5.png")), //5
     new MapObject(321, 205, 94, 25, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_6.png")), //6
     new MapObject(409, 225, 71, 15, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_7.png")), //7
-    new MapObject(-10, 388, canvas.width + 10, 100, new Collider()), // Ground
+    new MapObject(-10, 388, canvas.width + 10, 100, new Collider(), new ColorSprite("red")), //8
     new MapObject(91, 388, 298, 60, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_8.png")), //8
 ]);
 
