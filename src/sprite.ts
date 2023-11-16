@@ -1,34 +1,27 @@
-import { ctx } from "./joust";
+import { ctx, frameCount } from "./joust";
 import { Vector } from "./vector";
-
-type AniSpriteOptions = {
-    loop?: boolean,
-    n?: number,
-    size?: Vector,
-    scalar?: number
-}
 
 export type Sprite = ImgSprite | AniSprite | ColorSprite;
 
 export class ColorSprite {
     image: HTMLImageElement = new Image();
     color: string | CanvasGradient | CanvasPattern;
-    scale?: Vector;
+    scale?: Vector = new Vector(1, 1);
 
-    constructor (color: string) {
+    constructor (size: Vector, color: string | CanvasGradient | CanvasPattern) {
         this.color = color;
 
         // Create a canvas element
         const tempCanv = document.createElement('canvas');
-        tempCanv.width = 1;
-        tempCanv.height = 1;
+        tempCanv.width = size.x;
+        tempCanv.height = size.y;
 
         // Get the 2D rendering context
         const context = tempCanv.getContext('2d');
 
         // Draw a colored rectangle
         context.fillStyle = color;
-        context.fillRect(0, 0, 1, 1);
+        context.fillRect(0, 0, size.x, size.y);
 
         // Set the image data to the canvas data
         this.image.src = tempCanv.toDataURL();
@@ -39,21 +32,18 @@ export class ColorSprite {
         if (!image) return;
 
         ctx.drawImage(image, x, y, image.width * this.scale.x, image.height * this.scale.y);
-
-        return;
     }
 }
 
 export class ImgSprite {
-    image: HTMLImageElement;
+    image: HTMLImageElement = new Image(1, 1);
     scale?: Vector;
 
-    constructor (input: string | HTMLImageElement, scalar=new Vector()) {
+    constructor (input: string | HTMLImageElement, scalar?: Vector) {
         // FIXME: Check if file exists
         
         if (input instanceof HTMLImageElement) {
             this.image = input;
-            this.scale = scalar;
             return;
         }
 
@@ -61,91 +51,72 @@ export class ImgSprite {
         image.src = input;
         image.onload = () => this.image = image;
 
-        this.scale = scalar;
+        this.scale = scalar || new Vector(1, 1);
     }
 
     show(x: number, y: number){
         let image = this.image
         if (!image) return;
 
+        console.log("Showing image", image, "at", x, y)
         ctx.drawImage(image, x, y, image.width * this.scale.x, image.height * this.scale.y);
 
         return;
     }
 }
 
-export class AniSprite{
+interface IAniSpriteOptions {
+    animationSpeed?: number;
+    scale?: Vector;
+    loop?: boolean;
+}
+
+export class AniSprite {
     spriteSheet: string;
     images: HTMLImageElement[];
     currentImage: number;
     maxImage: number;
-    frameRate: number;
-    scalar: number;
+    animationSpeed: number;
+    scale: Vector;
+    loop: boolean;
 
-    constructor(spriteSheet: string, numImages: number, frameRate?: number, scalar?: number) {
-        this.spriteSheet = spriteSheet;
+    constructor(basePath: string, numberOfImages: number, options: IAniSpriteOptions = {}) {
+        this.spriteSheet = basePath;
         this.images = [];
         this.currentImage = 0;
-        this.maxImage = numImages;
-        this.frameRate = frameRate;
+        this.maxImage = numberOfImages;
+        this.animationSpeed = options.animationSpeed || 0;
+        this.scale = options.scale || new Vector(1, 1);
+        this.loop = options.loop || false;
 
-        this.scalar = scalar || 1
-
-        for (let i = 1; i <= numImages; i++) {
-            var image = new Image()
-
-            image.src = `${spriteSheet}${i}.png`
+        for (let i = 1; i <= numberOfImages; i++) {
+            const image = new Image();
+            image.src = `${basePath}${i}.png`;
             this.images[i - 1] = image;
         }
     }
 
-    
+    show(x: number, y: number) {
+        let image = this.images[this.currentImage];
+        if (!image) return;
 
-    show(x: number, y: number, frameRate: number, options: AniSpriteOptions={}) {
-        let {
-            loop: loop,
-            n: n,
-            size: size,
-            scalar: scalar
-        } = options
+        ctx.drawImage(image, x, y, image.width * this.scale.x, image.height * this.scale.y);
+        // console.log(this)
 
-        if (!n) loop = true;
-
-        // Still images (1 frame)
-        if (this.maxImage == 1) {
-            let image = this.images[0];
-            if (size) {
-                ctx.drawImage(image, x + size.x - image.width * (scalar || this.scalar), y + size.y - image.height * this.scalar, image.width * (scalar || this.scalar), image.height * (scalar || this.scalar));
-            } else {
-                ctx.drawImage(image, x, y, image.width * (scalar || this.scalar), image.height * (scalar || this.scalar));
+        console.log(this.animationSpeed, this.loop)
+        if (this.animationSpeed > 0 && this.loop) {
+            console.log(frameCount % this.animationSpeed)
+            if (frameCount % this.animationSpeed === 0) {
+                this.next();
             }
-            return;
         }
+    }
 
-        // Continue looping (animation)
-        if (loop) {
-            if (this.currentImage >= this.maxImage) {
-                this.currentImage = 0;
-            }
-            let image = this.images[Math.floor(this.currentImage)];
-            if (size) {
-                ctx.drawImage(image, x + size.x - image.width * this.scalar, y + size.y - image.height * this.scalar, image.width * this.scalar, image.height * this.scalar);
-            } else {
-                ctx.drawImage(image, x, y, image.width * this.scalar, image.height * this.scalar);
-            }
-            this.currentImage += (this.frameRate || frameRate) / (30);
-        }
+    next() {
+        this.currentImage++;
 
-        // Show nth frame of animation
-        else {
-            if (n !== null && n >= 0 && n < this.maxImage) {
-                let image = this.images[n];
-                if (size) {
-                    ctx.drawImage(image, x + size.x - image.width * this.scalar, y + size.y - image.height * this.scalar, image.width * this.scalar, image.height * this.scalar);
-                } else {
-                    ctx.drawImage(image, x, y, image.width * this.scalar, image.height * this.scalar);
-                }
-            }
+        if (this.currentImage >= this.maxImage) {
+            this.currentImage = 0;
         }
     }
 }

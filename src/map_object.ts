@@ -1,49 +1,21 @@
 import { Vector } from "./vector";
-import { ctx, GAME_OBJECTS } from "./joust";
 import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
 import { Player } from "./player";
 import { DEBUG } from "./debug";
+import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
 
-export interface IHitbox {
-    offset: Vector;
-    size: Vector;
-}
-
-export class OffsetHitbox implements IHitbox {
-    offset: Vector;
-    size: Vector;
-
-    constructor(offset: Vector, size: Vector) {
-        this.offset = offset;
-        this.size = size;
-    }
-}
-
-export class Collider {
+interface IGameObject {
     position: Vector;
-    hitbox: IHitbox;
-    friction: number = 0.6;
-
-    get collisionX() {
-        return this.position.x + this.hitbox.offset.x;
-    }
-
-    get collisionY() {
-        return this.position.y + this.hitbox.offset.y;
-    }
-
-    get collisionSize() {
-        return this.hitbox.size;
-    }
-
-    show() {
-        ctx.strokeStyle = "white"
-        ctx.lineWidth = 1;
-        ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
-        ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
-    }
+    velocity: Vector;
+    collider: Collider;
+    update?: () => void;
+    show?: () => void;
+    dumbAI?: () => void;
+    dead?: boolean;
+    collisionObjects?: Array<ICollisionObject>;
 }
 
+const GAME_OBJECTS: Array<IGameObject> = [];
 export class MapObject {
     position: Vector;
     velocity: Vector;
@@ -72,13 +44,15 @@ export class MapObject {
             this.sprite.scale = new Vector(this.size.x / this.sprite.image.width, this.size.y / this.sprite.image.height);
             this.sprite.show(this.position.x, this.position.y);
         } else if (this.sprite instanceof AniSprite) {
-            this.sprite.show(this.position.x, this.position.y, 5);
+            this.sprite.show(this.position.x, this.position.y);
         }
     }
 }
 
-export function addObjects(objects: Array<MapObject | Player>) {
+export function addObjects(objects: Array<IGameObject>) {
     for (let object of objects) {
         GAME_OBJECTS.push(object);
     }
 }
+
+export { Collider, GAME_OBJECTS };

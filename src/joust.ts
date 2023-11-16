@@ -1,9 +1,11 @@
 // import '../css/joust.css';
-import { Player, Enemy, DeathAnimation } from './player';
+import { Player, Enemy, EnemyHandler } from './player';
 import { AniSprite } from './sprite';
 import { handleCollision } from './collision';
 import { WebSocket } from 'ws';
 import { InputHandler } from './controls';
+import { GAME_OBJECTS } from './map_object';
+import { Vector } from './vector';
 
 // Constants for readability
 export const FRAME_RATE = 60;
@@ -11,8 +13,8 @@ let lastFrameTime = 0;
 let lastUpdateTime = 0;
 
 const SERVER_ADDRESS = localStorage.getItem("server");
-const PLAYER_WIDTH = 13 * 2;
-const PLAYER_HEIGHT = 18 * 2;
+export const PLAYER_WIDTH = 13 * 2;
+export const PLAYER_HEIGHT = 18 * 2;
 const PLAYER_COLOR = "red";
 const LOCAL_USERNAME = localStorage.getItem("username");
 
@@ -26,7 +28,6 @@ const playerImage = new Image();
 playerImage.src = "/assets/sprite_sheet.png";
 
 // Arrays for other clients, AIs, and map blocks
-const GAME_OBJECTS = [];
 const otherClients = [];
 
 // Background color
@@ -47,16 +48,16 @@ let handPos;
 let socket;
 
 // Frame count and lastSent data
-let frameCount = 0;
+export var frameCount = 0;
 let lastSent;
 
 const deaths = [];
 // Player creation
 const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
 
-for (let i = 0; i < 5; i++) {
-    new Enemy(Math.random() * canvas.width, 20, PLAYER_WIDTH, PLAYER_HEIGHT, "green");
-}
+// Instantiate enemy handler
+const enemyHandler = new EnemyHandler(0);
+
 // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
 new InputHandler({
     "a": {
@@ -68,13 +69,22 @@ new InputHandler({
     "w": {
         keydown: player.handleJump.bind(player)
     },
+    "ArrowLeft": {
+        keydown: enemyHandler.createEnemy.bind(enemyHandler)
+    }
 })
 
 // Load player image before starting the game
 playerImage.onload = function () {
-    hand = new AniSprite("/assets/sprite_sheet/lava_troll/troll", 5, null, 2);
-    fire = new AniSprite("/assets/sprite_sheet/lava_troll/fire", 4, null, 2);
+    hand = new AniSprite("/assets/sprite_sheet/lava_troll/troll", 5, {
+        scale: new Vector(2, 2),
+        loop: true
+    });
 
+    fire = new AniSprite("/assets/sprite_sheet/lava_troll/fire", 4, {
+        scale: new Vector(2, 2),
+        loop: true
+    });
 };
 
 // Function to perform the authentication handshake
@@ -221,6 +231,14 @@ function update() {
         lastSent = message;
     }
 
+    // if (enemyHandler.enemies.length < 5) {
+    //     for (let i=0; enemyHandler.enemies.length < 5; i++) {
+    //         enemyHandler.createEnemy();
+    //     }
+    // }
+
+    // console.log(enemyHandler.enemies.length);   
+
     GAME_OBJECTS.forEach(mObject => {
         if (mObject.update) {
             mObject.update();
@@ -229,6 +247,7 @@ function update() {
             mObject.dumbAI();
         }
     });
+
     for (let client of otherClients) {
         client.update();
     }

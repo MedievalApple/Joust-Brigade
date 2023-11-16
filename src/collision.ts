@@ -1,16 +1,6 @@
-import { GAME_OBJECTS, player } from "./joust";
-import { Collider, IHitbox, MapObject } from "./map_object";
-import { Enemy, Player } from "./player";
+import { ctx } from "./joust";
+import { Enemy } from "./player";
 import { Vector } from "./vector";
-
-// export function isColliding(object1: Collider, object2: Collider) {
-//     return (
-//         object1.collisionX < object2.collisionX + object2.collisionSize.x &&
-//         object1.collisionX + object1.collisionSize.x > object2.collisionX &&
-//         object1.collisionY < object2.collisionY + object2.collisionSize.y &&
-//         object1.collisionY + object1.collisionY > object2.collisionY
-//     );
-// }
 
 export interface ICollisionObject {
     position: Vector;
@@ -18,6 +8,56 @@ export interface ICollisionObject {
     isJumping?: boolean;
     static?: boolean;
     collisionObjects?: Array<ICollisionObject>;
+}
+
+export interface IHitbox {
+    offset: Vector;
+    size: Vector;
+}
+
+export class OffsetHitbox implements IHitbox {
+    offset: Vector;
+    size: Vector;
+
+    constructor(offset: Vector, size: Vector) {
+        this.offset = offset;
+        this.size = size;
+    }
+}
+
+export class CircleHitbox implements IHitbox {
+    offset: Vector;
+    size: Vector;
+
+    constructor(offset: Vector, size: Vector) {
+        this.offset = offset;
+        this.size = size;
+    }
+}
+
+export class Collider {
+    position: Vector = new Vector();
+    hitbox: IHitbox;
+    friction: number = 0.6;
+
+    get collisionX() {
+        return this.position.x + this.hitbox.offset.x;
+    }
+
+    get collisionY() {
+        return this.position.y + this.hitbox.offset.y;
+    }
+
+    get collisionSize() {
+        return this.hitbox.size;
+    }
+
+    show(color: string = "white") {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
+        ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
+    }
 }
 
 export function handleCollision(
@@ -57,7 +97,7 @@ export function handleCollision(
         }
 
         if ((gameObject1.constructor.name == "Player" && gameObject2.constructor.name == "Enemy")||(gameObject2.constructor.name == "Player" && gameObject1.constructor.name == "Enemy")) {
-            console.log(gameObject1, gameObject2)
+            // console.log(gameObject1, gameObject2)
             if (gameObject1 instanceof Enemy&&gameObject1.constructor.name == "Enemy") {
                 gameObject1.dead = true;
             } else if (gameObject2 instanceof Enemy&&gameObject2.constructor.name == "Enemy") {

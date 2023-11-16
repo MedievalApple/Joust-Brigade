@@ -5,3 +5,7 @@ function interpolate(t, start, end) {
     // Calculate the interpolated value
     return start + (end - start) * t;
 }
+
+export function constrain(value: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, value));
+}

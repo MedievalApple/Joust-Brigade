@@ -23,15 +23,11 @@ export class InputHandler {
     constructor(keyCallbacks: InputHandlerConfig) {
         this.keyCallbacks = keyCallbacks
 
-        // Bind the keydown method to 
-        this.keydown = this.keydown.bind(this);
         inputHandlers.push(this)
 
         addEvent(window, "keydown", this.keydown);
     }
     keydown(e: KeyboardEvent) {
-        console.log(e.key)
-            
         for (let handler of inputHandlers) {
             for (let key in handler.keyCallbacks) {
                 const callbackObject = handler.keyCallbacks[key];
