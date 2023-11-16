@@ -38,7 +38,11 @@ export class CircleHitbox implements IHitbox {
 export class Collider {
     position: Vector = new Vector();
     hitbox: IHitbox;
-    friction: number = 0.6;
+    friction: number;
+
+    constructor(friction: number = 0.6) {
+        this.friction = friction;
+    }
 
     get collisionX() {
         return this.position.x + this.hitbox.offset.x;
@@ -97,7 +101,6 @@ export function handleCollision(
         }
 
         if ((gameObject1.constructor.name == "Player" && gameObject2.constructor.name == "Enemy")||(gameObject2.constructor.name == "Player" && gameObject1.constructor.name == "Enemy")) {
-            // console.log(gameObject1, gameObject2)
             if (gameObject1 instanceof Enemy&&gameObject1.constructor.name == "Enemy") {
                 gameObject1.dead = true;
             } else if (gameObject2 instanceof Enemy&&gameObject2.constructor.name == "Enemy") {

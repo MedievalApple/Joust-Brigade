@@ -57,8 +57,6 @@ export class ImgSprite {
     show(x: number, y: number){
         let image = this.image
         if (!image) return;
-
-        console.log("Showing image", image, "at", x, y)
         ctx.drawImage(image, x, y, image.width * this.scale.x, image.height * this.scale.y);
 
         return;
@@ -103,10 +101,8 @@ export class AniSprite {
         ctx.drawImage(image, x, y, image.width * this.scale.x, image.height * this.scale.y);
         // console.log(this)
 
-        console.log(this.animationSpeed, this.loop)
         if (this.animationSpeed > 0 && this.loop) {
-            console.log(frameCount % this.animationSpeed)
-            if (frameCount % this.animationSpeed === 0) {
+            if (frameCount % this.animationSpeed < 1) {
                 this.next();
             }
         }

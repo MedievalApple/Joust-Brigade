@@ -56,7 +56,7 @@ const deaths = [];
 const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
 
 // Instantiate enemy handler
-const enemyHandler = new EnemyHandler(0);
+const enemyHandler = new EnemyHandler(5);
 
 // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
 new InputHandler({
@@ -67,7 +67,8 @@ new InputHandler({
         keydown: player.handleRight.bind(player)
     },
     "w": {
-        keydown: player.handleJump.bind(player)
+        keydown: player.jumpKeyDown.bind(player),
+        keyup: player.jumpKeyUp.bind(player)
     },
     "ArrowLeft": {
         keydown: enemyHandler.createEnemy.bind(enemyHandler)
@@ -231,13 +232,6 @@ function update() {
         lastSent = message;
     }
 
-    // if (enemyHandler.enemies.length < 5) {
-    //     for (let i=0; enemyHandler.enemies.length < 5; i++) {
-    //         enemyHandler.createEnemy();
-    //     }
-    // }
-
-    // console.log(enemyHandler.enemies.length);   
 
     GAME_OBJECTS.forEach(mObject => {
         if (mObject.update) {

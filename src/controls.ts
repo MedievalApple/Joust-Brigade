@@ -26,13 +26,26 @@ export class InputHandler {
         inputHandlers.push(this)
 
         addEvent(window, "keydown", this.keydown);
+        addEvent(window, "keyup", this.keyup);
     }
+
     keydown(e: KeyboardEvent) {
         for (let handler of inputHandlers) {
             for (let key in handler.keyCallbacks) {
                 const callbackObject = handler.keyCallbacks[key];
                 if (callbackObject.keydown && e.key === key) {
                     callbackObject.keydown();
+                }
+            }
+        }
+    }
+
+    keyup(e: KeyboardEvent) {
+        for (let handler of inputHandlers) {
+            for (let key in handler.keyCallbacks) {
+                const callbackObject = handler.keyCallbacks[key];
+                if (callbackObject.keyup && e.key === key) {
+                    callbackObject.keyup();
                 }
             }
         }

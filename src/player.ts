@@ -13,11 +13,7 @@ import { Collider } from "./map_object";
 import { DEBUG } from "./debug";
 import { OffsetHitbox, ICollisionObject } from "./collision";
 import { constrain } from "./utils";
-
-enum Direction {
-    Left,
-    Right,
-}
+import { Direction } from "./enums";
 
 export class Player {
     currentAnimation: Sprite | null;
@@ -60,6 +56,7 @@ export class Player {
     head: Collider;
     collisionObjects: Array<ICollisionObject> = [];
     debugColor: string = "red";
+    jumpDebounce: boolean;
 
     constructor(
         x: number,
@@ -121,21 +118,21 @@ export class Player {
         ctx.fillText(
             this.name,
             this.position.x +
-                this.size.x / 2 -
-                ctx.measureText(this.name).width / 2,
+            this.size.x / 2 -
+            ctx.measureText(this.name).width / 2,
             this.position.y - 20
         );
 
         this.updateCurrentAnimation();
-        if(!this.currentAnimation) return console.error("No current animation");
-    
+        if (!this.currentAnimation) return console.error("No current animation");
+
         if (this.currentAnimation instanceof AniSprite) {
             this.collider.hitbox.size.x =
                 this.currentAnimation.images[0].width * 2;
             this.collider.hitbox.size.y =
                 this.currentAnimation.images[0].height * 2;
         } else {
-            this.collider.hitbox.size.x = 
+            this.collider.hitbox.size.x =
                 this.currentAnimation.image.width * 2;
             this.collider.hitbox.size.y =
                 this.currentAnimation.image.height * 2;
@@ -146,10 +143,13 @@ export class Player {
             this.position = this.position.add(
                 this.oldSize.sub(this.collider.hitbox.size)
             );
+
         }
 
         this.oldSize = this.collider.hitbox.size.clone();
-
+        if (this.currentAnimation instanceof AniSprite && this.currentAnimation == this.animations.running) { 
+            this.currentAnimation.animationSpeed = 6-Math.abs(this.velocity.x)
+        };
         if (
             (this.velocity.x < 0 && !this.isJumping) ||
             this.direction == Direction.Left
@@ -161,15 +161,11 @@ export class Player {
                 this.position.y,
             );
             ctx.restore();
-
-            console.log("flipped");
         } else {
             this.currentAnimation.show(
                 this.position.x,
                 this.position.y,
             );
-
-            console.log("not flipped");
         }
 
         this.drawDebugVisuals();
@@ -185,13 +181,13 @@ export class Player {
             this.currentAnimation = this.animations.stop;
         } else {
             this.currentAnimation = this.animations.running;
-            if(this.velocity.x>0) {
+            if (this.velocity.x > 0) {
                 this.direction = Direction.Right;
-            }else {
+            } else {
                 this.direction = Direction.Left;
             }
         }
-    
+
         if (!this.currentAnimation) {
             this.currentAnimation = this.animations.idle;
         }
@@ -211,7 +207,7 @@ export class Player {
 
         this.velocity.y += this.gravity;
         this.velocity.x += this.xAccel;
-        
+
         if (Math.abs(this.velocity.x) > this.maxSpeed.x) {
             this.velocity.x = this.maxSpeed.x * Math.sign(this.velocity.x);
         } else if (
@@ -255,11 +251,18 @@ export class Player {
         }
     }
 
-    handleJump() {
-        this.isJumping = true;
-        this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
+    jumpKeyDown() {
+        if (!this.jumpDebounce) {
+            this.isJumping = true;
+            this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
 
-        if (this.currentAnimation instanceof AniSprite) this.currentAnimation.next();
+            if (this.currentAnimation instanceof AniSprite) this.currentAnimation.next();
+            this.jumpDebounce = true
+        }
+    }
+
+    jumpKeyUp() {
+        this.jumpDebounce = false
     }
 
     drawDebugVisuals() {
@@ -315,16 +318,16 @@ export class Enemy extends Player {
                 "/assets/sprite_sheet/bounder/walk_bounder/walk",
                 4,
                 {
-                    animationSpeed: 0,
+                    animationSpeed: 5,
                     scale: new Vector(2, 2),
-                    loop:true
+                    loop: true
                 }
             ),
             flap: new AniSprite(
                 "/assets/sprite_sheet/bounder/flap_bounder/flap",
                 2,
                 {
-                    animationSpeed: 0,
+                    animationSpeed: 5,
                     scale: new Vector(2, 2),
                     loop: true
                 }

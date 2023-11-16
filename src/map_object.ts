@@ -23,8 +23,9 @@ export class MapObject {
     sprite: Sprite;
     collider: Collider;
     static: boolean = true;
+    spawner: boolean = false;
 
-    constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite) {
+    constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite, spawner?: boolean) {
         this.position = new Vector(x, y);
         this.velocity = new Vector(0, 0);
         this.size = new Vector(w, h);
@@ -32,6 +33,7 @@ export class MapObject {
         this.collider = collider;
         this.collider.position = this.position;
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
+        this.spawner = spawner;
     }
 
     show() {
@@ -45,6 +47,12 @@ export class MapObject {
             this.sprite.show(this.position.x, this.position.y);
         } else if (this.sprite instanceof AniSprite) {
             this.sprite.show(this.position.x, this.position.y);
+        }
+    }
+
+    spawnEnemy() {
+        if(this.spawner){
+            
         }
     }
 }
