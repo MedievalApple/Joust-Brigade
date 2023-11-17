@@ -57,9 +57,7 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     GAME_OBJECTS.forEach(mObject => {
-        if (mObject.show) {
-            mObject.show();
-        }
+        if (mObject.show) mObject.show();
     });
 
     for (let client of otherClients) {
@@ -81,12 +79,8 @@ function draw() {
 
 function update() {
     GAME_OBJECTS.forEach(mObject => {
-        if (mObject.update) {
-            mObject.update();
-        }
-        if (mObject.dumbAI) {
-            mObject.dumbAI();
-        }
+        if (mObject.update) mObject.update();
+        if (mObject.dumbAI) mObject.dumbAI();
     });
 
     for (let client of otherClients) {
@@ -96,7 +90,9 @@ function update() {
     for (let i = GAME_OBJECTS.length - 1; i >= 0; i--) {
         if (GAME_OBJECTS[i].dead) {
             GAME_OBJECTS.splice(i, 1);
-        } else if (GAME_OBJECTS[i].collisionObjects) {
+        } 
+        
+        if (GAME_OBJECTS[i].collisionObjects) {
             GAME_OBJECTS[i].collisionObjects = [];
         }
     }
