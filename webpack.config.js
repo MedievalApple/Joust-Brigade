@@ -1,3 +1,4 @@
+const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
@@ -45,6 +46,12 @@ module.exports = {
             filename: "joust.html",
             template: "./public/joust.html",
             chunks: ["joust"]
+        }),
+        new CopyPlugin({
+            patterns: [
+                { from: "./public/assets", to: "assets" },
+                { from: "./public/css", to: "css" },
+            ],
         }),
     ],
 };
