@@ -1,10 +1,10 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Webpack
+name: Webpack And Depoly To Pages
 
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["node"]
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -42,7 +42,7 @@ jobs:
       - name: Build
         run: |
           npm install
-          npx webpack
+          npx webpack --mode="production"
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
