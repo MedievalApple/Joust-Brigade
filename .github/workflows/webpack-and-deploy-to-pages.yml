@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Webpack And Depoly To Pages
+name: Webpack And Deploy To Pages
 
 on:
   # Runs on pushes targeting the default branch
