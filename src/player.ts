@@ -114,14 +114,16 @@ export class Player {
         ctx.fillStyle = this.color;
 
         // Draw name above player, centered
-        ctx.font = "10px Arial";
-        ctx.fillText(
-            this.name,
-            this.position.x +
-            this.size.x / 2 -
-            ctx.measureText(this.name).width / 2,
-            this.position.y - 20
-        );
+        if(this.name){
+            ctx.font = "10px Arial";
+            ctx.fillText(
+                this.name,
+                this.position.x +
+                this.size.x / 2 -
+                ctx.measureText(this.name).width / 2,
+                this.position.y - 20
+            );
+        }
 
         this.updateCurrentAnimation();
         if (!this.currentAnimation) return console.error("No current animation");

@@ -2,6 +2,7 @@ import { Player, EnemyHandler } from './player';
 import { handleCollision } from './collision';
 import { InputHandler } from './controls';
 import { GAME_OBJECTS } from './map_object';
+import { UnmountedAI } from './death';
 
 // Canvas and context initialization
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
@@ -30,6 +31,8 @@ const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LO
 
 // Instantiate enemy handler
 const enemyHandler = new EnemyHandler(5);
+
+new UnmountedAI(100,100,PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, null)
 
 // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
 new InputHandler({

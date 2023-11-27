@@ -101,9 +101,9 @@ export function handleCollision(
         }
 
         if ((gameObject1.constructor.name == "Player" && gameObject2.constructor.name == "Enemy")||(gameObject2.constructor.name == "Player" && gameObject1.constructor.name == "Enemy")) {
-            if (gameObject1 instanceof Enemy&&gameObject1.constructor.name == "Enemy") {
+            if (gameObject1 instanceof Enemy && gameObject1.constructor.name == "Enemy") {
                 gameObject1.dead = true;
-            } else if (gameObject2 instanceof Enemy&&gameObject2.constructor.name == "Enemy") {
+            } else if (gameObject2 instanceof Enemy && gameObject2.constructor.name == "Enemy") {
                 gameObject2.dead = true;
             }
         }
