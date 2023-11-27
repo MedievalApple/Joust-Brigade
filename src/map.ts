@@ -1,0 +1,26 @@
+console.log("map.ts loaded");
+
+import { MapObject, addObjects } from "./map_object";
+import { canvas, ctx } from "./joust";
+import { ColorSprite, ImgSprite } from "./sprite";
+import { Vector } from "./vector";
+import { Collider } from "./collision";
+
+const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+gradient.addColorStop(0, 'rgba(231, 106, 135, 1)');
+gradient.addColorStop(1, `rgba(201, 171, 24, 1)`);
+// Platforms
+addObjects([
+    new MapObject(0, -100, canvas.width, 100, new Collider(), new ColorSprite(new Vector(100, 100), gradient)), //0
+    new MapObject(0, 72, 49, 15, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_1.png")), //1
+    new MapObject(132, 99, 143, 22, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_2.png")), //2
+    new MapObject(403, 73, 74, 12, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_3.png")), //3
+    new MapObject(0, 225, 100, 17, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_4.png")), //4
+    new MapObject(165, 282, 103, 17, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_5.png")), //5
+    new MapObject(321, 205, 94, 25, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_6.png")), //6
+    new MapObject(409, 225, 71, 15, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_7.png")), //7
+    new MapObject(-10, 388, canvas.width + 10, 100, new Collider(), new ColorSprite(new Vector(canvas.width + 10, 100), gradient)), // Ground
+    new MapObject(91, 388, 298, 60, new Collider(), new ImgSprite("/assets/sprite_sheet/map/platform_8.png")), //8
+]);
+
+// new Block(79, 388, 303, 100, null); //8
