@@ -63,7 +63,19 @@ export class Collider {
         ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
     }
 }
+export function isColliding(collider1: Collider, collider2: Collider) {
+    const overlapX = Math.min(
+        collider1.collisionX + collider1.collisionSize.x - collider2.collisionX,
+        collider2.collisionX + collider2.collisionSize.x - collider1.collisionX
+    );
 
+    const overlapY = Math.min(
+        collider1.collisionY + collider1.collisionSize.y - collider2.collisionY,
+        collider2.collisionY + collider2.collisionSize.y - collider1.collisionY
+    );
+
+    return (overlapX >= 0 && overlapY >= 0);
+}
 export function handleCollision(
     gameObject1: ICollisionObject,
     gameObject2: ICollisionObject,
@@ -100,7 +112,7 @@ export function handleCollision(
             gameObject2.collisionObjects.push(gameObject1);
         }
 
-        if ((gameObject1.constructor.name == "Player" && gameObject2.constructor.name == "Enemy")||(gameObject2.constructor.name == "Player" && gameObject1.constructor.name == "Enemy")) {
+        if ((gameObject1.constructor.name == "Player" && gameObject2.constructor.name == "Enemy") || (gameObject2.constructor.name == "Player" && gameObject1.constructor.name == "Enemy")) {
             if (gameObject1 instanceof Enemy && gameObject1.constructor.name == "Enemy") {
                 gameObject1.dead = true;
             } else if (gameObject2 instanceof Enemy && gameObject2.constructor.name == "Enemy") {

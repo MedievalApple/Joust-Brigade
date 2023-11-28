@@ -3,6 +3,7 @@ import { handleCollision } from './collision';
 import { InputHandler } from './controls';
 import { GAME_OBJECTS } from './map_object';
 import { UnmountedAI } from './death';
+import { DEBUG } from './debug';
 
 // Canvas and context initialization
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
@@ -32,7 +33,7 @@ const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LO
 // Instantiate enemy handler
 const enemyHandler = new EnemyHandler(5);
 
-new UnmountedAI(100,100,PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, null)
+// new UnmountedAI(100,100,PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, null)
 
 // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
 new InputHandler({
@@ -67,13 +68,15 @@ function draw() {
         client.show();
     }
 
-    // Draw fps
-    ctx.font = "10px Arial";
-    ctx.fillStyle = "white";
-    ctx.fillText(`FPS: ${Math.round(1000 / (performance.now() - lastFrameTime))}`, 10, 20);
+    if (DEBUG) {
+        // Draw fps
+        ctx.font = "10px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(`FPS: ${Math.round(1000 / (performance.now() - lastFrameTime))}`, 10, 20);
 
-    // Draw delta
-    ctx.fillText(`Delta: ${Math.round(performance.now() - lastUpdateTime)}ms`, 10, 40);
+        // Draw delta
+        ctx.fillText(`Delta: ${Math.round(performance.now() - lastUpdateTime)}ms`, 10, 40);
+    }
 
     lastFrameTime = performance.now();
     frameCount++;
@@ -93,13 +96,15 @@ function update() {
     for (let i = GAME_OBJECTS.length - 1; i >= 0; i--) {
         if (GAME_OBJECTS[i].dead) {
             GAME_OBJECTS.splice(i, 1);
-        } 
-        
+        }
+
         if (GAME_OBJECTS[i].collisionObjects) {
             GAME_OBJECTS[i].collisionObjects = [];
         }
     }
-
+    if (enemyHandler.enemies.length == 0) {
+        enemyHandler.createEnemy(5);
+    }
     GAME_OBJECTS.forEach(mObject1 => {
         GAME_OBJECTS.forEach(mObject2 => {
             if (mObject1 !== mObject2) {
