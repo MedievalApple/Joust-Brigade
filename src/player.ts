@@ -321,7 +321,6 @@ export class EnemyHandler {
             }
             if (spawnablesSpots.length == 0) break;
             alreadySpawned--;
-            console.log(alreadySpawned);
             this.enemies.push(
                 new Enemy(
                     Math.random() * canvas.width,
@@ -331,10 +330,6 @@ export class EnemyHandler {
                     "green"
                 )
             );
-        }
-        if (alreadySpawned > 0) {
-            console.log(alreadySpawned)
-            // setTimeout(() => this.createEnemy(alreadySpawned), 1000);
         }
     }
 

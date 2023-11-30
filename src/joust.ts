@@ -4,6 +4,8 @@ import { InputHandler } from './controls';
 import { GAME_OBJECTS } from './map_object';
 import { UnmountedAI } from './death';
 import { DEBUG } from './debug';
+import "./clientHandler";
+
 
 // Canvas and context initialization
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
@@ -15,7 +17,6 @@ export const FRAME_RATE = 60;
 let lastFrameTime = 0;
 let lastUpdateTime = 0;
 
-const SERVER_ADDRESS = localStorage.getItem("server");
 export const PLAYER_WIDTH = 13 * 2;
 export const PLAYER_HEIGHT = 18 * 2;
 const PLAYER_COLOR = "red";
