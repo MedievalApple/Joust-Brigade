@@ -63,7 +63,19 @@ export class Collider {
         ctx.strokeRect(this.collisionX, this.collisionY, this.collisionSize.x, this.collisionSize.y);
     }
 }
+export function isColliding(collider1: Collider, collider2: Collider) {
+    const overlapX = Math.min(
+        collider1.collisionX + collider1.collisionSize.x - collider2.collisionX,
+        collider2.collisionX + collider2.collisionSize.x - collider1.collisionX
+    );
 
+    const overlapY = Math.min(
+        collider1.collisionY + collider1.collisionSize.y - collider2.collisionY,
+        collider2.collisionY + collider2.collisionSize.y - collider1.collisionY
+    );
+
+    return (overlapX >= 0 && overlapY >= 0);
+}
 export function handleCollision(
     gameObject1: ICollisionObject,
     gameObject2: ICollisionObject,

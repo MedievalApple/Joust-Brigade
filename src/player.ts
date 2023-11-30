@@ -9,11 +9,12 @@ import {
     PLAYER_WIDTH,
 } from "./joust";
 import { FRAME_RATE } from "./joust";
-import { Collider } from "./map_object";
+import { Collider, Platform, filter } from "./map_object";
 import { DEBUG } from "./debug";
-import { OffsetHitbox, ICollisionObject } from "./collision";
+import { OffsetHitbox, ICollisionObject, isColliding } from "./collision";
 import { constrain } from "./utils";
 import { Direction } from "./enums";
+import { random } from "node-forge";
 
 export class Player {
     private _dead: boolean = false;
@@ -115,17 +116,22 @@ export class Player {
         ctx.fillStyle = this.color;
 
         // Draw name above player, centered
-        ctx.font = "10px Arial";
-        ctx.fillText(
-            this.name,
-            this.position.x +
-            this.size.x / 2 -
-            ctx.measureText(this.name).width / 2,
-            this.position.y - 20
-        );
+        if (this.name) {
+            ctx.font = "10px Arial";
+            ctx.fillText(
+                this.name,
+                this.position.x +
+                this.size.x / 2 -
+                ctx.measureText(this.name).width / 2,
+                this.position.y - 20
+            );
+        }
 
         this.updateCurrentAnimation();
-        if (!this.currentAnimation) return console.error("No current animation");
+        if (!this.currentAnimation) {
+            this.currentAnimation = this.animations.flap;
+            // return console.error("No current animation");
+        }
 
         if (this.currentAnimation instanceof AniSprite) {
             this.collider.hitbox.size.x =
@@ -148,8 +154,8 @@ export class Player {
         }
 
         this.oldSize = this.collider.hitbox.size.clone();
-        if (this.currentAnimation instanceof AniSprite && this.currentAnimation == this.animations.running) { 
-            this.currentAnimation.animationSpeed = 6-Math.abs(this.velocity.x)
+        if (this.currentAnimation instanceof AniSprite && this.currentAnimation == this.animations.running) {
+            this.currentAnimation.animationSpeed = 6 - Math.abs(this.velocity.x)
         };
         if (
             (this.velocity.x < 0 && !this.isJumping) ||
@@ -224,6 +230,9 @@ export class Player {
         this.position.x += this.velocity.x;
 
         this.handleCollisions();
+        if (this.position.y < -10 || this.position.y + 10 > canvas.height) {
+            this.position = new Vector(Math.random() * canvas.width, 50);
+        }
     }
 
     handleLeft() {
@@ -289,7 +298,7 @@ export class Player {
 }
 
 export class EnemyHandler {
-    enemies: Enemy[] = [];
+    private _enemies: Enemy[] = [];
 
     constructor(startingEnemies: number = 0) {
         for (let i = 0; i < startingEnemies; i++) {
@@ -297,16 +306,46 @@ export class EnemyHandler {
         }
     }
 
-    createEnemy() {
-        this.enemies.push(
-            new Enemy(
-                Math.random() * canvas.width,
-                20,
-                PLAYER_WIDTH,
-                PLAYER_HEIGHT,
-                "green"
-            )
-        );
+    createEnemy(number: number = 1) {
+        let alreadySpawned = number;
+        for (let i = 0; i < number; i++) {
+            var spawnablesSpots = filter((object) => {
+                return object instanceof Platform && object.spawner;
+            });
+            for (let i = spawnablesSpots.length - 1; i >= 0; i--) {
+                for (var enemy of this.enemies) {
+                    if (isColliding(enemy.collider, spawnablesSpots[i].spawner)) {
+                        spawnablesSpots.splice(i, 1);
+                    }
+                }
+            }
+            if (spawnablesSpots.length == 0) break;
+            alreadySpawned--;
+            console.log(alreadySpawned);
+            this.enemies.push(
+                new Enemy(
+                    Math.random() * canvas.width,
+                    50,
+                    PLAYER_WIDTH,
+                    PLAYER_HEIGHT,
+                    "green"
+                )
+            );
+        }
+        if (alreadySpawned > 0) {
+            console.log(alreadySpawned)
+            // setTimeout(() => this.createEnemy(alreadySpawned), 1000);
+        }
+    }
+
+    set enemies(enemies: Enemy[]) {
+        this._enemies = enemies;
+    }
+
+    get enemies(): Enemy[] {
+        // remove dead enemies
+        this._enemies = this._enemies.filter((enemy) => !enemy.dead);
+        return this._enemies;
     }
 }
 

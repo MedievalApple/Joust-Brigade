@@ -3,6 +3,7 @@ import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
 import { Player } from "./player";
 import { DEBUG } from "./debug";
 import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./joust";
 
 interface IGameObject {
     position: Vector;
@@ -13,6 +14,7 @@ interface IGameObject {
     dumbAI?: () => void;
     dead?: boolean;
     collisionObjects?: Array<ICollisionObject>;
+    spawner?: Collider;
 }
 
 const GAME_OBJECTS: Array<IGameObject> = [];
@@ -23,9 +25,8 @@ export class MapObject {
     sprite: Sprite;
     collider: Collider;
     static: boolean = true;
-    spawner: boolean = false;
 
-    constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite, spawner?: boolean) {
+    constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite) {
         this.position = new Vector(x, y);
         this.velocity = new Vector(0, 0);
         this.size = new Vector(w, h);
@@ -33,7 +34,6 @@ export class MapObject {
         this.collider = collider;
         this.collider.position = this.position;
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
-        this.spawner = spawner;
     }
 
     show() {
@@ -49,10 +49,24 @@ export class MapObject {
             this.sprite.show(this.position.x, this.position.y);
         }
     }
+}
 
-    spawnEnemy() {
-        if(this.spawner){
-            
+export class Platform extends MapObject {
+    spawner: Collider;
+    constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite, spawnerX?: number) {
+        super(x, y, w, h, collider, sprite);
+        this.static = true;
+        if (spawnerX) {
+            this.spawner = new Collider();
+            this.spawner.position = this.position.clone();
+            this.spawner.position.x += spawnerX;
+            this.spawner.hitbox = new OffsetHitbox(new Vector(0, -PLAYER_HEIGHT), new Vector(PLAYER_WIDTH, PLAYER_HEIGHT));
+        }
+    }
+    show(): void {
+        super.show();
+        if (DEBUG && this.spawner) {
+            this.spawner.show();
         }
     }
 }
@@ -62,5 +76,7 @@ export function addObjects(objects: Array<IGameObject>) {
         GAME_OBJECTS.push(object);
     }
 }
-
+export function filter(predicate: (value: IGameObject, index: number, array: IGameObject[]) => unknown) {
+    return GAME_OBJECTS.filter(predicate);
+}
 export { Collider, GAME_OBJECTS };
