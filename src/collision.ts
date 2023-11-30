@@ -1,5 +1,5 @@
 import { ctx } from "./joust";
-import { Enemy } from "./player";
+import { Enemy, Player } from "./player";
 import { Vector } from "./vector";
 
 export interface ICollisionObject {
@@ -112,13 +112,31 @@ export function handleCollision(
             gameObject2.collisionObjects.push(gameObject1);
         }
 
-        if ((gameObject1.constructor.name == "Player" && gameObject2.constructor.name == "Enemy") || (gameObject2.constructor.name == "Player" && gameObject1.constructor.name == "Enemy")) {
-            if (gameObject1 instanceof Enemy && gameObject1.constructor.name == "Enemy") {
-                gameObject1.dead = true;
-            } else if (gameObject2 instanceof Enemy && gameObject2.constructor.name == "Enemy") {
-                gameObject2.dead = true;
+        // if checking player vs enemy, A-B, B-A
+        if (gameObject1.constructor == Player && gameObject2.constructor == Enemy || gameObject1.constructor == Enemy && gameObject2.constructor == Player) {
+            // Check which object is the higher one
+            let higherObject: ICollisionObject;
+            let lowerObject: ICollisionObject;
+
+            // if distance is greater than 5 px, then it's a hit, otherwise ignore
+            if (Math.abs(collider1.position.y - collider2.position.y) > 5) {
+                if (collider1.position.y < collider2.position.y) {
+                    higherObject = gameObject1;
+                    lowerObject = gameObject2;
+                } else {
+                    higherObject = gameObject2;
+                    lowerObject = gameObject1;
+                }
+
+                // Kill the lower object
+                if (lowerObject.constructor == Player) {
+                    (lowerObject as Player).dead = true;
+                } else {
+                    (lowerObject as Enemy).dead = true;
+                }
             }
         }
+
         // Determine which axis has the smallest overlap (penetration)
         if (overlapX < overlapY) {
             // Resolve the collision on the X-axis

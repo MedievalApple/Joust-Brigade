@@ -17,6 +17,7 @@ import { Direction } from "./enums";
 import { random } from "node-forge";
 
 export class Player {
+    private _dead: boolean = false;
     currentAnimation: Sprite | null;
     animations: { [key: string]: Sprite } = {
         running: new AniSprite(
@@ -281,6 +282,19 @@ export class Player {
             this.head.show();
         }
     }
+
+    set dead(value: boolean) {
+        this._dead = value;
+
+        if (this._dead) {
+            // Delete enemy from GAME_OBJECTS
+            GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
+        }
+    }
+
+    get dead(): boolean {
+        return this._dead;
+    }
 }
 
 export class EnemyHandler {
@@ -338,7 +352,6 @@ export class EnemyHandler {
 var counter = 0;
 
 export class Enemy extends Player {
-    private _dead: boolean = false;
     debugColor: string = "white";
 
     constructor(
@@ -350,7 +363,6 @@ export class Enemy extends Player {
         name?: string
     ) {
         super(x, y, width, height, color, name);
-        this.dead = false;
         this.name = `Enemy ${++counter}`;
         this.animations = {
             running: new AniSprite(
@@ -371,7 +383,7 @@ export class Enemy extends Player {
                     loop: true
                 }
             ),
-            // idle: new AniSprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
+            idle: new ImgSprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", new Vector(2, 2)),
         };
 
         switch (Math.floor(Math.random() * 2)) {
@@ -431,18 +443,5 @@ export class Enemy extends Player {
             default:
                 break;
         }
-    }
-
-    set dead(value: boolean) {
-        this._dead = value;
-
-        if (this._dead) {
-            // Delete enemy from GAME_OBJECTS
-            GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
-        }
-    }
-
-    get dead(): boolean {
-        return this._dead;
     }
 }
