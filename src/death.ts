@@ -6,7 +6,6 @@ import { constrain } from "./utils";
 import { Vector } from "./vector";
 
 export class UnmountedAI extends Player {
-    private _dead: boolean = false;
     debugColor: string = "white";
 
     constructor(
@@ -92,19 +91,6 @@ export class UnmountedAI extends Player {
             default:
                 break;
         }
-    }
-
-    set dead(value: boolean) {
-        this._dead = value;
-
-        if (this._dead) {
-            // Delete enemy from GAME_OBJECTS
-            GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
-        }
-    }
-
-    get dead(): boolean {
-        return this._dead;
     }
 }
 
