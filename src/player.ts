@@ -87,7 +87,7 @@ export class Player {
             new Vector(4, 0),
             new Vector(18, 6)
         );
-
+        this.updateCollider(this.position);
         GAME_OBJECTS.unshift(this);
     }
 
@@ -202,10 +202,10 @@ export class Player {
 
     // Torroidal collision detection
     handleCollisions() {
-        if (this.position.x > canvas.width) {
-            this.position.x = 0;
-        } else if (this.position.x < 0) {
-            this.position.x = canvas.width;
+        if (this.position.x-1 > canvas.width) {
+            this.position.x = 1;
+        } else if (this.position.x < 1) {
+            this.position.x = canvas.width-1;
         }
     }
 
@@ -287,8 +287,13 @@ export class Player {
         this._dead = value;
 
         if (this._dead) {
-            // Delete enemy from GAME_OBJECTS
-            GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
+            if (this.constructor.name == "Player") {
+                this.position = new Vector(200, 310);
+                this.dead = false;
+            } else {
+                // Delete enemy from GAME_OBJECTS
+                GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
+            }
         }
     }
 
@@ -299,11 +304,10 @@ export class Player {
 
 export class EnemyHandler {
     private _enemies: Enemy[] = [];
-
+    spawningWave: boolean = false;
     constructor(startingEnemies: number = 0) {
-        for (let i = 0; i < startingEnemies; i++) {
-            this.createEnemy();
-        }
+        this.spawningWave = true;
+        this.createEnemy(startingEnemies);
     }
 
     createEnemy(number: number = 1) {
@@ -314,22 +318,33 @@ export class EnemyHandler {
             });
             for (let i = spawnablesSpots.length - 1; i >= 0; i--) {
                 for (var enemy of this.enemies) {
+                    enemy.collider.show("red");
+                    spawnablesSpots[i].spawner.show("blue");
                     if (isColliding(enemy.collider, spawnablesSpots[i].spawner)) {
                         spawnablesSpots.splice(i, 1);
+                        break;
                     }
                 }
             }
+            console.log(alreadySpawned, spawnablesSpots.length)
+            let spot = spawnablesSpots[Math.floor(Math.random() * spawnablesSpots.length)];
             if (spawnablesSpots.length == 0) break;
             alreadySpawned--;
             this.enemies.push(
                 new Enemy(
-                    Math.random() * canvas.width,
-                    50,
+                    spot.spawner.collisionX+PLAYER_WIDTH,
+                    spot.spawner.collisionY+PLAYER_HEIGHT,
                     PLAYER_WIDTH,
                     PLAYER_HEIGHT,
                     "green"
                 )
             );
+        }
+        if (alreadySpawned > 0) {
+            console.log("Recursion");
+            setTimeout(() => this.createEnemy(alreadySpawned), 1000);
+        }else {
+            this.spawningWave = false;
         }
     }
 

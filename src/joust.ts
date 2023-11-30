@@ -20,7 +20,7 @@ let lastUpdateTime = 0;
 export const PLAYER_WIDTH = 13 * 2;
 export const PLAYER_HEIGHT = 18 * 2;
 const PLAYER_COLOR = "red";
-const LOCAL_USERNAME = localStorage.getItem("username");
+export const PLAYER_USERNAME = localStorage.getItem("username");
 
 // Arrays for other clients, AIs, and map blocks
 const otherClients = [];
@@ -29,10 +29,10 @@ const otherClients = [];
 export var frameCount = 0;
 
 // Player creation
-const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, LOCAL_USERNAME);
+const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, PLAYER_USERNAME);
 
 // Instantiate enemy handler
-const enemyHandler = new EnemyHandler(5);
+export const enemyHandler = new EnemyHandler(5);
 
 // new UnmountedAI(100,100,PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, null)
 
@@ -95,15 +95,12 @@ function update() {
     }
 
     for (let i = GAME_OBJECTS.length - 1; i >= 0; i--) {
-        if (GAME_OBJECTS[i].dead) {
-            GAME_OBJECTS.splice(i, 1);
-        }
 
         if (GAME_OBJECTS[i].collisionObjects) {
             GAME_OBJECTS[i].collisionObjects = [];
         }
     }
-    if (enemyHandler.enemies.length == 0) {
+    if (enemyHandler.enemies.length == 0&&!enemyHandler.spawningWave) {
         enemyHandler.createEnemy(5);
     }
     GAME_OBJECTS.forEach(mObject1 => {

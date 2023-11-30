@@ -1,4 +1,4 @@
-import { ctx } from "./joust";
+import { ctx, enemyHandler } from "./joust";
 import { Enemy, Player } from "./player";
 import { Vector } from "./vector";
 
@@ -73,7 +73,6 @@ export function isColliding(collider1: Collider, collider2: Collider) {
         collider1.collisionY + collider1.collisionSize.y - collider2.collisionY,
         collider2.collisionY + collider2.collisionSize.y - collider1.collisionY
     );
-
     return (overlapX >= 0 && overlapY >= 0);
 }
 export function handleCollision(
