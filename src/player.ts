@@ -7,6 +7,7 @@ import {
     player,
     PLAYER_HEIGHT,
     PLAYER_WIDTH,
+    PLAYER_USERNAME,
 } from "./joust";
 import { FRAME_RATE } from "./joust";
 import { Collider, Platform, filter } from "./map_object";
@@ -211,7 +212,6 @@ export class Player {
 
     update() {
         this.updateCollider(this.position);
-
         this.velocity.y += this.gravity;
         this.velocity.x += this.xAccel;
 

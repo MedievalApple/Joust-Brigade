@@ -22,9 +22,6 @@ export const PLAYER_HEIGHT = 18 * 2;
 const PLAYER_COLOR = "red";
 export const PLAYER_USERNAME = localStorage.getItem("username");
 
-// Arrays for other clients, AIs, and map blocks
-const otherClients = [];
-
 // Frame count and lastSent data
 export var frameCount = 0;
 
@@ -62,12 +59,12 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     GAME_OBJECTS.forEach(mObject => {
-        if (mObject.show) mObject.show();
+        if (mObject.show) {
+            mObject.show();
+            // @ts-ignore
+            console.log(`showing ${mObject.name}`)
+        }
     });
-
-    for (let client of otherClients) {
-        client.show();
-    }
 
     if (DEBUG) {
         // Draw fps
@@ -90,12 +87,7 @@ function update() {
         if (mObject.dumbAI) mObject.dumbAI();
     });
 
-    for (let client of otherClients) {
-        client.update();
-    }
-
     for (let i = GAME_OBJECTS.length - 1; i >= 0; i--) {
-
         if (GAME_OBJECTS[i].collisionObjects) {
             GAME_OBJECTS[i].collisionObjects = [];
         }
