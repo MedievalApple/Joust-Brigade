@@ -16,6 +16,7 @@ import { OffsetHitbox, ICollisionObject, isColliding } from "./collision";
 import { constrain } from "./utils";
 import { Direction } from "./enums";
 import { random } from "node-forge";
+import { socket } from "./clientHandler";
 
 export class Player {
     private _dead: boolean = false;
@@ -27,20 +28,26 @@ export class Player {
             {
                 animationSpeed: 10,
                 scale: new Vector(2, 2),
-                loop: true
+                loop: true,
             }
         ),
-        stop: new ImgSprite("/assets/sprite_sheet/ostrich/walk_ostrich/stop.png", new Vector(2, 2)),
+        stop: new ImgSprite(
+            "/assets/sprite_sheet/ostrich/walk_ostrich/stop.png",
+            new Vector(2, 2)
+        ),
         flap: new AniSprite(
             "/assets/sprite_sheet/ostrich/flap_ostrich/flap",
             2,
             {
                 animationSpeed: 0,
                 scale: new Vector(2, 2),
-                loop: true
+                loop: true,
             }
         ),
-        idle: new ImgSprite("/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing.png", new Vector(2, 2)),
+        idle: new ImgSprite(
+            "/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing.png",
+            new Vector(2, 2)
+        ),
     };
     name: string;
     velocity: Vector = new Vector(0, 0);
@@ -122,8 +129,8 @@ export class Player {
             ctx.fillText(
                 this.name,
                 this.position.x +
-                this.size.x / 2 -
-                ctx.measureText(this.name).width / 2,
+                    this.size.x / 2 -
+                    ctx.measureText(this.name).width / 2,
                 this.position.y - 20
             );
         }
@@ -140,8 +147,7 @@ export class Player {
             this.collider.hitbox.size.y =
                 this.currentAnimation.images[0].height * 2;
         } else {
-            this.collider.hitbox.size.x =
-                this.currentAnimation.image.width * 2;
+            this.collider.hitbox.size.x = this.currentAnimation.image.width * 2;
             this.collider.hitbox.size.y =
                 this.currentAnimation.image.height * 2;
         }
@@ -151,13 +157,16 @@ export class Player {
             this.position = this.position.add(
                 this.oldSize.sub(this.collider.hitbox.size)
             );
-
         }
 
         this.oldSize = this.collider.hitbox.size.clone();
-        if (this.currentAnimation instanceof AniSprite && this.currentAnimation == this.animations.running) {
-            this.currentAnimation.animationSpeed = 6 - Math.abs(this.velocity.x)
-        };
+        if (
+            this.currentAnimation instanceof AniSprite &&
+            this.currentAnimation == this.animations.running
+        ) {
+            this.currentAnimation.animationSpeed =
+                6 - Math.abs(this.velocity.x);
+        }
         if (
             (this.velocity.x < 0 && !this.isJumping) ||
             this.direction == Direction.Left
@@ -166,14 +175,11 @@ export class Player {
             ctx.scale(-1, 1);
             this.currentAnimation.show(
                 -this.position.x - this.size.x,
-                this.position.y,
+                this.position.y
             );
             ctx.restore();
         } else {
-            this.currentAnimation.show(
-                this.position.x,
-                this.position.y,
-            );
+            this.currentAnimation.show(this.position.x, this.position.y);
         }
 
         this.drawDebugVisuals();
@@ -184,7 +190,6 @@ export class Player {
             this.currentAnimation = this.animations.flap;
         } else if (this.velocity.x === 0) {
             this.currentAnimation = this.animations.idle;
-
         } else if (Math.sign(this.velocity.x) !== Math.sign(this.xAccel)) {
             this.currentAnimation = this.animations.stop;
         } else {
@@ -203,10 +208,10 @@ export class Player {
 
     // Torroidal collision detection
     handleCollisions() {
-        if (this.position.x-1 > canvas.width) {
+        if (this.position.x - 1 > canvas.width) {
             this.position.x = 1;
         } else if (this.position.x < 1) {
-            this.position.x = canvas.width-1;
+            this.position.x = canvas.width - 1;
         }
     }
 
@@ -246,6 +251,9 @@ export class Player {
         } else {
             this.xAccel = -0.07;
         }
+        if (this.name == PLAYER_USERNAME) {
+            socket.emit("move", player.position.x, player.position.y);
+        }
     }
 
     handleRight() {
@@ -259,6 +267,9 @@ export class Player {
         } else {
             this.xAccel = 0.07;
         }
+        if (this.name == PLAYER_USERNAME) {
+            socket.emit("move", player.position.x, player.position.y);
+        }
     }
 
     jumpKeyDown() {
@@ -266,13 +277,26 @@ export class Player {
             this.isJumping = true;
             this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
 
-            if (this.currentAnimation instanceof AniSprite) this.currentAnimation.next();
-            this.jumpDebounce = true
+            if (this.currentAnimation instanceof AniSprite)
+                this.currentAnimation.next();
+            this.jumpDebounce = true;
+        }
+        if (this.name == PLAYER_USERNAME) {
+            socket.emit("move", 
+                player.position.x,
+                player.position.y,
+            );
         }
     }
 
     jumpKeyUp() {
-        this.jumpDebounce = false
+        this.jumpDebounce = false;
+        if (this.name == PLAYER_USERNAME) {
+            socket.emit("move", 
+                player.position.x,
+                player.position.y,
+            );
+        }
     }
 
     drawDebugVisuals() {
@@ -320,20 +344,25 @@ export class EnemyHandler {
                 for (var enemy of this.enemies) {
                     enemy.collider.show("red");
                     spawnablesSpots[i].spawner.show("blue");
-                    if (isColliding(enemy.collider, spawnablesSpots[i].spawner)) {
+                    if (
+                        isColliding(enemy.collider, spawnablesSpots[i].spawner)
+                    ) {
                         spawnablesSpots.splice(i, 1);
                         break;
                     }
                 }
             }
-            console.log(alreadySpawned, spawnablesSpots.length)
-            let spot = spawnablesSpots[Math.floor(Math.random() * spawnablesSpots.length)];
+            console.log(alreadySpawned, spawnablesSpots.length);
+            let spot =
+                spawnablesSpots[
+                    Math.floor(Math.random() * spawnablesSpots.length)
+                ];
             if (spawnablesSpots.length == 0) break;
             alreadySpawned--;
             this.enemies.push(
                 new Enemy(
-                    spot.spawner.collisionX+PLAYER_WIDTH,
-                    spot.spawner.collisionY+PLAYER_HEIGHT,
+                    spot.spawner.collisionX + PLAYER_WIDTH,
+                    spot.spawner.collisionY + PLAYER_HEIGHT,
                     PLAYER_WIDTH,
                     PLAYER_HEIGHT,
                     "green"
@@ -343,7 +372,7 @@ export class EnemyHandler {
         if (alreadySpawned > 0) {
             console.log("Recursion");
             setTimeout(() => this.createEnemy(alreadySpawned), 1000);
-        }else {
+        } else {
             this.spawningWave = false;
         }
     }
@@ -381,7 +410,7 @@ export class Enemy extends Player {
                 {
                     animationSpeed: 5,
                     scale: new Vector(2, 2),
-                    loop: true
+                    loop: true,
                 }
             ),
             flap: new AniSprite(
@@ -390,10 +419,13 @@ export class Enemy extends Player {
                 {
                     animationSpeed: 5,
                     scale: new Vector(2, 2),
-                    loop: true
+                    loop: true,
                 }
             ),
-            idle: new ImgSprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", new Vector(2, 2)),
+            idle: new ImgSprite(
+                "/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing",
+                new Vector(2, 2)
+            ),
         };
 
         switch (Math.floor(Math.random() * 2)) {
