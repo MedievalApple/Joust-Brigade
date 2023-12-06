@@ -1,4 +1,6 @@
-console.log("controls.ts loaded");
+import { advancedLog } from "./utils";
+
+advancedLog("Controls loaded", "#32a852", "⌨️");
 
 function addEvent(element: any, eventName: any, callback: (e: any) => void) {
     if (element.addEventListener) {

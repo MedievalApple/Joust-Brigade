@@ -4,11 +4,13 @@ import { Player } from "./player";
 import { DEBUG } from "./debug";
 import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./joust";
+import { v4 as uuidv4 } from "uuid";
 
 interface IGameObject {
     position: Vector;
     velocity: Vector;
     collider: Collider;
+    id: string;
     update?: () => void;
     show?: () => void;
     dumbAI?: () => void;
@@ -17,7 +19,7 @@ interface IGameObject {
     spawner?: Collider;
 }
 
-const GAME_OBJECTS: Array<IGameObject> = [];
+const GAME_OBJECTS: Map<string, IGameObject> = new Map();
 export class MapObject {
     position: Vector;
     velocity: Vector;
@@ -25,6 +27,7 @@ export class MapObject {
     sprite: Sprite;
     collider: Collider;
     static: boolean = true;
+    id: string = uuidv4();
 
     constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite) {
         this.position = new Vector(x, y);
@@ -73,10 +76,12 @@ export class Platform extends MapObject {
 
 export function addObjects(objects: Array<IGameObject>) {
     for (let object of objects) {
-        GAME_OBJECTS.push(object);
+        // GAME_OBJECTS.push(object);
+        GAME_OBJECTS.set(object.id, object);
     }
 }
-export function filter(predicate: (value: IGameObject, index: number, array: IGameObject[]) => unknown) {
-    return GAME_OBJECTS.filter(predicate);
-}
+// export function filter(predicate: (value: IGameObject, index: number, array: IGameObject[]) => unknown) {
+//     return GAME_OBJECTS.filter(predicate);
+// }
+
 export { Collider, GAME_OBJECTS };

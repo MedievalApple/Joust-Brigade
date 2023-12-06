@@ -10,13 +10,14 @@ import {
     PLAYER_USERNAME,
 } from "./joust";
 import { FRAME_RATE } from "./joust";
-import { Collider, Platform, filter } from "./map_object";
+import { Collider, Platform } from "./map_object";
 import { DEBUG } from "./debug";
 import { OffsetHitbox, ICollisionObject, isColliding } from "./collision";
 import { constrain } from "./utils";
 import { Direction } from "./enums";
 import { random } from "node-forge";
 import { socket } from "./clientHandler";
+import { v4 as uuidv4 } from "uuid";
 
 export class Player {
     private _dead: boolean = false;
@@ -67,6 +68,7 @@ export class Player {
     collisionObjects: Array<ICollisionObject> = [];
     debugColor: string = "red";
     jumpDebounce: boolean;
+    id: string = uuidv4();
 
     constructor(
         x: number,
@@ -96,7 +98,8 @@ export class Player {
             new Vector(18, 6)
         );
         this.updateCollider(this.position);
-        GAME_OBJECTS.unshift(this);
+        // GAME_OBJECTS.unshift(this);
+        GAME_OBJECTS.set(this.id, this);
     }
 
     toggleDirection(): Direction {
@@ -153,7 +156,6 @@ export class Player {
         }
 
         if (this.oldSize.y !== this.collider.hitbox.size.y) {
-            console.log("Change in Animation");
             this.position = this.position.add(
                 this.oldSize.sub(this.collider.hitbox.size)
             );
@@ -316,7 +318,8 @@ export class Player {
                 this.dead = false;
             } else {
                 // Delete enemy from GAME_OBJECTS
-                GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
+                // GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
+                GAME_OBJECTS.delete(this.id);
             }
         }
     }
@@ -327,19 +330,38 @@ export class Player {
 }
 
 export class EnemyHandler {
+    private static singleton: EnemyHandler;
     private _enemies: Enemy[] = [];
+    
     spawningWave: boolean = false;
-    constructor(startingEnemies: number = 0) {
+
+    private constructor(startingEnemies: number = 0) {
         this.spawningWave = true;
-        this.createEnemy(startingEnemies);
+        this.createEnemy(startingEnemies)
+    }
+
+    public static getInstance(number?: number): EnemyHandler {
+        if (!EnemyHandler.singleton) {
+            EnemyHandler.singleton = new EnemyHandler(number);
+        }
+        return EnemyHandler.singleton;
     }
 
     createEnemy(number: number = 1) {
         let alreadySpawned = number;
         for (let i = 0; i < number; i++) {
-            var spawnablesSpots = filter((object) => {
-                return object instanceof Platform && object.spawner;
-            });
+            // var spawnablesSpots = filter((object) => {
+            //     return object instanceof Platform && object.spawner;
+            // });
+
+            let spawnablesSpots: Platform[] = [];
+
+            for (let [_, value] of GAME_OBJECTS) {
+                if (value instanceof Platform && value.spawner) {
+                    spawnablesSpots.push(value);
+                }
+            }
+
             for (let i = spawnablesSpots.length - 1; i >= 0; i--) {
                 for (var enemy of this.enemies) {
                     enemy.collider.show("red");
@@ -352,7 +374,7 @@ export class EnemyHandler {
                     }
                 }
             }
-            console.log(alreadySpawned, spawnablesSpots.length);
+
             let spot =
                 spawnablesSpots[
                     Math.floor(Math.random() * spawnablesSpots.length)
@@ -370,7 +392,6 @@ export class EnemyHandler {
             );
         }
         if (alreadySpawned > 0) {
-            console.log("Recursion");
             setTimeout(() => this.createEnemy(alreadySpawned), 1000);
         } else {
             this.spawningWave = false;

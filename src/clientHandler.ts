@@ -1,9 +1,9 @@
 // 10.223.17.4:3000
-console.log("clientHandler.ts");
-
 import { Socket, io } from "socket.io-client";
 import { GAME_OBJECTS, PLAYER_HEIGHT, PLAYER_USERNAME, PLAYER_WIDTH, player } from "./joust";
 import { Player } from "./player";
+import { advancedLog } from "./utils";
+import { v4 as uuidv4 } from "uuid";
 
 export const SERVER_ADDRESS = localStorage.getItem("server");
 
@@ -15,8 +15,7 @@ export const SERVER_ADDRESS = localStorage.getItem("server");
 
 // the reason move isn't shared is because clients should not be able to tell the server which username moved
 export interface SharedEvents {
-    playerJoined: (playerName: string) => void;
-    playerLeft: (playerName: string) => void;
+    playerLeft: (playerID: string) => void;
 }
 
 // no you don't want those 
@@ -52,73 +51,50 @@ export interface SharedEvents {
     // btw i hate the player class, i know it does too much
 export interface ClientEvents extends SharedEvents {
     move: (x: number, y: number) => void;
+    playerJoined: (playerName: string) => void;
 }
 
 // events that come from the server
 export interface ServerEvents extends SharedEvents {
-    playerMoved: (playerId: string, x: number, y: number) => void;
+    playerMoved: (playerID: string, x: number, y: number) => void;
+    playerJoined: (playerID: string, playerName: string) => void;
 }
 
 export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 
-
-
 socket.on("connect", () => {
-    console.log("[io] Connected to server!");
+    advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
 });
 
 socket.on("disconnect", () => {
-    console.log("[io] Disconnected from server!");
+    advancedLog("Disconnected from server!", "red", "🚀");
 });
 
-socket.on("playerJoined", (player) => {
-    console.log(`[io] ${player} joined!`);
+socket.on("playerJoined", (id, player) => {
+    advancedLog(`${player} joined!`, "#32a852", "🚀");
     if (player === PLAYER_USERNAME) return;
 
-    GAME_OBJECTS.push(new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "blue", player))
+    GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "blue", player));
 });
 
-socket.on("playerMoved", (username, x, y) => {
-    console.log(`[io] ${username} moved to (${x}, ${y})!`);
-    
-    // this is what makes it very laggy
-    // yea i know
+socket.on("playerMoved", (playerID, x, y) => {
+    // advancedLog(`${playerID} moved to (${x}, ${y})!`, "blue", "🚀");
 
-    // the best solution is to make it so that each gameobject has an id of some sort
-    // and use a map to look them up
-
-    // i didn't mean frame rate laggy
-
-    // i don't think this affects framerate, it may be async and slow
-
-    // so it may update position like 10 frames later than it should have
-
-    // i see
-
-    for (let object of GAME_OBJECTS) {
-        if(object instanceof Player) {
-            if(object.name == username) {
-                object.position.x = x;
-                object.position.y = y;
-                // object.velocity.x = velocityX;
-                // object.velocity.y = velocityY;
-                // object.xAccel = xAccel;
-                // object.isJumping = isJumping;
-                // object.direction = direction;
-            }
-        }
+    const player = GAME_OBJECTS.get(playerID);
+    if (player instanceof Player) {
+        player.position.x = x;
+        player.position.y = y;
     }
 });
 
-socket.on("playerLeft", (player) => {
-    console.log(`[io] ${player} left!`);
-    for(let object of GAME_OBJECTS) {
-        if(object instanceof Player) {
-            if(object.name==player) {
-                GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(object), 1);
-            }
-        }
+socket.on("playerLeft", (playerID: string) => {
+    advancedLog(`${playerID} left!`, "red", "🚀");
+
+    const player = GAME_OBJECTS.get(playerID);
+
+    if (player instanceof Player) {
+        advancedLog(`${GAME_OBJECTS.delete(playerID) ? "Successfully" : "Failed to"} delete ${playerID}!`, "red", "🚀");
     }
 });
 
@@ -137,7 +113,7 @@ socket.on("playerLeft", (player) => {
 // }, 30);
 
 socket.on("connect_error", (err) => {
-    console.log(`[io] connect_error due to ${err.message}`);
+    advancedLog(`connect_error due to ${err.message}`, "red", "🚀");
 });
 
-console.log(socket);
+advancedLog("Client handler loaded", "orange", "🚀");

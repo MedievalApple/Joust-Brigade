@@ -29,7 +29,7 @@ export var frameCount = 0;
 const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, PLAYER_USERNAME);
 
 // Instantiate enemy handler
-export const enemyHandler = new EnemyHandler(5);
+export const enemyHandler = EnemyHandler.getInstance(5);
 
 // new UnmountedAI(100,100,PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, null)
 
@@ -61,8 +61,6 @@ function draw() {
     GAME_OBJECTS.forEach(mObject => {
         if (mObject.show) {
             mObject.show();
-            // @ts-ignore
-            console.log(`showing ${mObject.name}`)
         }
     });
 
@@ -76,6 +74,12 @@ function draw() {
         ctx.fillText(`Delta: ${Math.round(performance.now() - lastUpdateTime)}ms`, 10, 40);
     }
 
+    // position 91 + 32, 388 + 12
+    // size 112, 16
+    // text: "10,000"
+    // color: "blue"
+    // make sure to fit the text in the box
+
     lastFrameTime = performance.now();
     frameCount++;
     requestAnimationFrame(draw);
@@ -87,17 +91,18 @@ function update() {
         if (mObject.dumbAI) mObject.dumbAI();
     });
 
-    for (let i = GAME_OBJECTS.length - 1; i >= 0; i--) {
-        if (GAME_OBJECTS[i].collisionObjects) {
-            GAME_OBJECTS[i].collisionObjects = [];
+    for (let [_, value] of GAME_OBJECTS) {
+        if (value.collisionObjects) {
+            value.collisionObjects = [];
         }
     }
+
     if (enemyHandler.enemies.length == 0&&!enemyHandler.spawningWave) {
         enemyHandler.createEnemy(5);
     }
     GAME_OBJECTS.forEach(mObject1 => {
         GAME_OBJECTS.forEach(mObject2 => {
-            if (mObject1 !== mObject2) {
+            if (mObject1 !== mObject2 && mObject1.collider && mObject2.collider) {
                 handleCollision(mObject1, mObject2, mObject1.collider, mObject2.collider);
             }
         });

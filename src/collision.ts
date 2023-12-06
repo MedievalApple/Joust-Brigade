@@ -133,6 +133,8 @@ export function handleCollision(
                 } else {
                     (lowerObject as Enemy).dead = true;
                 }
+
+                return;
             }
         }
 
@@ -156,5 +158,4 @@ export function handleCollision(
             }
         }
     }
-
 }

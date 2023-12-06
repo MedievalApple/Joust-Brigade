@@ -99,7 +99,6 @@ export class AniSprite {
         if (!image) return;
 
         ctx.drawImage(image, x, y, image.width * this.scale.x, image.height * this.scale.y);
-        // console.log(this)
 
         if (this.animationSpeed > 0 && this.loop) {
             if (frameCount % this.animationSpeed < 1) {
