@@ -25,6 +25,12 @@ Stay tuned as we actively evolve and enrich the Joust Brigade. We're dedicated t
 
 ## Usage
 
+To install the dependencies, run:
+
+```bash
+npm ci
+```
+
 To build the project, run:
 
 ```bash
