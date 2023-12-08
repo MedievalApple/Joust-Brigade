@@ -1,10 +1,12 @@
-console.log("map.ts loaded");
-
-import { MapObject, Platform, addObjects } from "./map_object";
+import { Platform, addObjects } from "./map_object";
 import { canvas, ctx } from "./joust";
 import { ColorSprite, ImgSprite } from "./sprite";
 import { Vector } from "./vector";
 import { Collider } from "./collision";
+import { advancedLog } from "./utils";
+
+// light green: 
+advancedLog("Map loaded", "#32a852", "🗺️");
 
 const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
 gradient.addColorStop(0, 'rgba(231, 106, 135, 1)');
