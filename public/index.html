@@ -11,32 +11,28 @@
     <title>Joust Brigade</title>
 </head>
 <body>
-    <div class="rainbow">
-        <div class="box blueBox"></div>
-        <div class="box redBox"></div>
-        <div class="box greenBox"></div>
-        <div class="login">
-            <p style="font-size: xx-large;">Joust Brigade</p>
-            <p>Enter Thy Name My Lord!</p>
-            <input type="text" placeholder="username" maxlength="7" id="nameInput"><br><br>
-            <p>Enter Server and Port</p>
-            <input type="text" placeholder="10.0.0.1:8080" id="serverInput"><br><br>
-            <button id="next-button">Next</button><br><br>
-            <p>To Upload High Scores</p>
-            <script src="https://accounts.google.com/gsi/client" async></script>
-            <div id="g_id_onload"
-                data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                data-login_uri="https://your.domain/your_login_endpoint"
-                data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin"
-                data-type="standard"
-                data-size="large"
-                data-theme="outline"
-                data-text="sign_in_with"
-                data-shape="rectangular"
-                data-logo_alignment="left">
-            </div>
+    <div class="login">
+        <p style="font-size: xx-large; margin-bottom: 10%;">Joust Brigade</p>
+        <p>Enter Thy Name My Lord!</p>
+        <input type="text" placeholder="username" maxlength="7" id="nameInput" style="margin-bottom: 5%;"><br><br>
+        <p>Enter Server and Port</p>
+        <input type="text" placeholder="10.0.0.1:8080" id="serverInput" style="margin-bottom: 5%;"><br><br>
+        <button id="next-button">Next</button><br><br>
+        <p style="margin-bottom: 5%;">To Upload High Scores</p>
+        <script src="https://accounts.google.com/gsi/client" async></script>
+        <div id="g_id_onload"
+            data-client_id="YOUR_GOOGLE_CLIENT_ID"
+            data-login_uri="https://your.domain/your_login_endpoint"
+            data-auto_prompt="false">
+        </div>
+        <div class="center g_id_signin"
+            data-type="standard"
+            data-shape="rectangular"
+            data-theme="filled_black"
+            data-text="signin_with"
+            data-size="large"
+            data-logo_alignment="left"
+            data-width="40">
         </div>
     </div>
 </body>
