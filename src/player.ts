@@ -132,8 +132,8 @@ export class Player {
             ctx.fillText(
                 this.name,
                 this.position.x +
-                    this.size.x / 2 -
-                    ctx.measureText(this.name).width / 2,
+                this.size.x / 2 -
+                ctx.measureText(this.name).width / 2,
                 this.position.y - 20
             );
         }
@@ -284,7 +284,7 @@ export class Player {
             this.jumpDebounce = true;
         }
         if (this.name == PLAYER_USERNAME) {
-            socket.emit("move", 
+            socket.emit("move",
                 player.position.x,
                 player.position.y,
             );
@@ -294,7 +294,7 @@ export class Player {
     jumpKeyUp() {
         this.jumpDebounce = false;
         if (this.name == PLAYER_USERNAME) {
-            socket.emit("move", 
+            socket.emit("move",
                 player.position.x,
                 player.position.y,
             );
@@ -332,12 +332,11 @@ export class Player {
 export class EnemyHandler {
     private static singleton: EnemyHandler;
     private _enemies: Enemy[] = [];
-    
+
     spawningWave: boolean = false;
 
     private constructor(startingEnemies: number = 0) {
         this.spawningWave = true;
-        this.createEnemy(startingEnemies)
     }
 
     public static getInstance(number?: number): EnemyHandler {
@@ -377,7 +376,7 @@ export class EnemyHandler {
 
             let spot =
                 spawnablesSpots[
-                    Math.floor(Math.random() * spawnablesSpots.length)
+                Math.floor(Math.random() * spawnablesSpots.length)
                 ];
             if (spawnablesSpots.length == 0) break;
             alreadySpawned--;
@@ -423,7 +422,11 @@ export class Enemy extends Player {
         name?: string
     ) {
         super(x, y, width, height, color, name);
-        this.name = `Enemy ${++counter}`;
+        if (!name) {
+            this.name = `Enemy ${++counter}`;
+        }else {
+            this.name = name;
+        }
         this.animations = {
             running: new AniSprite(
                 "/assets/sprite_sheet/bounder/walk_bounder/walk",

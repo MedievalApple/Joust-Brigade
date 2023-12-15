@@ -87,8 +87,10 @@ function draw() {
 
 function update() {
     GAME_OBJECTS.forEach(mObject => {
-        if (mObject.update) mObject.update();
-        if (mObject.dumbAI) mObject.dumbAI();
+        if (!localStorage.getItem("server")||mObject.constructor==Player) {
+            if (mObject.update) mObject.update();
+            if (mObject.dumbAI) mObject.dumbAI();
+        }
     });
 
     for (let [_, value] of GAME_OBJECTS) {
@@ -96,10 +98,10 @@ function update() {
             value.collisionObjects = [];
         }
     }
-
-    if (enemyHandler.enemies.length == 0&&!enemyHandler.spawningWave) {
+    if (enemyHandler.enemies.length == 0 && !enemyHandler.spawningWave&&!localStorage.getItem("server")) {
         enemyHandler.createEnemy(5);
     }
+
     GAME_OBJECTS.forEach(mObject1 => {
         GAME_OBJECTS.forEach(mObject2 => {
             if (mObject1 !== mObject2 && mObject1.collider && mObject2.collider) {

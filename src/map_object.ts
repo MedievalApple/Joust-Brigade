@@ -67,6 +67,7 @@ export class Platform extends MapObject {
         }
     }
     show(): void {
+        console.log(this)
         super.show();
         if (DEBUG && this.spawner) {
             this.spawner.show();
