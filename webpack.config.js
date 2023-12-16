@@ -41,6 +41,9 @@ module.exports = {
             filename: "index.html",
             template: "./public/index.html",
             chunks: ["index"],
+            minify: {
+                removeRedundantAttributes: false
+            }
         }),
         new HtmlWebpackPlugin({
             filename: "joust.html",
