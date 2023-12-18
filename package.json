@@ -11,6 +11,7 @@
     "author": "Medieval Apple",
     "license": "ISC",
     "devDependencies": {
+        "@types/uuid": "^9.0.7",
         "@types/ws": "^8.5.8",
         "css-loader": "^6.8.1",
         "html-webpack-plugin": "^5.5.3",

@@ -163,9 +163,15 @@ export function handleCollision(
         } else {
             // Resolve the collision on the Y-axis
             const sign = Math.sign(gameObject1.velocity.y - gameObject2.velocity.y);
-            if (sign < 0) {
-                gameObject2.isJumping = false;
-                gameObject1.isJumping = false;
+            console.log(sign);
+            if (sign > 0) {
+                if ("isJumping" in gameObject1) {
+                    gameObject1.isJumping = false;
+                }
+
+                if ("isJumping" in gameObject2) {
+                    gameObject2.isJumping = false;
+                }
             }
             if (!gameObject1.static) {
                 gameObject1.position.y -= overlapY * sign;

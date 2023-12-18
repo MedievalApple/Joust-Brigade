@@ -1,6 +1,5 @@
 import { Vector } from "./vector";
 import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
-import { Player } from "./player";
 import { DEBUG } from "./debug";
 import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./joust";
@@ -67,8 +66,8 @@ export class Platform extends MapObject {
         }
     }
     show(): void {
-        console.log(this)
         super.show();
+    
         if (DEBUG && this.spawner) {
             this.spawner.show();
         }

@@ -9,16 +9,13 @@ import {
     PLAYER_WIDTH,
     PLAYER_USERNAME,
 } from "./joust";
-import { FRAME_RATE } from "./joust";
 import { Collider, Platform } from "./map_object";
 import { DEBUG } from "./debug";
 import { OffsetHitbox, ICollisionObject, isColliding } from "./collision";
 import { constrain } from "./utils";
 import { Direction } from "./enums";
-import { random } from "node-forge";
 import { socket } from "./clientHandler";
 import { v4 as uuidv4 } from "uuid";
-
 export class Player {
     private _dead: boolean = false;
     currentAnimation: Sprite | null;
