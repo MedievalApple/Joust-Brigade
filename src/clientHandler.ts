@@ -1,24 +1,25 @@
 // 10.223.17.4:3000
 import { Socket, io } from "socket.io-client";
-import { GAME_OBJECTS, PLAYER_HEIGHT, PLAYER_USERNAME, PLAYER_WIDTH } from "./joust";
+import { GAME_OBJECTS, PLAYER_HEIGHT, PLAYER_USERNAME, PLAYER_WIDTH} from "./joust";
 import { Enemy, Player } from "./player";
 import { advancedLog } from "./utils";
+import { InputHandler } from "./controls";
 
 export const SERVER_ADDRESS = localStorage.getItem("server");
-
+export let player; 
 // Client → Server
 // Server → Client
 export interface SharedEvents {}
 
 // Client → Server
 export interface ClientEvents extends SharedEvents {
-    move: (x: number, y: number) => void;
+    move: (x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean) => void;
     playerJoined: (playerName: string) => void;
 }
 
 // Server → Client
 export interface ServerEvents extends SharedEvents {
-    playerMoved: (playerID: string, x: number, y: number) => void;
+    playerMoved: (playerID: string, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean) => void;
     playerJoined: (playerID: string, playerName: string) => void;
     playerLeft: (playerID: string) => void;
 }
@@ -29,6 +30,24 @@ export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
+    console.log("P1 PreINIT Socket ID: " + socket.id);
+    player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "red", PLAYER_USERNAME, socket.id);
+    // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
+    new InputHandler({
+        "a": {
+            keydown: player.handleLeft.bind(player)
+        },
+        "d": {
+            keydown: player.handleRight.bind(player)
+        },
+        "w": {
+            keydown: player.jumpKeyDown.bind(player),
+            keyup: player.jumpKeyUp.bind(player)
+        },
+        // "ArrowLeft": {
+        //     keydown: enemyHandler.createEnemy.bind(enemyHandler)
+        // }
+    })
 });
 
 socket.on("disconnect", () => {
@@ -42,16 +61,25 @@ socket.on("playerJoined", (id, player) => {
     if (player.split(" ").includes("Enemy")) {
         GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "blue", player));
     } else {
-        GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "blue", player));
+        GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "blue", player, id));
+        console.log("P2 Socket ID: " + id);
+        console.log("P1 Socket ID: " + socket.id);
+        console.log(GAME_OBJECTS)
     }
 });
 
-socket.on("playerMoved", (playerID, x, y) => {
+socket.on("playerMoved", (playerID, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean) => {
     const player = GAME_OBJECTS.get(playerID);
 
     if (player instanceof Player) {
         player.position.x = x;
         player.position.y = y;
+        player.velocity.x = velx;
+        player.velocity.y = vely;
+        player.xAccel = xAccel;
+        player.isJumping = isJumping;
+        player.updateCollider(player.position);
+        console.log("P2 Accel: " + player.xAccel);
     }
 });
 

@@ -1,5 +1,5 @@
 import { Direction } from "./enums";
-import { GAME_OBJECTS, canvas, player } from "./joust";
+import { GAME_OBJECTS, canvas} from "./joust";
 import { Player } from "./player";
 import { AniSprite } from "./sprite";
 import { constrain } from "./utils";

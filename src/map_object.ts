@@ -3,7 +3,6 @@ import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
 import { DEBUG } from "./debug";
 import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./joust";
-import { v4 as uuidv4 } from "uuid";
 
 interface IGameObject {
     position: Vector;
@@ -26,7 +25,7 @@ export class MapObject {
     sprite: Sprite;
     collider: Collider;
     static: boolean = true;
-    id: string = uuidv4();
+    id: string = Math.random().toString(36).substr(2, 9);
 
     constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite) {
         this.position = new Vector(x, y);

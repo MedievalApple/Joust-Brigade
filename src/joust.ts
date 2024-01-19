@@ -19,36 +19,18 @@ let lastUpdateTime = 0;
 
 export const PLAYER_WIDTH = 13 * 2;
 export const PLAYER_HEIGHT = 18 * 2;
-const PLAYER_COLOR = "red";
 export const PLAYER_USERNAME = localStorage.getItem("username");
 
 // Frame count and lastSent data
 export var frameCount = 0;
 
 // Player creation
-const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, PLAYER_USERNAME);
+//const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, PLAYER_USERNAME);
 
 // Instantiate enemy handler
 export const enemyHandler = EnemyHandler.getInstance(5);
 
 // new UnmountedAI(100,100,PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, null)
-
-// REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
-new InputHandler({
-    "a": {
-        keydown: player.handleLeft.bind(player)
-    },
-    "d": {
-        keydown: player.handleRight.bind(player)
-    },
-    "w": {
-        keydown: player.jumpKeyDown.bind(player),
-        keyup: player.jumpKeyUp.bind(player)
-    },
-    // "ArrowLeft": {
-    //     keydown: enemyHandler.createEnemy.bind(enemyHandler)
-    // }
-})
 
 // Game loop
 function draw() {
@@ -117,4 +99,4 @@ function update() {
 requestAnimationFrame(draw);
 update();
 
-export { ctx, GAME_OBJECTS, canvas, player };
+export { ctx, GAME_OBJECTS, canvas};

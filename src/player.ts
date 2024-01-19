@@ -4,7 +4,6 @@ import {
     ctx,
     canvas,
     GAME_OBJECTS,
-    player,
     PLAYER_HEIGHT,
     PLAYER_WIDTH,
     PLAYER_USERNAME,
@@ -14,8 +13,8 @@ import { DEBUG } from "./debug";
 import { OffsetHitbox, ICollisionObject, isColliding } from "./collision";
 import { constrain } from "./utils";
 import { Direction } from "./enums";
-import { socket } from "./clientHandler";
-import { v4 as uuidv4 } from "uuid";
+import { player, socket } from "./clientHandler";
+
 export class Player {
     private _dead: boolean = false;
     currentAnimation: Sprite | null;
@@ -65,7 +64,7 @@ export class Player {
     collisionObjects: Array<ICollisionObject> = [];
     debugColor: string = "red";
     jumpDebounce: boolean;
-    id: string = uuidv4();
+    id: string = "";
 
     constructor(
         x: number,
@@ -73,7 +72,8 @@ export class Player {
         width: number,
         height: number,
         color: string,
-        name: string
+        name: string,
+        id: string = ""
     ) {
         this.position = new Vector(x, y);
         this.size = new Vector(width, height);
@@ -95,6 +95,7 @@ export class Player {
             new Vector(18, 6)
         );
         this.updateCollider(this.position);
+        this.id = id;
         // GAME_OBJECTS.unshift(this);
         GAME_OBJECTS.set(this.id, this);
     }
@@ -129,8 +130,8 @@ export class Player {
             ctx.fillText(
                 this.name,
                 this.position.x +
-                this.size.x / 2 -
-                ctx.measureText(this.name).width / 2,
+                    this.size.x / 2 -
+                    ctx.measureText(this.name).width / 2,
                 this.position.y - 20
             );
         }
@@ -139,23 +140,32 @@ export class Player {
         if (!this.currentAnimation) {
             this.currentAnimation = this.animations.flap;
             // return console.error("No current animation");
-        }
-
-        if (this.currentAnimation instanceof AniSprite) {
-            this.collider.hitbox.size.x =
-                this.currentAnimation.images[0].width * 2;
-            this.collider.hitbox.size.y =
-                this.currentAnimation.images[0].height * 2;
         } else {
-            this.collider.hitbox.size.x = this.currentAnimation.image.width * 2;
-            this.collider.hitbox.size.y =
-                this.currentAnimation.image.height * 2;
+            if (this.currentAnimation instanceof AniSprite) {
+                this.collider.hitbox.size.x =
+                    this.currentAnimation.images[0].width * 2;
+                this.collider.hitbox.size.y =
+                    this.currentAnimation.images[0].height * 2;
+            } else {
+                this.collider.hitbox.size.x =
+                    this.currentAnimation.image.width * 2;
+                this.collider.hitbox.size.y =
+                    this.currentAnimation.image.height * 2;
+            }
         }
 
         if (this.oldSize.y !== this.collider.hitbox.size.y) {
-            this.position = this.position.add(
-                this.oldSize.sub(this.collider.hitbox.size)
-            );
+            if (
+                this.collider.hitbox.size.y ||
+                this.collider.hitbox.size.y == 0
+            ) {
+                console.log(this.collider.hitbox.size);
+            }
+            if (this.name == PLAYER_USERNAME) {
+                this.position = this.position.add(
+                    this.oldSize.sub(this.collider.hitbox.size)
+                );
+            }
         }
 
         this.oldSize = this.collider.hitbox.size.clone();
@@ -199,7 +209,6 @@ export class Player {
                 this.direction = Direction.Left;
             }
         }
-
         if (!this.currentAnimation) {
             this.currentAnimation = this.animations.idle;
         }
@@ -251,7 +260,16 @@ export class Player {
             this.xAccel = -0.07;
         }
         if (this.name == PLAYER_USERNAME) {
-            socket.emit("move", player.position.x, player.position.y);
+            socket.emit(
+                "move",
+                player.position.x,
+                player.position.y,
+                player.velocity.x,
+                player.velocity.y,
+                player.xAccel,
+                player.isJumping
+            );
+            console.log("XAccel: " + player.xAccel);
         }
     }
 
@@ -267,7 +285,15 @@ export class Player {
             this.xAccel = 0.07;
         }
         if (this.name == PLAYER_USERNAME) {
-            socket.emit("move", player.position.x, player.position.y);
+            socket.emit(
+                "move",
+                player.position.x,
+                player.position.y,
+                player.velocity.x,
+                player.velocity.y,
+                player.xAccel,
+                player.isJumping
+            );
         }
     }
 
@@ -281,9 +307,14 @@ export class Player {
             this.jumpDebounce = true;
         }
         if (this.name == PLAYER_USERNAME) {
-            socket.emit("move",
+            socket.emit(
+                "move",
                 player.position.x,
                 player.position.y,
+                player.velocity.x,
+                player.velocity.y,
+                player.xAccel,
+                player.isJumping
             );
         }
     }
@@ -291,9 +322,14 @@ export class Player {
     jumpKeyUp() {
         this.jumpDebounce = false;
         if (this.name == PLAYER_USERNAME) {
-            socket.emit("move",
+            socket.emit(
+                "move",
                 player.position.x,
                 player.position.y,
+                player.velocity.x,
+                player.velocity.y,
+                player.xAccel,
+                player.isJumping
             );
         }
     }
@@ -373,7 +409,7 @@ export class EnemyHandler {
 
             let spot =
                 spawnablesSpots[
-                Math.floor(Math.random() * spawnablesSpots.length)
+                    Math.floor(Math.random() * spawnablesSpots.length)
                 ];
             if (spawnablesSpots.length == 0) break;
             alreadySpawned--;
@@ -419,11 +455,10 @@ export class Enemy extends Player {
         name?: string
     ) {
         super(x, y, width, height, color, name);
-        if (!name) {
-            this.name = `Enemy ${++counter}`;
-        }else {
-            this.name = name;
-        }
+        this.name = name ? name : `Enemy ${++counter}`;
+        this.collider = new Collider();
+        this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
+        this.currentAnimation = this.animations.flap;
         this.animations = {
             running: new AniSprite(
                 "/assets/sprite_sheet/bounder/walk_bounder/walk",
@@ -473,38 +508,39 @@ export class Enemy extends Player {
     }
 
     dumbAI() {
-        if (Math.random() < 0.1) {
-            if (this.position.y > player.position.y) {
-                this.isJumping = true;
-                this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
-            } else {
-                if (Math.random() < 0.1) {
-                    this.isJumping = true;
-                    this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
-                }
-            }
-        }
-        switch (this.velocity.x > 0) {
-            case true:
-                this.direction = Direction.Right;
-                if (Math.abs(this.velocity.x) == 0) {
-                    this.velocity.x = 1;
-                    this.xAccel = 0.05;
-                } else {
-                    this.xAccel = 0.07;
-                }
-                break;
-            case false:
-                this.direction = Direction.Left;
-                if (Math.abs(this.velocity.x) == 0) {
-                    this.velocity.x = -1;
-                    this.xAccel = -0.05;
-                } else {
-                    this.xAccel = -0.07;
-                }
-                break;
-            default:
-                break;
-        }
+        this.update();
+        //     if (Math.random() < 0.1) {
+        //         if (this.position.y > player.position.y) {
+        //             this.isJumping = true;
+        //             this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
+        //         } else {
+        //             if (Math.random() < 0.1) {
+        //                 this.isJumping = true;
+        //                 this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
+        //             }
+        //         }
+        //     }
+        //     switch (this.velocity.x > 0) {
+        //         case true:
+        //             this.direction = Direction.Right;
+        //             if (Math.abs(this.velocity.x) == 0) {
+        //                 this.velocity.x = 1;
+        //                 this.xAccel = 0.05;
+        //             } else {
+        //                 this.xAccel = 0.07;
+        //             }
+        //             break;
+        //         case false:
+        //             this.direction = Direction.Left;
+        //             if (Math.abs(this.velocity.x) == 0) {
+        //                 this.velocity.x = -1;
+        //                 this.xAccel = -0.05;
+        //             } else {
+        //                 this.xAccel = -0.07;
+        //             }
+        //             break;
+        //         default:
+        //             break;
+        //     }
     }
 }

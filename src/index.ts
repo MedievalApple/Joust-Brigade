@@ -19,4 +19,8 @@ function startGame() {
 document.addEventListener("DOMContentLoaded", () => {
     const button = document.getElementById("next-button");
     button.addEventListener("click", startGame);
+
+    // set server value to localhost:3000
+    const serverInput = <HTMLInputElement>document.getElementById("serverInput");
+    serverInput.value = "localhost:3000";
 });
