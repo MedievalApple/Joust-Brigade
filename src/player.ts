@@ -18,34 +18,7 @@ import { player, socket } from "./clientHandler";
 export class Player {
     private _dead: boolean = false;
     currentAnimation: Sprite | null;
-    animations: { [key: string]: Sprite } = {
-        running: new AniSprite(
-            "/assets/sprite_sheet/ostrich/walk_ostrich/walk",
-            4,
-            {
-                animationSpeed: 10,
-                scale: new Vector(2, 2),
-                loop: true,
-            }
-        ),
-        stop: new ImgSprite(
-            "/assets/sprite_sheet/ostrich/walk_ostrich/stop.png",
-            new Vector(2, 2)
-        ),
-        flap: new AniSprite(
-            "/assets/sprite_sheet/ostrich/flap_ostrich/flap",
-            2,
-            {
-                animationSpeed: 0,
-                scale: new Vector(2, 2),
-                loop: true,
-            }
-        ),
-        idle: new ImgSprite(
-            "/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing.png",
-            new Vector(2, 2)
-        ),
-    };
+    animations: { [key: string]: Sprite };
     name: string;
     velocity: Vector = new Vector(0, 0);
     size: Vector;
@@ -73,12 +46,42 @@ export class Player {
         height: number,
         color: string,
         name: string,
-        id: string = ""
-    ) {
+        id: string = "",
+        animations: { [key: string]: Sprite } = {
+            running: new AniSprite(
+                "/assets/sprite_sheet/ostrich/walk_ostrich/walk",
+                4,
+                {
+                    animationSpeed: 10,
+                    scale: new Vector(2, 2),
+                    loop: true,
+                }
+            ),
+            stop: new ImgSprite(
+                "/assets/sprite_sheet/ostrich/walk_ostrich/stop.png",
+                new Vector(2, 2)
+            ),
+            flap: new AniSprite(
+                "/assets/sprite_sheet/ostrich/flap_ostrich/flap",
+                2,
+                {
+                    animationSpeed: 0,
+                    scale: new Vector(2, 2),
+                    loop: true,
+                }
+            ),
+            idle: new ImgSprite(
+                "/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing.png",
+                new Vector(2, 2)
+            ),
+        }
+    ) 
+    {
         this.position = new Vector(x, y);
         this.size = new Vector(width, height);
         this.color = color;
         this.name = name;
+        this.animations = animations;
 
         this.collider = new Collider();
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);

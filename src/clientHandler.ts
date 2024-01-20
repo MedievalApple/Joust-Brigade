@@ -5,6 +5,8 @@ import { Enemy, Player } from "./player";
 import { advancedLog } from "./utils";
 import { InputHandler } from "./controls";
 import { Direction } from "./enums";
+import { AniSprite, ImgSprite } from "./sprite";
+import { Vector } from "./vector";
 
 export const SERVER_ADDRESS = localStorage.getItem("server");
 export let player; 
@@ -32,7 +34,7 @@ export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
-    player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "red", PLAYER_USERNAME, socket.id);
+    player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "yellow", PLAYER_USERNAME, socket.id);
     // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
     new InputHandler({
         "a": {
@@ -60,16 +62,43 @@ socket.on("playerJoined", (id, player) => {
 
     if (player === PLAYER_USERNAME) return;
     if (player.split(" ").includes("Enemy")) {
-        GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "blue", player));
+        GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "red", player));
     } else {
-        GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "orange", player, id));
+        GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "aqua", player, id, {
+            running: new AniSprite(
+                "/assets/sprite_sheet/stork/walk_stork/walk",
+                4,
+                {
+                    animationSpeed: 10,
+                    scale: new Vector(2, 2),
+                    loop: true,
+                }
+            ),
+            stop: new ImgSprite(
+                "/assets/sprite_sheet/stork/walk_stork/stop.png",
+                new Vector(2, 2)
+            ),
+            flap: new AniSprite(
+                "/assets/sprite_sheet/stork/flap_stork/flap",
+                2,
+                {
+                    animationSpeed: 0,
+                    scale: new Vector(2, 2),
+                    loop: true,
+                }
+            ),
+            idle: new ImgSprite(
+                "/assets/sprite_sheet/stork/idle_stork/idle_standing.png",
+                new Vector(2, 2)
+            ),
+        }));
         console.log(GAME_OBJECTS)
     }
 });
 
 socket.on("enemyJoined", (id, name) => {
     advancedLog(`AI ${name} joined!`, "#32a852", "🚀");
-    GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "blue", name));
+    GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "red", name));
 });
 
 socket.on("playerMoved", (playerID, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean, direction:Direction) => {
@@ -84,6 +113,8 @@ socket.on("playerMoved", (playerID, x: number, y: number, velx: number, vely:num
         player.isJumping = isJumping;
         player.direction = direction;
         player.updateCollider(player.position);
+        if (player.currentAnimation instanceof AniSprite)
+                player.currentAnimation.next();
     }
 });
 
