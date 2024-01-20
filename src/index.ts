@@ -10,7 +10,7 @@ function startGame() {
     }
 
     if (username !== "" && username !== " ") {
-        localStorage.setItem("username", username.toUpperCase());
+        localStorage.setItem("username", username);
         window.location.replace("joust.html");
     }
 

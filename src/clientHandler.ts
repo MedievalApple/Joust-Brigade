@@ -61,39 +61,36 @@ socket.on("playerJoined", (id, player) => {
     advancedLog(`${player} joined!`, "#32a852", "🚀");
 
     if (player === PLAYER_USERNAME) return;
-    if (player.split(" ").includes("Enemy")) {
-        GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "red", player));
-    } else {
+
         GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "aqua", player, id, {
-            running: new AniSprite(
-                "/assets/sprite_sheet/stork/walk_stork/walk",
-                4,
-                {
-                    animationSpeed: 10,
-                    scale: new Vector(2, 2),
-                    loop: true,
-                }
-            ),
-            stop: new ImgSprite(
-                "/assets/sprite_sheet/stork/walk_stork/stop.png",
-                new Vector(2, 2)
-            ),
-            flap: new AniSprite(
-                "/assets/sprite_sheet/stork/flap_stork/flap",
-                2,
-                {
-                    animationSpeed: 0,
-                    scale: new Vector(2, 2),
-                    loop: true,
-                }
-            ),
-            idle: new ImgSprite(
-                "/assets/sprite_sheet/stork/idle_stork/idle_standing.png",
-                new Vector(2, 2)
-            ),
-        }));
-        console.log(GAME_OBJECTS)
-    }
+        running: new AniSprite(
+            "/assets/sprite_sheet/stork/walk_stork/walk",
+            4,
+            {
+                animationSpeed: 10,
+                scale: new Vector(2, 2),
+                loop: true,
+            }
+        ),
+        stop: new ImgSprite(
+            "/assets/sprite_sheet/stork/walk_stork/stop.png",
+            new Vector(2, 2)
+        ),
+        flap: new AniSprite(
+            "/assets/sprite_sheet/stork/flap_stork/flap",
+            2,
+            {
+                animationSpeed: 0,
+                scale: new Vector(2, 2),
+                loop: true,
+            }
+        ),
+        idle: new ImgSprite(
+            "/assets/sprite_sheet/stork/idle_stork/idle_standing.png",
+            new Vector(2, 2)
+        ),
+    }));
+    console.log(GAME_OBJECTS)
 });
 
 socket.on("enemyJoined", (id, name) => {
