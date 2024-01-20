@@ -9,6 +9,7 @@ import { AniSprite, ImgSprite } from "./sprite";
 import { Vector } from "./vector";
 
 export const SERVER_ADDRESS = localStorage.getItem("server");
+export let PLAYER_ID = "";
 export let player; 
 // Client → Server
 // Server → Client
@@ -34,7 +35,9 @@ export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
+    PLAYER_ID = socket.id
     player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "yellow", PLAYER_USERNAME, socket.id);
+    
     // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
     new InputHandler({
         "a": {
@@ -60,7 +63,7 @@ socket.on("disconnect", () => {
 socket.on("playerJoined", (id, player) => {
     advancedLog(`${player} joined!`, "#32a852", "🚀");
 
-    if (player === PLAYER_USERNAME) return;
+    if (id === PLAYER_ID) return;
 
         GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "aqua", player, id, {
         running: new AniSprite(
