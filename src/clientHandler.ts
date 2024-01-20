@@ -4,6 +4,7 @@ import { GAME_OBJECTS, PLAYER_HEIGHT, PLAYER_USERNAME, PLAYER_WIDTH} from "./jou
 import { Enemy, Player } from "./player";
 import { advancedLog } from "./utils";
 import { InputHandler } from "./controls";
+import { Direction } from "./enums";
 
 export const SERVER_ADDRESS = localStorage.getItem("server");
 export let player; 
@@ -13,13 +14,13 @@ export interface SharedEvents {}
 
 // Client → Server
 export interface ClientEvents extends SharedEvents {
-    move: (x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean) => void;
+    move: (x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean, direction:Direction) => void;
     playerJoined: (playerName: string) => void;
 }
 
 // Server → Client
 export interface ServerEvents extends SharedEvents {
-    playerMoved: (playerID: string, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean) => void;
+    playerMoved: (playerID: string, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean, direction:Direction) => void;
     playerJoined: (playerID: string, playerName: string) => void;
     enemyJoined: (enemyID: string, EnemyName: string) => void;
     playerLeft: (playerID: string) => void;
@@ -71,7 +72,7 @@ socket.on("enemyJoined", (id, name) => {
     GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "blue", name));
 });
 
-socket.on("playerMoved", (playerID, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean) => {
+socket.on("playerMoved", (playerID, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean, direction:Direction) => {
     const player = GAME_OBJECTS.get(playerID);
 
     if (player instanceof Player) {
@@ -81,6 +82,7 @@ socket.on("playerMoved", (playerID, x: number, y: number, velx: number, vely:num
         player.velocity.y = vely;
         player.xAccel = xAccel;
         player.isJumping = isJumping;
+        player.direction = direction;
         player.updateCollider(player.position);
     }
 });

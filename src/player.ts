@@ -132,7 +132,7 @@ export class Player {
                 this.position.x +
                     this.size.x / 2 -
                     ctx.measureText(this.name).width / 2,
-                this.position.y - 20
+                this.position.y - 10
             );
         }
 
@@ -159,7 +159,7 @@ export class Player {
                 this.collider.hitbox.size.y ||
                 this.collider.hitbox.size.y == 0
             ) {
-                console.log(this.collider.hitbox.size);
+                //console.log(this.collider.hitbox.size);
             }
             if (this.name == PLAYER_USERNAME) {
                 this.position = this.position.add(
@@ -267,9 +267,10 @@ export class Player {
                 player.velocity.x,
                 player.velocity.y,
                 player.xAccel,
-                player.isJumping
+                player.isJumping,
+                player.direction
             );
-            console.log("XAccel: " + player.xAccel);
+            //console.log("XAccel: " + player.xAccel);
         }
     }
 
@@ -292,7 +293,8 @@ export class Player {
                 player.velocity.x,
                 player.velocity.y,
                 player.xAccel,
-                player.isJumping
+                player.isJumping,
+                player.direction
             );
         }
     }
@@ -314,7 +316,8 @@ export class Player {
                 player.velocity.x,
                 player.velocity.y,
                 player.xAccel,
-                player.isJumping
+                player.isJumping,
+                player.direction
             );
         }
     }
@@ -329,7 +332,8 @@ export class Player {
                 player.velocity.x,
                 player.velocity.y,
                 player.xAccel,
-                player.isJumping
+                player.isJumping,
+                player.direction
             );
         }
     }

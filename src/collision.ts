@@ -1,4 +1,5 @@
 import { ctx, enemyHandler } from "./joust";
+import { MapObject } from "./map_object";
 import { Enemy, Player } from "./player";
 import { Vector } from "./vector";
 
@@ -82,9 +83,18 @@ export function handleCollision(
     collider1: Collider,
     collider2: Collider
 ) {
-    if(localStorage.getItem("server") && (gameObject1.constructor == Enemy || gameObject2.constructor == Enemy)) {
+    // if(localStorage.getItem("server") && (gameObject1.constructor == Enemy || gameObject2.constructor == Enemy || gameObject1.constructor == MapObject && gameObject2.constructor == MapObject)) {
+    //     return;
+    // }
+
+    if(gameObject1.constructor == Player || gameObject2.constructor == Player){
+        
+    }else{
         return;
     }
+
+    //console.log("Handeling Client Collision:" + "G1: " + gameObject1 + " G2: " + gameObject2)
+
     if (gameObject1.velocity.x == 0 && gameObject1.velocity.y == 0 && gameObject2.velocity.x == 0 && gameObject2.velocity.y == 0) return;
     // No need to checkx if they're overlapping, and then calculate the overlap
     // you can calculate overlap first and then check if it's 0 on both overlapX and overlapY
@@ -163,8 +173,7 @@ export function handleCollision(
         } else {
             // Resolve the collision on the Y-axis
             const sign = Math.sign(gameObject1.velocity.y - gameObject2.velocity.y);
-            console.log(sign);
-            if (sign > 0) {
+            if (sign < 0) {
                 if ("isJumping" in gameObject1) {
                     gameObject1.isJumping = false;
                 }
