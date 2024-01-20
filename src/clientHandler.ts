@@ -21,6 +21,7 @@ export interface ClientEvents extends SharedEvents {
 export interface ServerEvents extends SharedEvents {
     playerMoved: (playerID: string, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean) => void;
     playerJoined: (playerID: string, playerName: string) => void;
+    enemyJoined: (enemyID: string, EnemyName: string) => void;
     playerLeft: (playerID: string) => void;
 }
 
@@ -30,7 +31,6 @@ export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
-    console.log("P1 PreINIT Socket ID: " + socket.id);
     player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "red", PLAYER_USERNAME, socket.id);
     // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
     new InputHandler({
@@ -61,11 +61,14 @@ socket.on("playerJoined", (id, player) => {
     if (player.split(" ").includes("Enemy")) {
         GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "blue", player));
     } else {
-        GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "blue", player, id));
-        console.log("P2 Socket ID: " + id);
-        console.log("P1 Socket ID: " + socket.id);
+        GAME_OBJECTS.set(id, new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "orange", player, id));
         console.log(GAME_OBJECTS)
     }
+});
+
+socket.on("enemyJoined", (id, name) => {
+    advancedLog(`AI ${name} joined!`, "#32a852", "🚀");
+    GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "blue", name));
 });
 
 socket.on("playerMoved", (playerID, x: number, y: number, velx: number, vely:number, xAccel: number, isJumping:boolean) => {
@@ -79,7 +82,6 @@ socket.on("playerMoved", (playerID, x: number, y: number, velx: number, vely:num
         player.xAccel = xAccel;
         player.isJumping = isJumping;
         player.updateCollider(player.position);
-        console.log("P2 Accel: " + player.xAccel);
     }
 });
 
