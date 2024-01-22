@@ -6,11 +6,11 @@ function startGame() {
     const server = serverInput.value;
 
     if (server !== " ") {
-        localStorage.setItem("server", server);
+        sessionStorage.setItem("server", server);
     }
 
     if (username !== "" && username !== " ") {
-        localStorage.setItem("username", username);
+        sessionStorage.setItem("username", username);
         window.location.replace("joust.html");
     }
 

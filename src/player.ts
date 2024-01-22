@@ -32,8 +32,6 @@ export class Player {
     position: Vector;
     oldSize: Vector = new Vector();
     collider: Collider;
-    lance: Collider;
-    head: Collider;
     collisionObjects: Array<ICollisionObject> = [];
     debugColor: string = "red";
     jumpDebounce: boolean;
@@ -75,8 +73,7 @@ export class Player {
                 new Vector(2, 2)
             ),
         }
-    ) 
-    {
+    ) {
         this.position = new Vector(x, y);
         this.size = new Vector(width, height);
         this.color = color;
@@ -86,17 +83,6 @@ export class Player {
         this.collider = new Collider();
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
 
-        this.lance = new Collider();
-        this.lance.hitbox = new OffsetHitbox(
-            new Vector(14, 6),
-            new Vector(12, 6)
-        );
-
-        this.head = new Collider();
-        this.head.hitbox = new OffsetHitbox(
-            new Vector(4, 0),
-            new Vector(18, 6)
-        );
         this.updateCollider(this.position);
         this.id = id;
         // GAME_OBJECTS.unshift(this);
@@ -111,17 +97,6 @@ export class Player {
 
     updateCollider(vector: Vector) {
         if (this.collider) this.collider.position = vector;
-
-        if (this.lance) {
-            this.lance.position = vector;
-
-            if (this.velocity.x < 0 && !this.isJumping) {
-            } else {
-                this.lance.hitbox.offset = new Vector(14, 6);
-            }
-        }
-
-        if (this.head) this.head.position = vector;
     }
 
     show() {
@@ -307,8 +282,10 @@ export class Player {
             this.isJumping = true;
             this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
 
-            if (this.currentAnimation instanceof AniSprite)
+            if (this.currentAnimation instanceof AniSprite) {
                 this.currentAnimation.next();
+            }
+
             this.jumpDebounce = true;
         }
         if (this.name == PLAYER_USERNAME) {
@@ -344,8 +321,16 @@ export class Player {
     drawDebugVisuals() {
         if (DEBUG) {
             this.collider.show(this.debugColor);
-            this.lance.show();
-            this.head.show();
+            // draw current animation string top right above collider
+            ctx.font = "10px Arial";
+            ctx.fillStyle = "white";
+            ctx.fillText(
+                this.currentAnimation instanceof AniSprite
+                    ? this.currentAnimation.animationSpeed.toFixed(0)
+                    : "img",
+                this.position.x + this.size.x / 2,
+                this.position.y - 10
+            );
         }
     }
 
@@ -462,7 +447,8 @@ export class Enemy extends Player {
         name?: string
     ) {
         super(x, y, width, height, color, name);
-        this.name = name ? name : `Enemy ${++counter}`;
+        // this.name = name ? name : `Enemy ${++counter}`;
+        this.name = "";
         this.collider = new Collider();
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
         this.currentAnimation = this.animations.flap;
@@ -471,7 +457,7 @@ export class Enemy extends Player {
                 "/assets/sprite_sheet/bounder/walk_bounder/walk",
                 4,
                 {
-                    animationSpeed: 5,
+                    animationSpeed: 0,
                     scale: new Vector(2, 2),
                     loop: true,
                 }

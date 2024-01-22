@@ -83,17 +83,15 @@ export function handleCollision(
     collider1: Collider,
     collider2: Collider
 ) {
-    // if(localStorage.getItem("server") && (gameObject1.constructor == Enemy || gameObject2.constructor == Enemy || gameObject1.constructor == MapObject && gameObject2.constructor == MapObject)) {
+    // if(sessionStorage.getItem("server") && (gameObject1.constructor == Enemy || gameObject2.constructor == Enemy || gameObject1.constructor == MapObject && gameObject2.constructor == MapObject)) {
     //     return;
     // }
 
-    if(gameObject1.constructor == Player || gameObject2.constructor == Player){
-        
-    }else{
-        return;
-    }
 
-    //console.log("Handeling Client Collision:" + "G1: " + gameObject1 + " G2: " + gameObject2)
+    if((gameObject1 instanceof Player) && (gameObject2 instanceof Player)) return;
+    //if (gameObject1.constructor != Player && gameObject2.constructor != Player) return;
+    if (gameObject1.static && gameObject2.static) return;
+
 
     if (gameObject1.velocity.x == 0 && gameObject1.velocity.y == 0 && gameObject2.velocity.x == 0 && gameObject2.velocity.y == 0) return;
     // No need to checkx if they're overlapping, and then calculate the overlap

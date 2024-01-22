@@ -19,7 +19,7 @@ let lastUpdateTime = 0;
 
 export const PLAYER_WIDTH = 13 * 2;
 export const PLAYER_HEIGHT = 18 * 2;
-export const PLAYER_USERNAME = localStorage.getItem("username");
+export const PLAYER_USERNAME = sessionStorage.getItem("username");
 
 // Frame count and lastSent data
 export var frameCount = 0;
@@ -69,7 +69,7 @@ function draw() {
 
 function update() {
     GAME_OBJECTS.forEach(mObject => {
-        if (!localStorage.getItem("server")||mObject.constructor==Player) {
+        if (!sessionStorage.getItem("server")||mObject.constructor==Player) {
             if (mObject.update) mObject.update();
             if (mObject.dumbAI) mObject.dumbAI();
         }
@@ -80,7 +80,7 @@ function update() {
             value.collisionObjects = [];
         }
     }
-    if (enemyHandler.enemies.length == 0 && !enemyHandler.spawningWave&&!localStorage.getItem("server")) {
+    if (enemyHandler.enemies.length == 0 && !enemyHandler.spawningWave&&!sessionStorage.getItem("server")) {
         enemyHandler.createEnemy(5);
     }
 
