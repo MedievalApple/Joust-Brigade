@@ -5,8 +5,6 @@ import { GAME_OBJECTS } from './map_object';
 import { UnmountedAI } from './death';
 import { DEBUG } from './debug';
 import "./clientHandler";
-import { deleteQueue } from './clientHandler';
-
 
 // Canvas and context initialization
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
