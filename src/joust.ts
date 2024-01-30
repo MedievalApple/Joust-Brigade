@@ -1,8 +1,6 @@
 import { Player, EnemyHandler } from './player';
 import { handleCollision } from './collision';
-import { InputHandler } from './controls';
 import { GAME_OBJECTS } from './map_object';
-import { UnmountedAI } from './death';
 import { DEBUG } from './debug';
 import "./clientHandler";
 
