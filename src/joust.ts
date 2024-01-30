@@ -5,6 +5,7 @@ import { GAME_OBJECTS } from './map_object';
 import { UnmountedAI } from './death';
 import { DEBUG } from './debug';
 import "./clientHandler";
+import { deleteQueue } from './clientHandler';
 
 
 // Canvas and context initialization
@@ -69,7 +70,7 @@ function draw() {
 
 function update() {
     GAME_OBJECTS.forEach(mObject => {
-        if (!sessionStorage.getItem("server")||mObject.constructor==Player) {
+        if (!sessionStorage.getItem("server") || mObject.constructor == Player) {
             if (mObject.update) mObject.update();
             if (mObject.dumbAI) mObject.dumbAI();
         }

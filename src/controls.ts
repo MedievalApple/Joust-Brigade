@@ -1,4 +1,3 @@
-import { player } from "./clientHandler";
 import { advancedLog } from "./utils";
 
 advancedLog("Controls loaded", "#32a852", "⌨️");
