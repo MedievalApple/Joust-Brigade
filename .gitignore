@@ -3,4 +3,4 @@
 vite.config.js
 /node_modules
 /build
-/src/debug.ts
+src/debug.ts
