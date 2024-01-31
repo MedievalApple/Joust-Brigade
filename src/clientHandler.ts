@@ -14,8 +14,8 @@ import { AniSprite, ImgSprite } from "./sprite";
 import { Vector } from "./vector";
 
 export const SERVER_ADDRESS = sessionStorage.getItem("server");
-export let PLAYER_ID = "";
-export let player;
+export let LOCAL_PLAYER: Player;
+
 // Client → Server
 // Server → Client
 export interface SharedEvents {}
@@ -57,8 +57,8 @@ export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
-    PLAYER_ID = socket.id;
-    player = new Player(
+    
+    LOCAL_PLAYER = new Player(
         50,
         310,
         PLAYER_WIDTH,
@@ -71,14 +71,14 @@ socket.on("connect", () => {
     // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
     new InputHandler({
         a: {
-            keydown: player.handleLeft.bind(player),
+            keydown: LOCAL_PLAYER.handleLeft.bind(LOCAL_PLAYER),
         },
         d: {
-            keydown: player.handleRight.bind(player),
+            keydown: LOCAL_PLAYER.handleRight.bind(LOCAL_PLAYER),
         },
         w: {
-            keydown: player.jumpKeyDown.bind(player),
-            keyup: player.jumpKeyUp.bind(player),
+            keydown: LOCAL_PLAYER.jumpKeyDown.bind(LOCAL_PLAYER),
+            keyup: LOCAL_PLAYER.jumpKeyUp.bind(LOCAL_PLAYER),
         },
         // "ArrowLeft": {
         //     keydown: enemyHandler.createEnemy.bind(enemyHandler)
@@ -92,8 +92,6 @@ socket.on("disconnect", () => {
 
 socket.on("playerJoined", (id, player) => {
     advancedLog(`${player} joined!`, "#32a852", "🚀");
-
-    if (id === PLAYER_ID) return;
 
     GAME_OBJECTS.set(
         id,
@@ -173,7 +171,7 @@ socket.on("playerLeft", (playerID: string) => {
         advancedLog(
             `${
                 GAME_OBJECTS.delete(playerID) ? "Successfully" : "Failed to"
-            } delete ${playerID}!`,
+            } delete ${player.name}`,
             "red",
             "🚀"
         );

@@ -11,7 +11,6 @@ interface IGameObject {
     id: string;
     update?: () => void;
     show?: () => void;
-    dumbAI?: () => void;
     dead?: boolean;
     collisionObjects?: Array<ICollisionObject>;
     spawner?: Collider;

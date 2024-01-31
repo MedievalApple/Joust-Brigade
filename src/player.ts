@@ -13,7 +13,7 @@ import { DEBUG } from "./debug";
 import { OffsetHitbox, ICollisionObject, isColliding } from "./collision";
 import { constrain } from "./utils";
 import { Direction } from "./enums";
-import { player, socket } from "./clientHandler";
+import { LOCAL_PLAYER, socket } from "./clientHandler";
 
 export class Player {
     private _dead: boolean = false;
@@ -226,6 +226,19 @@ export class Player {
         }
     }
 
+    sendData() {
+        socket.emit(
+            "move",
+            LOCAL_PLAYER.position.x,
+            LOCAL_PLAYER.position.y,
+            LOCAL_PLAYER.velocity.x,
+            LOCAL_PLAYER.velocity.y,
+            LOCAL_PLAYER.xAccel,
+            LOCAL_PLAYER.isJumping,
+            LOCAL_PLAYER.direction
+        );
+    }
+
     handleLeft() {
         if (this.isJumping) {
             this.direction = Direction.Left;
@@ -237,19 +250,8 @@ export class Player {
         } else {
             this.xAccel = -0.07;
         }
-        if (this.name == PLAYER_USERNAME) {
-            socket.emit(
-                "move",
-                player.position.x,
-                player.position.y,
-                player.velocity.x,
-                player.velocity.y,
-                player.xAccel,
-                player.isJumping,
-                player.direction
-            );
-            //console.log("XAccel: " + player.xAccel);
-        }
+        
+        this.sendData();
     }
 
     handleRight() {
@@ -263,18 +265,8 @@ export class Player {
         } else {
             this.xAccel = 0.07;
         }
-        if (this.name == PLAYER_USERNAME) {
-            socket.emit(
-                "move",
-                player.position.x,
-                player.position.y,
-                player.velocity.x,
-                player.velocity.y,
-                player.xAccel,
-                player.isJumping,
-                player.direction
-            );
-        }
+
+        this.sendData();
     }
 
     jumpKeyDown() {
@@ -288,34 +280,13 @@ export class Player {
 
             this.jumpDebounce = true;
         }
-        if (this.name == PLAYER_USERNAME) {
-            socket.emit(
-                "move",
-                player.position.x,
-                player.position.y,
-                player.velocity.x,
-                player.velocity.y,
-                player.xAccel,
-                player.isJumping,
-                player.direction
-            );
-        }
+        
+        this.sendData();
     }
 
     jumpKeyUp() {
         this.jumpDebounce = false;
-        if (this.name == PLAYER_USERNAME) {
-            socket.emit(
-                "move",
-                player.position.x,
-                player.position.y,
-                player.velocity.x,
-                player.velocity.y,
-                player.xAccel,
-                player.isJumping,
-                player.direction
-            );
-        }
+        this.sendData();
     }
 
     drawDebugVisuals() {
@@ -342,8 +313,6 @@ export class Player {
                 this.position = new Vector(200, 310);
                 this.dead = false;
             } else {
-                // Delete enemy from GAME_OBJECTS
-                // GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
                 GAME_OBJECTS.delete(this.id);
             }
         }
@@ -447,8 +416,8 @@ export class Enemy extends Player {
         name?: string
     ) {
         super(x, y, width, height, color, name);
-        // this.name = name ? name : `Enemy ${++counter}`;
-        this.name = "";
+        this.name = name ? name : `Enemy ${++counter}`;
+        // this.name = "";
         this.collider = new Collider();
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
         this.currentAnimation = this.animations.flap;
@@ -498,42 +467,5 @@ export class Enemy extends Player {
             default:
                 break;
         }
-    }
-
-    dumbAI() {
-        this.update();
-        //     if (Math.random() < 0.1) {
-        //         if (this.position.y > player.position.y) {
-        //             this.isJumping = true;
-        //             this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
-        //         } else {
-        //             if (Math.random() < 0.1) {
-        //                 this.isJumping = true;
-        //                 this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
-        //             }
-        //         }
-        //     }
-        //     switch (this.velocity.x > 0) {
-        //         case true:
-        //             this.direction = Direction.Right;
-        //             if (Math.abs(this.velocity.x) == 0) {
-        //                 this.velocity.x = 1;
-        //                 this.xAccel = 0.05;
-        //             } else {
-        //                 this.xAccel = 0.07;
-        //             }
-        //             break;
-        //         case false:
-        //             this.direction = Direction.Left;
-        //             if (Math.abs(this.velocity.x) == 0) {
-        //                 this.velocity.x = -1;
-        //                 this.xAccel = -0.05;
-        //             } else {
-        //                 this.xAccel = -0.07;
-        //             }
-        //             break;
-        //         default:
-        //             break;
-        //     }
     }
 }

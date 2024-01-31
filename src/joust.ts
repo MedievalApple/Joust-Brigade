@@ -68,7 +68,6 @@ function update() {
     GAME_OBJECTS.forEach(mObject => {
         if (!sessionStorage.getItem("server") || mObject.constructor == Player) {
             if (mObject.update) mObject.update();
-            if (mObject.dumbAI) mObject.dumbAI();
         }
     });
 
