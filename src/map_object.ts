@@ -24,7 +24,7 @@ export class MapObject {
     sprite: Sprite;
     collider: Collider;
     static: boolean = true;
-    id: string = Math.random().toString(36).substr(2, 9);
+    id: string = Math.random().toString(36).substring(2,9);
 
     constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite) {
         this.position = new Vector(x, y);

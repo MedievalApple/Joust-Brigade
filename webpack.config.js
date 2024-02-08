@@ -36,6 +36,7 @@ module.exports = {
         compress: true,
         port: 9000,
     },
+    devtool: "eval-source-map",
     plugins: [
         new HtmlWebpackPlugin({
             filename: "index.html",
