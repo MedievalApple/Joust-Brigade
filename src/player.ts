@@ -304,23 +304,6 @@ export class Player {
             );
         }
     }
-
-    set dead(value: boolean) {
-        this._dead = value;
-
-        if (this._dead) {
-            if (this.constructor.name == "Player") {
-                this.position = new Vector(200, 310);
-                this.dead = false;
-            } else {
-                GAME_OBJECTS.delete(this.id);
-            }
-        }
-    }
-
-    get dead(): boolean {
-        return this._dead;
-    }
 }
 
 export class EnemyHandler {
@@ -374,15 +357,15 @@ export class EnemyHandler {
                 ];
             if (spawnablesSpots.length == 0) break;
             alreadySpawned--;
-            this.enemies.push(
-                new Enemy(
-                    spot.spawner.collisionX + PLAYER_WIDTH,
-                    spot.spawner.collisionY + PLAYER_HEIGHT,
-                    PLAYER_WIDTH,
-                    PLAYER_HEIGHT,
-                    "green"
-                )
-            );
+            // this.enemies.push(
+            //     new Enemy(
+            //         spot.spawner.collisionX + PLAYER_WIDTH,
+            //         spot.spawner.collisionY + PLAYER_HEIGHT,
+            //         PLAYER_WIDTH,
+            //         PLAYER_HEIGHT,
+            //         "green"
+            //     )
+            // );
         }
         if (alreadySpawned > 0) {
             setTimeout(() => this.createEnemy(alreadySpawned), 1000);
@@ -406,6 +389,7 @@ var counter = 0;
 
 export class Enemy extends Player {
     debugColor: string = "white";
+    dead: boolean = false;
 
     constructor(
         x: number,
@@ -413,9 +397,10 @@ export class Enemy extends Player {
         width: number,
         height: number,
         color: string,
+        id: string,
         name?: string
     ) {
-        super(x, y, width, height, color, name);
+        super(x, y, width, height, color, name, id);
         this.name = name ? name : `Enemy ${++counter}`;
         // this.name = "";
         this.collider = new Collider();

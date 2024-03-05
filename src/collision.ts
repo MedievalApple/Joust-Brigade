@@ -139,13 +139,6 @@ export function handleCollision(
                     lowerObject = gameObject1;
                 }
 
-                // Kill the lower object
-                if (lowerObject.constructor == Player) {
-                    (lowerObject as Player).dead = true;
-                } else {
-                    (lowerObject as Enemy).dead = true;
-                }
-
                 return;
             }
         }

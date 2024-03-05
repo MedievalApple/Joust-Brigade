@@ -16,8 +16,7 @@ import { Vector } from "./vector";
 export const SERVER_ADDRESS = sessionStorage.getItem("server");
 export let LOCAL_PLAYER: Player;
 
-// Client → Server
-// Server → Client
+// Client ←→ Server
 export interface SharedEvents {}
 
 // Client → Server
@@ -57,33 +56,46 @@ export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
-    
-    LOCAL_PLAYER = new Player(
-        50,
-        310,
-        PLAYER_WIDTH,
-        PLAYER_HEIGHT,
-        "yellow",
-        PLAYER_USERNAME,
-        socket.id
-    );
 
-    // REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
-    new InputHandler({
-        a: {
-            keydown: LOCAL_PLAYER.handleLeft.bind(LOCAL_PLAYER),
-        },
-        d: {
-            keydown: LOCAL_PLAYER.handleRight.bind(LOCAL_PLAYER),
-        },
-        w: {
-            keydown: LOCAL_PLAYER.jumpKeyDown.bind(LOCAL_PLAYER),
-            keyup: LOCAL_PLAYER.jumpKeyUp.bind(LOCAL_PLAYER),
-        },
-        // "ArrowLeft": {
-        //     keydown: enemyHandler.createEnemy.bind(enemyHandler)
-        // }
-    });
+    // Clear the game objects that are not the local player/platforms
+    for (const [id, gameObject] of GAME_OBJECTS) {
+        if (gameObject instanceof Player) {
+            if (gameObject.name !== PLAYER_USERNAME) {
+                GAME_OBJECTS.delete(id);
+            }
+        }
+    }
+    
+    if (!LOCAL_PLAYER) {
+        LOCAL_PLAYER = new Player(
+            50,
+            310,
+            PLAYER_WIDTH,
+            PLAYER_HEIGHT,
+            "yellow",
+            PLAYER_USERNAME,
+            socket.id
+        );
+
+        new InputHandler({
+            a: {
+                keydown: LOCAL_PLAYER.handleLeft.bind(LOCAL_PLAYER),
+            },
+            d: {
+                keydown: LOCAL_PLAYER.handleRight.bind(LOCAL_PLAYER),
+            },
+            w: {
+                keydown: LOCAL_PLAYER.jumpKeyDown.bind(LOCAL_PLAYER),
+                keyup: LOCAL_PLAYER.jumpKeyUp.bind(LOCAL_PLAYER),
+            },
+        });
+    } else {
+        LOCAL_PLAYER.name = PLAYER_USERNAME;
+        LOCAL_PLAYER.id = socket.id;
+        LOCAL_PLAYER.position = new Vector(50, 310);
+
+        GAME_OBJECTS.set(LOCAL_PLAYER.id, LOCAL_PLAYER);
+    }
 });
 
 socket.on("disconnect", () => {
@@ -92,7 +104,6 @@ socket.on("disconnect", () => {
 
 socket.on("playerJoined", (id, player) => {
     advancedLog(`${player} joined!`, "#32a852", "🚀");
-
     GAME_OBJECTS.set(
         id,
         new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, "aqua", player, id, {
@@ -129,7 +140,7 @@ socket.on("playerJoined", (id, player) => {
 
 socket.on("enemyJoined", (id, name) => {
     advancedLog(`AI ${name} joined!`, "#32a852", "🚀");
-    GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "red", name));
+    GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "red", id, name));
 });
 
 socket.on(
@@ -166,7 +177,6 @@ socket.on("playerLeft", (playerID: string) => {
     advancedLog(`${playerID} left!`, "red", "🚀");
 
     const player = GAME_OBJECTS.get(playerID);
-
     if (player instanceof Player) {
         advancedLog(
             `${
