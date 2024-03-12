@@ -17,7 +17,7 @@ export const SERVER_ADDRESS = sessionStorage.getItem("server");
 export let LOCAL_PLAYER: Player;
 
 // Client ←→ Server
-export interface SharedEvents {}
+export interface SharedEvents { }
 
 // Client → Server
 export interface ClientEvents extends SharedEvents {
@@ -48,6 +48,7 @@ export interface ServerEvents extends SharedEvents {
     playerJoined: (playerID: string, playerName: string) => void;
     enemyJoined: (enemyID: string, EnemyName: string) => void;
     playerLeft: (playerID: string) => void;
+    flip: (playerID: string) => void;
 }
 
 // append to initial socket request, username
@@ -65,7 +66,7 @@ socket.on("connect", () => {
             }
         }
     }
-    
+
     if (!LOCAL_PLAYER) {
         LOCAL_PLAYER = new Player(
             50,
@@ -179,12 +180,21 @@ socket.on("playerLeft", (playerID: string) => {
     const player = GAME_OBJECTS.get(playerID);
     if (player instanceof Player) {
         advancedLog(
-            `${
-                GAME_OBJECTS.delete(playerID) ? "Successfully" : "Failed to"
+            `${GAME_OBJECTS.delete(playerID) ? "Successfully" : "Failed to"
             } delete ${player.name}`,
             "red",
             "🚀"
         );
+    }
+});
+socket.on("flip", (playerID: string) => {
+    const player = GAME_OBJECTS.get(playerID);
+    console.log(player)
+    console.log("Flip")
+    if (player instanceof Player) {
+        player.direction = player.direction == Direction.Right ? Direction.Left : Direction.Right;
+        player.velocity.x *= -1;
+        advancedLog(`${player.name} Change directions!`, "red", "🚀");
     }
 });
 
