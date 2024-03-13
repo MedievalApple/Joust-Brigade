@@ -3,18 +3,9 @@ import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
 import { DEBUG } from "./debug";
 import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./joust";
+import { Enemy, Player } from "./player";
 
-interface IGameObject {
-    position: Vector;
-    velocity: Vector;
-    collider: Collider;
-    id: string;
-    update?: () => void;
-    show?: () => void;
-    dead?: boolean;
-    collisionObjects?: Array<ICollisionObject>;
-    spawner?: Collider;
-}
+export type IGameObject = Player | Enemy | Platform;
 
 const GAME_OBJECTS: Map<string, IGameObject> = new Map();
 export class MapObject {

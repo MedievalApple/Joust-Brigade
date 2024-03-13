@@ -1,4 +1,4 @@
-import { Player, EnemyHandler } from './player';
+import { Player, EnemyHandler, UnmountedAI } from './player';
 import { handleCollision } from './collision';
 import { GAME_OBJECTS } from './map_object';
 import { DEBUG } from './debug';
@@ -27,8 +27,6 @@ export var frameCount = 0;
 // Instantiate enemy handler
 export const enemyHandler = EnemyHandler.getInstance(5);
 
-// new UnmountedAI(100,100,PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, null)
-
 // Game loop
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -42,7 +40,6 @@ function draw() {
             mObject.show();
         }
     });
-
     if (DEBUG) {
         // Draw fps
         ctx.font = "10px Arial";
@@ -66,17 +63,15 @@ function draw() {
 
 function update() {
     GAME_OBJECTS.forEach(mObject => {
+        // @ts-ignore
+        if(mObject.constructor == UnmountedAI) {mObject.update(); mObject.dumbAI();}
         if (!sessionStorage.getItem("server") || mObject.constructor == Player) {
+            // @ts-ignore
             if (mObject.update) mObject.update();
         }
     });
 
-    for (let [_, value] of GAME_OBJECTS) {
-        if (value.collisionObjects) {
-            value.collisionObjects = [];
-        }
-    }
-    if (enemyHandler.enemies.length == 0 && !enemyHandler.spawningWave&&!sessionStorage.getItem("server")) {
+    if (enemyHandler.enemies.length == 0 && !enemyHandler.spawningWave && !sessionStorage.getItem("server")) {
         enemyHandler.createEnemy(5);
     }
 
@@ -95,4 +90,4 @@ function update() {
 requestAnimationFrame(draw);
 update();
 
-export { ctx, GAME_OBJECTS, canvas};
+export { ctx, GAME_OBJECTS, canvas };

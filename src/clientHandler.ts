@@ -6,13 +6,12 @@ import {
     PLAYER_USERNAME,
     PLAYER_WIDTH,
 } from "./joust";
-import { Enemy, Player } from "./player";
+import { Enemy, Player, UnmountedAI } from "./player";
 import { advancedLog } from "./utils";
 import { InputHandler } from "./controls";
 import { Direction } from "./enums";
 import { AniSprite, ImgSprite } from "./sprite";
 import { Vector } from "./vector";
-
 export const SERVER_ADDRESS = sessionStorage.getItem("server");
 export let LOCAL_PLAYER: Player;
 
@@ -57,7 +56,6 @@ export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
-
     // Clear the game objects that are not the local player/platforms
     for (const [id, gameObject] of GAME_OBJECTS) {
         if (gameObject instanceof Player) {
@@ -66,7 +64,6 @@ socket.on("connect", () => {
             }
         }
     }
-
     if (!LOCAL_PLAYER) {
         LOCAL_PLAYER = new Player(
             50,
@@ -136,7 +133,6 @@ socket.on("playerJoined", (id, player) => {
             ),
         })
     );
-    console.log(GAME_OBJECTS);
 });
 
 socket.on("enemyJoined", (id, name) => {
@@ -185,6 +181,9 @@ socket.on("playerLeft", (playerID: string) => {
             "red",
             "🚀"
         );
+        if(player.constructor==Enemy) { 
+            new UnmountedAI(player.position.x, player.position.y, PLAYER_WIDTH, PLAYER_HEIGHT, "red", null, player.id);
+        }
     }
 });
 socket.on("flip", (playerID: string) => {

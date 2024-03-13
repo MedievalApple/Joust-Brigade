@@ -4,9 +4,9 @@
 // import { AniSprite } from "./sprite";
 // import { constrain } from "./utils";
 // import { Vector } from "./vector";
-
 // export class UnmountedAI extends Player {
 //     debugColor: string = "white";
+//     static: boolean;
 
 //     constructor(
 //         x: number,
@@ -17,7 +17,7 @@
 //         name?: string
 //     ) {
 //         super(x, y, width, height, color, name);
-//         this.dead = false;
+//         this.static = true;
 //         this.animations = {
 //             running: new AniSprite(
 //                 "/assets/sprite_sheet/bounder/walk_unmounted/walk",
@@ -36,8 +36,7 @@
 //                     scale: new Vector(2, 2),
 //                     loop: true
 //                 }
-//             ),
-//             // idle: new AniSprite("/assets/Sprite Sheet/Bounder/Idle (Bounder)/Idle_Standing", 1)
+//             )
 //         };
 
 //         switch (Math.floor(Math.random() * 2)) {
