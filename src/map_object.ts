@@ -1,23 +1,11 @@
 import { Vector } from "./vector";
 import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
-import { Player } from "./player";
 import { DEBUG } from "./debug";
 import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./joust";
-import { v4 as uuidv4 } from "uuid";
+import { Enemy, Player } from "./player";
 
-interface IGameObject {
-    position: Vector;
-    velocity: Vector;
-    collider: Collider;
-    id: string;
-    update?: () => void;
-    show?: () => void;
-    dumbAI?: () => void;
-    dead?: boolean;
-    collisionObjects?: Array<ICollisionObject>;
-    spawner?: Collider;
-}
+export type IGameObject = Player | Enemy | Platform;
 
 const GAME_OBJECTS: Map<string, IGameObject> = new Map();
 export class MapObject {
@@ -27,7 +15,7 @@ export class MapObject {
     sprite: Sprite;
     collider: Collider;
     static: boolean = true;
-    id: string = uuidv4();
+    id: string = Math.random().toString(36).substring(2,9);
 
     constructor(x: number, y: number, w: number, h: number, collider: Collider, sprite?: Sprite) {
         this.position = new Vector(x, y);
@@ -68,6 +56,7 @@ export class Platform extends MapObject {
     }
     show(): void {
         super.show();
+    
         if (DEBUG && this.spawner) {
             this.spawner.show();
         }

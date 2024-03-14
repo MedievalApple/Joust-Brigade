@@ -4,52 +4,19 @@ import {
     ctx,
     canvas,
     GAME_OBJECTS,
-    player,
-    PLAYER_HEIGHT,
-    PLAYER_WIDTH,
     PLAYER_USERNAME,
 } from "./joust";
-import { FRAME_RATE } from "./joust";
 import { Collider, Platform } from "./map_object";
 import { DEBUG } from "./debug";
 import { OffsetHitbox, ICollisionObject, isColliding } from "./collision";
 import { constrain } from "./utils";
 import { Direction } from "./enums";
-import { random } from "node-forge";
-import { socket } from "./clientHandler";
-import { v4 as uuidv4 } from "uuid";
+import { LOCAL_PLAYER, socket } from "./clientHandler";
 
 export class Player {
     private _dead: boolean = false;
     currentAnimation: Sprite | null;
-    animations: { [key: string]: Sprite } = {
-        running: new AniSprite(
-            "/assets/sprite_sheet/ostrich/walk_ostrich/walk",
-            4,
-            {
-                animationSpeed: 10,
-                scale: new Vector(2, 2),
-                loop: true,
-            }
-        ),
-        stop: new ImgSprite(
-            "/assets/sprite_sheet/ostrich/walk_ostrich/stop.png",
-            new Vector(2, 2)
-        ),
-        flap: new AniSprite(
-            "/assets/sprite_sheet/ostrich/flap_ostrich/flap",
-            2,
-            {
-                animationSpeed: 0,
-                scale: new Vector(2, 2),
-                loop: true,
-            }
-        ),
-        idle: new ImgSprite(
-            "/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing.png",
-            new Vector(2, 2)
-        ),
-    };
+    animations: { [key: string]: Sprite };
     name: string;
     velocity: Vector = new Vector(0, 0);
     size: Vector;
@@ -63,12 +30,10 @@ export class Player {
     position: Vector;
     oldSize: Vector = new Vector();
     collider: Collider;
-    lance: Collider;
-    head: Collider;
     collisionObjects: Array<ICollisionObject> = [];
     debugColor: string = "red";
     jumpDebounce: boolean;
-    id: string = uuidv4();
+    id: string = "";
 
     constructor(
         x: number,
@@ -76,28 +41,48 @@ export class Player {
         width: number,
         height: number,
         color: string,
-        name: string
+        name: string,
+        id: string = "",
+        animations: { [key: string]: Sprite } = {
+            running: new AniSprite(
+                "/assets/sprite_sheet/ostrich/walk_ostrich/walk",
+                4,
+                {
+                    animationSpeed: 10,
+                    scale: new Vector(2, 2),
+                    loop: true,
+                }
+            ),
+            stop: new ImgSprite(
+                "/assets/sprite_sheet/ostrich/walk_ostrich/stop.png",
+                new Vector(2, 2)
+            ),
+            flap: new AniSprite(
+                "/assets/sprite_sheet/ostrich/flap_ostrich/flap",
+                2,
+                {
+                    animationSpeed: 0,
+                    scale: new Vector(2, 2),
+                    loop: true,
+                }
+            ),
+            idle: new ImgSprite(
+                "/assets/sprite_sheet/ostrich/idle_ostrich/idle_standing.png",
+                new Vector(2, 2)
+            ),
+        }
     ) {
         this.position = new Vector(x, y);
         this.size = new Vector(width, height);
         this.color = color;
         this.name = name;
+        this.animations = animations;
 
         this.collider = new Collider();
         this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
 
-        this.lance = new Collider();
-        this.lance.hitbox = new OffsetHitbox(
-            new Vector(14, 6),
-            new Vector(12, 6)
-        );
-
-        this.head = new Collider();
-        this.head.hitbox = new OffsetHitbox(
-            new Vector(4, 0),
-            new Vector(18, 6)
-        );
         this.updateCollider(this.position);
+        this.id = id;
         // GAME_OBJECTS.unshift(this);
         GAME_OBJECTS.set(this.id, this);
     }
@@ -110,17 +95,6 @@ export class Player {
 
     updateCollider(vector: Vector) {
         if (this.collider) this.collider.position = vector;
-
-        if (this.lance) {
-            this.lance.position = vector;
-
-            if (this.velocity.x < 0 && !this.isJumping) {
-            } else {
-                this.lance.hitbox.offset = new Vector(14, 6);
-            }
-        }
-
-        if (this.head) this.head.position = vector;
     }
 
     show() {
@@ -134,7 +108,7 @@ export class Player {
                 this.position.x +
                     this.size.x / 2 -
                     ctx.measureText(this.name).width / 2,
-                this.position.y - 20
+                this.position.y - 10
             );
         }
 
@@ -142,23 +116,32 @@ export class Player {
         if (!this.currentAnimation) {
             this.currentAnimation = this.animations.flap;
             // return console.error("No current animation");
-        }
-
-        if (this.currentAnimation instanceof AniSprite) {
-            this.collider.hitbox.size.x =
-                this.currentAnimation.images[0].width * 2;
-            this.collider.hitbox.size.y =
-                this.currentAnimation.images[0].height * 2;
         } else {
-            this.collider.hitbox.size.x = this.currentAnimation.image.width * 2;
-            this.collider.hitbox.size.y =
-                this.currentAnimation.image.height * 2;
+            if (this.currentAnimation instanceof AniSprite) {
+                this.collider.hitbox.size.x =
+                    this.currentAnimation.images[0].width * 2;
+                this.collider.hitbox.size.y =
+                    this.currentAnimation.images[0].height * 2;
+            } else {
+                this.collider.hitbox.size.x =
+                    this.currentAnimation.image.width * 2;
+                this.collider.hitbox.size.y =
+                    this.currentAnimation.image.height * 2;
+            }
         }
 
         if (this.oldSize.y !== this.collider.hitbox.size.y) {
-            this.position = this.position.add(
-                this.oldSize.sub(this.collider.hitbox.size)
-            );
+            if (
+                this.collider.hitbox.size.y ||
+                this.collider.hitbox.size.y == 0
+            ) {
+                //console.log(this.collider.hitbox.size);
+            }
+            if (this.name == PLAYER_USERNAME) {
+                this.position = this.position.add(
+                    this.oldSize.sub(this.collider.hitbox.size)
+                );
+            }
         }
 
         this.oldSize = this.collider.hitbox.size.clone();
@@ -202,7 +185,6 @@ export class Player {
                 this.direction = Direction.Left;
             }
         }
-
         if (!this.currentAnimation) {
             this.currentAnimation = this.animations.idle;
         }
@@ -212,8 +194,12 @@ export class Player {
     handleCollisions() {
         if (this.position.x - 1 > canvas.width) {
             this.position.x = 1;
+            //@ts-ignore
+            if(this.constructor == UnmountedAI) GAME_OBJECTS.delete(this.id);
         } else if (this.position.x < 1) {
             this.position.x = canvas.width - 1;
+            //@ts-ignore
+            if(this.constructor == UnmountedAI) GAME_OBJECTS.delete(this.id);
         }
     }
 
@@ -242,6 +228,19 @@ export class Player {
         }
     }
 
+    sendData() {
+        socket.emit(
+            "move",
+            LOCAL_PLAYER.position.x,
+            LOCAL_PLAYER.position.y,
+            LOCAL_PLAYER.velocity.x,
+            LOCAL_PLAYER.velocity.y,
+            LOCAL_PLAYER.xAccel,
+            LOCAL_PLAYER.isJumping,
+            LOCAL_PLAYER.direction
+        );
+    }
+
     handleLeft() {
         if (this.isJumping) {
             this.direction = Direction.Left;
@@ -253,9 +252,8 @@ export class Player {
         } else {
             this.xAccel = -0.07;
         }
-        if (this.name == PLAYER_USERNAME) {
-            socket.emit("move", player.position.x, player.position.y);
-        }
+        
+        this.sendData();
     }
 
     handleRight() {
@@ -269,9 +267,8 @@ export class Player {
         } else {
             this.xAccel = 0.07;
         }
-        if (this.name == PLAYER_USERNAME) {
-            socket.emit("move", player.position.x, player.position.y);
-        }
+
+        this.sendData();
     }
 
     jumpKeyDown() {
@@ -279,65 +276,46 @@ export class Player {
             this.isJumping = true;
             this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
 
-            if (this.currentAnimation instanceof AniSprite)
+            if (this.currentAnimation instanceof AniSprite) {
                 this.currentAnimation.next();
+            }
+
             this.jumpDebounce = true;
         }
-        if (this.name == PLAYER_USERNAME) {
-            socket.emit("move", 
-                player.position.x,
-                player.position.y,
-            );
-        }
+        
+        this.sendData();
     }
 
     jumpKeyUp() {
         this.jumpDebounce = false;
-        if (this.name == PLAYER_USERNAME) {
-            socket.emit("move", 
-                player.position.x,
-                player.position.y,
-            );
-        }
+        this.sendData();
     }
 
     drawDebugVisuals() {
         if (DEBUG) {
             this.collider.show(this.debugColor);
-            this.lance.show();
-            this.head.show();
+            // draw current animation string top right above collider
+            ctx.font = "10px Arial";
+            ctx.fillStyle = "white";
+            ctx.fillText(
+                this.currentAnimation instanceof AniSprite
+                    ? this.currentAnimation.animationSpeed.toFixed(0)
+                    : "img",
+                this.position.x + this.size.x / 2,
+                this.position.y - 10
+            );
         }
-    }
-
-    set dead(value: boolean) {
-        this._dead = value;
-
-        if (this._dead) {
-            if (this.constructor.name == "Player") {
-                this.position = new Vector(200, 310);
-                this.dead = false;
-            } else {
-                // Delete enemy from GAME_OBJECTS
-                // GAME_OBJECTS.splice(GAME_OBJECTS.indexOf(this), 1);
-                GAME_OBJECTS.delete(this.id);
-            }
-        }
-    }
-
-    get dead(): boolean {
-        return this._dead;
     }
 }
 
 export class EnemyHandler {
     private static singleton: EnemyHandler;
     private _enemies: Enemy[] = [];
-    
+
     spawningWave: boolean = false;
 
     private constructor(startingEnemies: number = 0) {
         this.spawningWave = true;
-        this.createEnemy(startingEnemies)
     }
 
     public static getInstance(number?: number): EnemyHandler {
@@ -350,10 +328,6 @@ export class EnemyHandler {
     createEnemy(number: number = 1) {
         let alreadySpawned = number;
         for (let i = 0; i < number; i++) {
-            // var spawnablesSpots = filter((object) => {
-            //     return object instanceof Platform && object.spawner;
-            // });
-
             let spawnablesSpots: Platform[] = [];
 
             for (let [_, value] of GAME_OBJECTS) {
@@ -381,15 +355,6 @@ export class EnemyHandler {
                 ];
             if (spawnablesSpots.length == 0) break;
             alreadySpawned--;
-            this.enemies.push(
-                new Enemy(
-                    spot.spawner.collisionX + PLAYER_WIDTH,
-                    spot.spawner.collisionY + PLAYER_HEIGHT,
-                    PLAYER_WIDTH,
-                    PLAYER_HEIGHT,
-                    "green"
-                )
-            );
         }
         if (alreadySpawned > 0) {
             setTimeout(() => this.createEnemy(alreadySpawned), 1000);
@@ -413,6 +378,7 @@ var counter = 0;
 
 export class Enemy extends Player {
     debugColor: string = "white";
+    dead: boolean = false;
 
     constructor(
         x: number,
@@ -420,16 +386,21 @@ export class Enemy extends Player {
         width: number,
         height: number,
         color: string,
+        id: string,
         name?: string
     ) {
-        super(x, y, width, height, color, name);
-        this.name = `Enemy ${++counter}`;
+        super(x, y, width, height, color, name, id);
+        this.name = name ? name : `Enemy ${++counter}`;
+        // this.name = "";
+        this.collider = new Collider();
+        this.collider.hitbox = new OffsetHitbox(new Vector(), this.size);
+        this.currentAnimation = this.animations.flap;
         this.animations = {
             running: new AniSprite(
                 "/assets/sprite_sheet/bounder/walk_bounder/walk",
                 4,
                 {
-                    animationSpeed: 5,
+                    animationSpeed: 0,
                     scale: new Vector(2, 2),
                     loop: true,
                 }
@@ -471,20 +442,75 @@ export class Enemy extends Player {
                 break;
         }
     }
+}
 
-    dumbAI() {
-        if (Math.random() < 0.1) {
-            if (this.position.y > player.position.y) {
-                this.isJumping = true;
-                this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
-            } else {
-                if (Math.random() < 0.1) {
-                    this.isJumping = true;
-                    this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
+export class UnmountedAI extends Player {
+    debugColor: string = "white";
+    static: boolean;
+
+    constructor(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        color: string,
+        name: string,
+        id: string
+    ) {
+        super(x, y, width, height, color, name, id);
+        this.name = name;
+        this.maxSpeed = new Vector(1.5, 5);
+        // this.static = true;
+        this.animations = {
+            running: new AniSprite(
+                "/assets/sprite_sheet/bounder/walk_unmounted/walk",
+                4,
+                {
+                    animationSpeed: 5,
+                    scale: new Vector(2, 2),
+                    loop: true
                 }
-            }
+            ),
+            flap: new AniSprite(
+                "/assets/sprite_sheet/bounder/flap_unmounted/flap",
+                2,
+                {
+                    animationSpeed: 5,
+                    scale: new Vector(2, 2),
+                    loop: true
+                }
+            )
+        };
+
+        switch (Math.floor(Math.random() * 2)) {
+            case 0:
+                this.direction = Direction.Right;
+                if (this.velocity.x == 0) {
+                    this.velocity.x = 1;
+                    this.xAccel = 0.05;
+                } else {
+                    this.xAccel = 0.07;
+                }
+                break;
+            case 1:
+                this.direction = Direction.Left;
+                if (Math.abs(this.velocity.x) == 0) {
+                    this.velocity.x = -1;
+                    this.velocity.x = -0.05;
+                } else {
+                    this.xAccel = -0.07;
+                }
+                break;
+            default:
+                break;
         }
-        switch (this.velocity.x > 0) {
+    }
+    dumbAI() {
+        if (Math.random() < 0.03) {
+            this.isJumping = true;
+            this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
+        }
+        switch (this.position.x > canvas.width/2) {
             case true:
                 this.direction = Direction.Right;
                 if (Math.abs(this.velocity.x) == 0) {
