@@ -1,4 +1,5 @@
 import { ctx, enemyHandler } from "./joust";
+import { MapObject } from "./map_object";
 import { Enemy, Player } from "./player";
 import { Vector } from "./vector";
 
@@ -8,6 +9,7 @@ export interface ICollisionObject {
     isJumping?: boolean;
     static?: boolean;
     collisionObjects?: Array<ICollisionObject>;
+    updateCollider?: (vector: Vector) => void;
 }
 
 export interface IHitbox {
@@ -81,6 +83,16 @@ export function handleCollision(
     collider1: Collider,
     collider2: Collider
 ) {
+    // if(sessionStorage.getItem("server") && (gameObject1.constructor == Enemy || gameObject2.constructor == Enemy || gameObject1.constructor == MapObject && gameObject2.constructor == MapObject)) {
+    //     return;
+    // }
+
+
+    if((gameObject1 instanceof Player) && (gameObject2 instanceof Player)) return;
+    //if (gameObject1.constructor != Player && gameObject2.constructor != Player) return;
+    if (gameObject1.static && gameObject2.static) return;
+
+
     if (gameObject1.velocity.x == 0 && gameObject1.velocity.y == 0 && gameObject2.velocity.x == 0 && gameObject2.velocity.y == 0) return;
     // No need to checkx if they're overlapping, and then calculate the overlap
     // you can calculate overlap first and then check if it's 0 on both overlapX and overlapY
@@ -102,7 +114,7 @@ export function handleCollision(
         collider2.collisionY + collider2.collisionSize.y - collider1.collisionY
     );
 
-    if (overlapX >= 0 && overlapY >= 0) {
+    if (overlapX > 0 && overlapY > 0) {
         if (gameObject1.collisionObjects) {
             gameObject1.collisionObjects.push(gameObject2);
         }
@@ -127,13 +139,6 @@ export function handleCollision(
                     lowerObject = gameObject1;
                 }
 
-                // Kill the lower object
-                if (lowerObject.constructor == Player) {
-                    (lowerObject as Player).dead = true;
-                } else {
-                    (lowerObject as Enemy).dead = true;
-                }
-
                 return;
             }
         }
@@ -142,19 +147,45 @@ export function handleCollision(
         if (overlapX < overlapY) {
             // Resolve the collision on the X-axis
             const sign = Math.sign(gameObject1.velocity.x - gameObject2.velocity.x);
-            if (!gameObject1.static) gameObject1.position.x -= overlapX * sign;
-            if (!gameObject2.static) gameObject2.velocity.x *= -1;
+            if (!gameObject1.static) {
+                gameObject1.position.x -= overlapX * sign;
+                gameObject1.velocity.x *= -collider1.friction;
+                if(gameObject1.updateCollider) {
+                    gameObject1.updateCollider(gameObject1.position);
+                }
+            }
+            if (!gameObject2.static) {
+                gameObject2.position.x -= -overlapX * sign;
+                gameObject2.velocity.x *= -collider2.friction;
+                if(gameObject2.updateCollider) {
+                    gameObject2.updateCollider(gameObject2.position);
+                }
+            }
         } else {
             // Resolve the collision on the Y-axis
             const sign = Math.sign(gameObject1.velocity.y - gameObject2.velocity.y);
             if (sign < 0) {
-                gameObject2.isJumping = false;
+                if ("isJumping" in gameObject1) {
+                    gameObject1.isJumping = false;
+                }
+
+                if ("isJumping" in gameObject2) {
+                    gameObject2.isJumping = false;
+                }
             }
             if (!gameObject1.static) {
                 gameObject1.position.y -= overlapY * sign;
+                gameObject1.velocity.y *= -collider1.friction;
+                if(gameObject1.updateCollider) {
+                    gameObject1.updateCollider(gameObject1.position);
+                }
             }
             if (!gameObject2.static) {
+                gameObject2.position.y -= -overlapY * sign;
                 gameObject2.velocity.y *= -collider2.friction;
+                if(gameObject2.updateCollider) {
+                    gameObject2.updateCollider(gameObject2.position);
+                }
             }
         }
     }

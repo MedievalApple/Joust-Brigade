@@ -1,5 +1,5 @@
 # Webpacks and then Deploys to GitHub Pages
-name: Webpack And Deploy To Pages
+name: Build Vite And Deploy To Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -42,13 +42,13 @@ jobs:
       - name: Build
         run: |
           npm install
-          npx webpack --mode="production"
+          npx run build
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
           # Upload entire repository
-          path: build
+          path: dist
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2

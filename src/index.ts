@@ -1,22 +1,29 @@
 function startGame() {
     const nameInput = <HTMLInputElement>document.getElementById("nameInput");
     const serverInput = <HTMLInputElement>document.getElementById("serverInput");
+    const checkbox = <HTMLInputElement>document.getElementById("spectatorCheckbox");
 
     const username = nameInput.value;
     const server = serverInput.value;
+    const spectator = checkbox.checked;
 
     if (server !== " ") {
-        localStorage.setItem("server", server);
+        sessionStorage.setItem("server", server);
     }
+
+    sessionStorage.setItem("spectator", spectator.toString());
 
     if (username !== "" && username !== " ") {
-        localStorage.setItem("username", username.toUpperCase());
-        window.location.replace("joust.html");
+        sessionStorage.setItem("username", username);
+        window.location.replace("pages/joust/joust.html");
     }
-
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     const button = document.getElementById("next-button");
     button.addEventListener("click", startGame);
+
+    // set server value to localhost:3000
+    const serverInput = <HTMLInputElement>document.getElementById("serverInput");
+    serverInput.value = "10.223.16.19:3000";
 });

@@ -1,11 +1,10 @@
-import { Player, EnemyHandler } from './player';
+import { Player, EnemyHandler, UnmountedAI } from './player';
 import { handleCollision } from './collision';
-import { InputHandler } from './controls';
 import { GAME_OBJECTS } from './map_object';
-import { UnmountedAI } from './death';
 import { DEBUG } from './debug';
 import "./clientHandler";
-
+var previousTime = 0;
+console.log("Joust game started!");
 
 // Canvas and context initialization
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
@@ -14,41 +13,20 @@ ctx.imageSmoothingEnabled = false;
 
 // Constants for readability
 export const FRAME_RATE = 60;
-let lastFrameTime = 0;
-let lastUpdateTime = 0;
-
+export let lastFrameTime = 0;
+export let lastUpdateTime = 0;
 export const PLAYER_WIDTH = 13 * 2;
 export const PLAYER_HEIGHT = 18 * 2;
-const PLAYER_COLOR = "red";
-export const PLAYER_USERNAME = localStorage.getItem("username");
+export const PLAYER_USERNAME = sessionStorage.getItem("username");
 
 // Frame count and lastSent data
 export var frameCount = 0;
 
 // Player creation
-const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, PLAYER_USERNAME);
+//const player = new Player(50, 310, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, PLAYER_USERNAME);
 
 // Instantiate enemy handler
 export const enemyHandler = EnemyHandler.getInstance(5);
-
-// new UnmountedAI(100,100,PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_COLOR, null)
-
-// REMEMBER TO FIX DIFFERENCE BETWEEN UPPERCASE/LOWERCASE
-new InputHandler({
-    "a": {
-        keydown: player.handleLeft.bind(player)
-    },
-    "d": {
-        keydown: player.handleRight.bind(player)
-    },
-    "w": {
-        keydown: player.jumpKeyDown.bind(player),
-        keyup: player.jumpKeyUp.bind(player)
-    },
-    // "ArrowLeft": {
-    //     keydown: enemyHandler.createEnemy.bind(enemyHandler)
-    // }
-})
 
 // Game loop
 function draw() {
@@ -63,7 +41,6 @@ function draw() {
             mObject.show();
         }
     });
-
     if (DEBUG) {
         // Draw fps
         ctx.font = "10px Arial";
@@ -87,19 +64,18 @@ function draw() {
 
 function update() {
     GAME_OBJECTS.forEach(mObject => {
-        if (mObject.update) mObject.update();
-        if (mObject.dumbAI) mObject.dumbAI();
+        // @ts-ignore
+        if(mObject.constructor == UnmountedAI) {mObject.update(); mObject.dumbAI();}
+        if (!sessionStorage.getItem("server") || mObject.constructor == Player) {
+            // @ts-ignore
+            if (mObject.update) mObject.update();
+        }
     });
 
-    for (let [_, value] of GAME_OBJECTS) {
-        if (value.collisionObjects) {
-            value.collisionObjects = [];
-        }
-    }
-
-    if (enemyHandler.enemies.length == 0&&!enemyHandler.spawningWave) {
+    if (enemyHandler.enemies.length == 0 && !enemyHandler.spawningWave && !sessionStorage.getItem("server")) {
         enemyHandler.createEnemy(5);
     }
+
     GAME_OBJECTS.forEach(mObject1 => {
         GAME_OBJECTS.forEach(mObject2 => {
             if (mObject1 !== mObject2 && mObject1.collider && mObject2.collider) {
@@ -109,10 +85,12 @@ function update() {
     });
 
     lastUpdateTime = performance.now();
-    setTimeout(update, 1000 / FRAME_RATE);
+    frameCount = lastUpdateTime - previousTime;
+    previousTime = lastUpdateTime;
+    setTimeout(update, 1000 / (60));
 }
 
 requestAnimationFrame(draw);
 update();
 
-export { ctx, GAME_OBJECTS, canvas, player };
+export { ctx, GAME_OBJECTS, canvas };
