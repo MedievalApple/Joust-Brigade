@@ -48,6 +48,7 @@ export interface ServerEvents extends SharedEvents {
     enemyJoined: (enemyID: string, EnemyName: string) => void;
     playerLeft: (playerID: string) => void;
     flip: (playerID: string) => void;
+    dead: (playerID: string) => void;
 }
 
 // append to initial socket request, username
@@ -181,19 +182,25 @@ socket.on("playerLeft", (playerID: string) => {
             "red",
             "🚀"
         );
-        if(player.constructor==Enemy) { 
+        if (player.constructor == Enemy) {
             new UnmountedAI(player.position.x, player.position.y, PLAYER_WIDTH, PLAYER_HEIGHT, "red", null, player.id);
         }
     }
 });
 socket.on("flip", (playerID: string) => {
     const player = GAME_OBJECTS.get(playerID);
-    console.log(player)
-    console.log("Flip")
     if (player instanceof Player) {
         player.direction = player.direction == Direction.Right ? Direction.Left : Direction.Right;
         player.velocity.x *= -1;
         advancedLog(`${player.name} Change directions!`, "red", "🚀");
+    }
+});
+
+socket.on("dead", (playerID: string) => {
+    const player = GAME_OBJECTS.get(playerID);
+    if (player instanceof Player) {
+        player.position = new Vector(200, 310);
+        advancedLog(`${player.name} Died!`, "red", "🚀");
     }
 });
 

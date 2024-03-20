@@ -25,5 +25,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // set server value to localhost:3000
     const serverInput = <HTMLInputElement>document.getElementById("serverInput");
-    serverInput.value = "localhost:3000";
+    serverInput.value = "10.223.16.19:3000";
 });

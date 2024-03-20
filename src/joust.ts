@@ -3,7 +3,7 @@ import { handleCollision } from './collision';
 import { GAME_OBJECTS } from './map_object';
 import { DEBUG } from './debug';
 import "./clientHandler";
-
+var previousTime = 0;
 console.log("Joust game started!");
 
 // Canvas and context initialization
@@ -13,9 +13,8 @@ ctx.imageSmoothingEnabled = false;
 
 // Constants for readability
 export const FRAME_RATE = 60;
-let lastFrameTime = 0;
-let lastUpdateTime = 0;
-
+export let lastFrameTime = 0;
+export let lastUpdateTime = 0;
 export const PLAYER_WIDTH = 13 * 2;
 export const PLAYER_HEIGHT = 18 * 2;
 export const PLAYER_USERNAME = sessionStorage.getItem("username");
@@ -86,7 +85,9 @@ function update() {
     });
 
     lastUpdateTime = performance.now();
-    setTimeout(update, 1000 / FRAME_RATE);
+    frameCount = lastUpdateTime - previousTime;
+    previousTime = lastUpdateTime;
+    setTimeout(update, 1000 / (60));
 }
 
 requestAnimationFrame(draw);

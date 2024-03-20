@@ -5,6 +5,7 @@ import {
     canvas,
     GAME_OBJECTS,
     PLAYER_USERNAME,
+    lastUpdateTime
 } from "./joust";
 import { Collider, Platform } from "./map_object";
 import { DEBUG } from "./debug";
@@ -12,7 +13,7 @@ import { OffsetHitbox, ICollisionObject, isColliding } from "./collision";
 import { constrain } from "./utils";
 import { Direction } from "./enums";
 import { LOCAL_PLAYER, socket } from "./clientHandler";
-
+let timeElapsed = 0;
 export class Player {
     private _dead: boolean = false;
     currentAnimation: Sprite | null;
@@ -106,8 +107,8 @@ export class Player {
             ctx.fillText(
                 this.name,
                 this.position.x +
-                    this.size.x / 2 -
-                    ctx.measureText(this.name).width / 2,
+                this.size.x / 2 -
+                ctx.measureText(this.name).width / 2,
                 this.position.y - 10
             );
         }
@@ -195,11 +196,11 @@ export class Player {
         if (this.position.x - 1 > canvas.width) {
             this.position.x = 1;
             //@ts-ignore
-            if(this.constructor == UnmountedAI) GAME_OBJECTS.delete(this.id);
+            if (this.constructor == UnmountedAI) GAME_OBJECTS.delete(this.id);
         } else if (this.position.x < 1) {
             this.position.x = canvas.width - 1;
             //@ts-ignore
-            if(this.constructor == UnmountedAI) GAME_OBJECTS.delete(this.id);
+            if (this.constructor == UnmountedAI) GAME_OBJECTS.delete(this.id);
         }
     }
 
@@ -225,6 +226,9 @@ export class Player {
         this.handleCollisions();
         if (this.position.y < -10 || this.position.y + 10 > canvas.height) {
             this.position = new Vector(Math.random() * canvas.width, 50);
+        }
+        if (this == LOCAL_PLAYER) {
+            this.sendData();
         }
     }
 
@@ -252,7 +256,7 @@ export class Player {
         } else {
             this.xAccel = -0.07;
         }
-        
+
         this.sendData();
     }
 
@@ -282,7 +286,7 @@ export class Player {
 
             this.jumpDebounce = true;
         }
-        
+
         this.sendData();
     }
 
@@ -351,7 +355,7 @@ export class EnemyHandler {
 
             let spot =
                 spawnablesSpots[
-                    Math.floor(Math.random() * spawnablesSpots.length)
+                Math.floor(Math.random() * spawnablesSpots.length)
                 ];
             if (spawnablesSpots.length == 0) break;
             alreadySpawned--;
@@ -510,7 +514,7 @@ export class UnmountedAI extends Player {
             this.isJumping = true;
             this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
         }
-        switch (this.position.x > canvas.width/2) {
+        switch (this.position.x > canvas.width / 2) {
             case true:
                 this.direction = Direction.Right;
                 if (Math.abs(this.velocity.x) == 0) {
