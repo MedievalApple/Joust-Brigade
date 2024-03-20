@@ -53,6 +53,7 @@ export interface ServerEvents extends SharedEvents {
 
 // append to initial socket request, username
 export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
+console.log(SERVER_ADDRESS);
 
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
