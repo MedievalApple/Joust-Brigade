@@ -1,13 +1,17 @@
 {
-  "name": "my-joust-brigade",
+  "name": "joust-brigade",
+  "version": "1.0.0",
+  "description": "A massive multiplayer drop-in game inspired by Joust",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "keywords": [],
+  "author": "Medieval Apple",
+  "license": "ISC",
   "devDependencies": {
         "vite": "^5.1.6",
         "@types/ws": "^8.5.8",
