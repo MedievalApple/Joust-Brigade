@@ -1,59 +1,22 @@
 // 10.223.17.4:3000
-import { Socket, io } from "socket.io-client";
+import { InputHandler } from "./controls";
+import { Direction } from "./enums";
 import {
-    GAME_OBJECTS,
+    GAME_OBJECTS
+} from "./joust";
+import {
     PLAYER_HEIGHT,
     PLAYER_USERNAME,
     PLAYER_WIDTH,
-} from "./joust";
-import { Enemy, Player, UnmountedAI } from "./player";
-import { advancedLog } from "./utils";
-import { InputHandler } from "./controls";
-import { Direction } from "./enums";
+    socket,
+} from "./Global Constants/constants"
+import { Enemy, LOCAL_PLAYER, Player, updateLocalPlayer } from "./Bird Objects/player";
 import { AniSprite, ImgSprite } from "./sprite";
+import { advancedLog } from "./utils";
 import { Vector } from "./vector";
-export const SERVER_ADDRESS = sessionStorage.getItem("server");
-export let LOCAL_PLAYER: Player;
-
-// Client ←→ Server
-export interface SharedEvents { }
-
-// Client → Server
-export interface ClientEvents extends SharedEvents {
-    move: (
-        x: number,
-        y: number,
-        velx: number,
-        vely: number,
-        xAccel: number,
-        isJumping: boolean,
-        direction: Direction
-    ) => void;
-    playerJoined: (playerName: string) => void;
-}
-
-// Server → Client
-export interface ServerEvents extends SharedEvents {
-    playerMoved: (
-        playerID: string,
-        x: number,
-        y: number,
-        velx: number,
-        vely: number,
-        xAccel: number,
-        isJumping: boolean,
-        direction: Direction
-    ) => void;
-    playerJoined: (playerID: string, playerName: string) => void;
-    enemyJoined: (enemyID: string, EnemyName: string) => void;
-    playerLeft: (playerID: string) => void;
-    flip: (playerID: string) => void;
-    dead: (playerID: string) => void;
-}
+import { UnmountedAI } from "./death";
 
 // append to initial socket request, username
-export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
-console.log(SERVER_ADDRESS);
 
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
@@ -67,7 +30,7 @@ socket.on("connect", () => {
         }
     }
     if (!LOCAL_PLAYER) {
-        LOCAL_PLAYER = new Player(
+        updateLocalPlayer(new Player(
             50,
             310,
             PLAYER_WIDTH,
@@ -75,7 +38,7 @@ socket.on("connect", () => {
             "yellow",
             PLAYER_USERNAME,
             socket.id
-        );
+        ));
 
         new InputHandler({
             a: {
@@ -184,6 +147,7 @@ socket.on("playerLeft", (playerID: string) => {
             "🚀"
         );
         if (player.constructor == Enemy) {
+            
             new UnmountedAI(player.position.x, player.position.y, PLAYER_WIDTH, PLAYER_HEIGHT, "red", null, player.id);
         }
     }
@@ -208,5 +172,16 @@ socket.on("dead", (playerID: string) => {
 socket.on("connect_error", (err) => {
     advancedLog(`connect_error due to ${err.message}`, "red", "🚀");
 });
-
+export function sendData() {
+    socket.emit(
+        "move",
+        LOCAL_PLAYER.position.x,
+        LOCAL_PLAYER.position.y,
+        LOCAL_PLAYER.velocity.x,
+        LOCAL_PLAYER.velocity.y,
+        LOCAL_PLAYER.xAccel,
+        LOCAL_PLAYER.isJumping,
+        LOCAL_PLAYER.direction
+    );
+}
 advancedLog("Client handler loaded", "orange", "🚀");

@@ -1,6 +1,5 @@
-import { ctx, enemyHandler } from "./joust";
-import { MapObject } from "./map_object";
-import { Enemy, Player } from "./player";
+import { ctx } from "./Global Constants/canvas";
+import { Enemy, Player } from "./Bird Objects/player";
 import { Vector } from "./vector";
 
 export interface ICollisionObject {

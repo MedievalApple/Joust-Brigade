@@ -1,5 +1,7 @@
-import { ctx, frameCount } from "./joust";
+import { ctx } from "./Global Constants/canvas";
+import { frameCount } from "./joust";
 import { Vector } from "./vector";
+
 
 export type Sprite = ImgSprite | AniSprite | ColorSprite;
 

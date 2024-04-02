@@ -1,9 +1,9 @@
 import { Platform, addObjects } from "./map_object";
-import { canvas } from "./joust";
 import { ColorSprite, ImgSprite } from "./sprite";
 import { Vector } from "./vector";
 import { Collider } from "./collision";
 import { advancedLog } from "./utils";
+import { canvas } from "./Global Constants/canvas";
 
 // light green: 
 advancedLog("Map loaded", "#32a852", "🗺️");

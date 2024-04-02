@@ -2,10 +2,11 @@ import { Vector } from "./vector";
 import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
 import { DEBUG } from "./debug";
 import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./joust";
-import { Enemy, Player } from "./player";
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./Global Constants/constants";
+import { Enemy, Player } from "./Bird Objects/player";
+import { Egg } from "./death";
 
-export type IGameObject = Player | Enemy | Platform;
+export type IGameObject = Player | Enemy | Platform | Egg;
 
 const GAME_OBJECTS: Map<string, IGameObject> = new Map();
 export class MapObject {
@@ -68,6 +69,11 @@ export function addObjects(objects: Array<IGameObject>) {
         // GAME_OBJECTS.push(object);
         GAME_OBJECTS.set(object.id, object);
     }
+}
+
+// Sort function that return an array of all type of objects in the GAME_OBJECTS array
+export function filter<T extends IGameObject>(type: new (...args: any[]) => T): T[] {
+    return Array.from(GAME_OBJECTS.values()).filter((object) => object.constructor == type) as T[];
 }
 // export function filter(predicate: (value: IGameObject, index: number, array: IGameObject[]) => unknown) {
 //     return GAME_OBJECTS.filter(predicate);

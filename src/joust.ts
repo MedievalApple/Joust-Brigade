@@ -1,23 +1,15 @@
-import { Player, EnemyHandler, UnmountedAI } from './player';
+import { Player } from './Bird Objects/player';
 import { handleCollision } from './collision';
 import { GAME_OBJECTS } from './map_object';
 import { DEBUG } from './debug';
 import "./clientHandler";
+import { EnemyHandler } from './Bird Objects/enemy';
+import { UnmountedAI } from "./death";
+import {canvas, ctx} from "./Global Constants/canvas"
+import { lastFrameTime, lastUpdateTime } from './Global Constants/constants';
+import { StateManager } from './GameStateManager';
 var previousTime = 0;
 console.log("Joust game started!");
-
-// Canvas and context initialization
-const canvas = <HTMLCanvasElement>document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = false;
-
-// Constants for readability
-export const FRAME_RATE = 60;
-export let lastFrameTime = 0;
-export let lastUpdateTime = 0;
-export const PLAYER_WIDTH = 13 * 2;
-export const PLAYER_HEIGHT = 18 * 2;
-export const PLAYER_USERNAME = sessionStorage.getItem("username");
 
 // Frame count and lastSent data
 export var frameCount = 0;
@@ -41,6 +33,7 @@ function draw() {
             mObject.show();
         }
     });
+    let lastFrameTime = performance.now();
     if (DEBUG) {
         // Draw fps
         ctx.font = "10px Arial";
@@ -57,7 +50,6 @@ function draw() {
     // color: "blue"
     // make sure to fit the text in the box
 
-    lastFrameTime = performance.now();
     frameCount++;
     requestAnimationFrame(draw);
 };
@@ -76,15 +68,9 @@ function update() {
         enemyHandler.createEnemy(5);
     }
 
-    GAME_OBJECTS.forEach(mObject1 => {
-        GAME_OBJECTS.forEach(mObject2 => {
-            if (mObject1 !== mObject2 && mObject1.collider && mObject2.collider) {
-                handleCollision(mObject1, mObject2, mObject1.collider, mObject2.collider);
-            }
-        });
-    });
+    StateManager.updateCollisions();
 
-    lastUpdateTime = performance.now();
+    let lastUpdateTime = performance.now();
     frameCount = lastUpdateTime - previousTime;
     previousTime = lastUpdateTime;
     setTimeout(update, 1000 / (60));
@@ -93,4 +79,4 @@ function update() {
 requestAnimationFrame(draw);
 update();
 
-export { ctx, GAME_OBJECTS, canvas };
+export {GAME_OBJECTS};
