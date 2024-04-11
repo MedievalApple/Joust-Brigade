@@ -1,8 +1,6 @@
 import { Player } from './Bird Objects/player';
-import { handleCollision } from './collision';
 import { GAME_OBJECTS } from './map_object';
 import { DEBUG } from './debug';
-import "./clientHandler";
 import { EnemyHandler } from './Bird Objects/enemy';
 import { UnmountedAI } from "./death";
 import {canvas, ctx} from "./Global Constants/canvas"
@@ -55,12 +53,15 @@ function draw() {
 };
 
 function update() {
+    let currentTime = performance.now();
+    let deltaTime = (currentTime - previousTime)/1000; // Convert milliseconds to seconds
+    previousTime = currentTime;
     GAME_OBJECTS.forEach(mObject => {
         // @ts-ignore
         if(mObject.constructor == UnmountedAI) {mObject.update(); mObject.dumbAI();}
         if (!sessionStorage.getItem("server") || mObject.constructor == Player) {
             // @ts-ignore
-            if (mObject.update) mObject.update();
+            if (mObject.update) mObject.update(deltaTime);
         }
     });
 
@@ -69,14 +70,10 @@ function update() {
     }
 
     StateManager.updateCollisions();
-
-    let lastUpdateTime = performance.now();
-    frameCount = lastUpdateTime - previousTime;
-    previousTime = lastUpdateTime;
-    setTimeout(update, 1000 / (60));
+    requestAnimationFrame(update);
 }
 
 requestAnimationFrame(draw);
-update();
+requestAnimationFrame(update);
 
 export {GAME_OBJECTS};

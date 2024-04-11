@@ -1,40 +1,7 @@
 import { ctx } from "./Global Constants/canvas";
 import { Enemy, Player } from "./Bird Objects/player";
 import { Vector } from "./vector";
-
-export interface ICollisionObject {
-    position: Vector;
-    velocity: Vector;
-    isJumping?: boolean;
-    static?: boolean;
-    collisionObjects?: Array<ICollisionObject>;
-    updateCollider?: (vector: Vector) => void;
-}
-
-export interface IHitbox {
-    offset: Vector;
-    size: Vector;
-}
-
-export class OffsetHitbox implements IHitbox {
-    offset: Vector;
-    size: Vector;
-
-    constructor(offset: Vector, size: Vector) {
-        this.offset = offset;
-        this.size = size;
-    }
-}
-
-export class CircleHitbox implements IHitbox {
-    offset: Vector;
-    size: Vector;
-
-    constructor(offset: Vector, size: Vector) {
-        this.offset = offset;
-        this.size = size;
-    }
-}
+import { ICollisionObject, IHitbox } from "./Global Constants/types";
 
 export class Collider {
     position: Vector = new Vector();
@@ -163,7 +130,7 @@ export function handleCollision(
         } else {
             // Resolve the collision on the Y-axis
             const sign = Math.sign(gameObject1.velocity.y - gameObject2.velocity.y);
-            if (sign < 0) {
+            if (sign > 0) {
                 if ("isJumping" in gameObject1) {
                     gameObject1.isJumping = false;
                 }

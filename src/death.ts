@@ -131,17 +131,17 @@ export class Egg {
         };
         this.currentAnimation = this.animations.hatching;
     }
-    show(x: number, y: number) {
-        this.currentAnimation.show(200, 200);
-        if (performance.now() % 1000 < 16) {
-            if (this.currentAnimation.currentImage < this.currentAnimation.maxImage - 1) {
-                this.currentAnimation.next();
-            }
-            if (this.animations.hatching.currentImage == 3) {
-                this.currentAnimation = this.animations.bounder_hatching;
-                this.animations.hatching.currentImage = 0;
-            }
-        }
+    show() {
+        // this.currentAnimation.show(200, 200);
+        // if (performance.now() % 1000 < 16) {
+        //     if (this.currentAnimation.currentImage < this.currentAnimation.maxImage - 1) {
+        //         this.currentAnimation.next();
+        //     }
+        //     if (this.animations.hatching.currentImage == 3) {
+        //         this.currentAnimation = this.animations.bounder_hatching;
+        //         this.animations.hatching.currentImage = 0;
+        //     }
+        // }
     }
 }
 GAME_OBJECTS.set("egg", new Egg("egg"));

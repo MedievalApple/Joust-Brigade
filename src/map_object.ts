@@ -1,10 +1,11 @@
 import { Vector } from "./vector";
 import { AniSprite, ColorSprite, ImgSprite, Sprite } from "./sprite";
 import { DEBUG } from "./debug";
-import { Collider, ICollisionObject, OffsetHitbox } from "./collision";
+import { Collider} from "./collision";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./Global Constants/constants";
 import { Enemy, Player } from "./Bird Objects/player";
 import { Egg } from "./death";
+import { OffsetHitbox } from "./Global Constants/types";
 
 export type IGameObject = Player | Enemy | Platform | Egg;
 

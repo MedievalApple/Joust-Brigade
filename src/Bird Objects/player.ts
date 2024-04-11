@@ -5,11 +5,11 @@ import {
 } from "../joust";
 import { Collider} from "../map_object";
 import { DEBUG } from "../debug";
-import { OffsetHitbox, ICollisionObject} from "../collision";
 import { constrain } from "../utils";
 import { Direction } from "../enums";
 import { canvas, ctx } from "../Global Constants/canvas";
-import { PLAYER_USERNAME, socket } from "../Global Constants/constants";
+import { FRAME_RATE, PLAYER_USERNAME, socket } from "../Global Constants/constants";
+import { ICollisionObject, OffsetHitbox } from "../Global Constants/types";
 // import { UnmountedAI } from "./death";
 export let LOCAL_PLAYER: Player;
 export class Player {
@@ -18,7 +18,7 @@ export class Player {
     name: string;
     velocity: Vector = new Vector(0, 0);
     size: Vector;
-    gravity: number = 0.05;
+    gravity: number = 0.05*FRAME_RATE;
     friction: number = 0.4;
     xAccel: number = 0;
     maxSpeed: Vector = new Vector(3, 5);
@@ -201,11 +201,11 @@ export class Player {
         }
     }
 
-    update() {
+    update(deltaTime: number) {
         this.updateCollider(this.position);
-        this.velocity.y += this.gravity;
-        this.velocity.x += this.xAccel;
-
+        this.velocity.y += this.gravity * deltaTime;
+        this.velocity.x += this.xAccel * deltaTime;
+        console.log(this.velocity.x, this.xAccel, this.position.x, this.position.y)
         if (Math.abs(this.velocity.x) > this.maxSpeed.x) {
             this.velocity.x = this.maxSpeed.x * Math.sign(this.velocity.x);
         } else if (
@@ -249,9 +249,9 @@ export class Player {
 
         if (Math.abs(this.velocity.x) == 0) {
             this.velocity.x = -1;
-            this.xAccel = -0.05;
+            this.xAccel = -0.05*FRAME_RATE;
         } else {
-            this.xAccel = -0.07;
+            this.xAccel = -0.07*FRAME_RATE;
         }
 
         this.sendData();
@@ -264,9 +264,9 @@ export class Player {
 
         if (Math.abs(this.velocity.x) == 0) {
             this.velocity.x = 1;
-            this.xAccel = 0.05;
+            this.xAccel = 0.05*FRAME_RATE;
         } else {
-            this.xAccel = 0.07;
+            this.xAccel = 0.07*FRAME_RATE;
         }
 
         this.sendData();
@@ -359,18 +359,18 @@ export class Enemy extends Player {
             case 0:
                 if (this.velocity.x == 0) {
                     this.velocity.x = 1;
-                    this.xAccel = 0.05;
+                    this.xAccel = 0.05*FRAME_RATE;
                 } else {
-                    this.xAccel = 0.07;
+                    this.xAccel = 0.07*FRAME_RATE;
                 }
                 break;
             case 1:
                 this.direction = Direction.Left;
                 if (Math.abs(this.velocity.x) == 0) {
                     this.velocity.x = -1;
-                    this.velocity.x = -0.05;
+                    this.velocity.x = -0.05*FRAME_RATE;
                 } else {
-                    this.xAccel = -0.07;
+                    this.xAccel = -0.07*FRAME_RATE;
                 }
                 break;
             default:
