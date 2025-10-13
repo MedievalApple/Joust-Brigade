@@ -113,11 +113,11 @@ function draw() {
     
 
     frameCount++;
-    if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)){
-        requestAnimationFrame(draw);
-    }else{
-        webkitRequestAnimationFrame(draw);
-    }
+    // if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)){
+    //     requestAnimationFrame(draw);
+    // }else{
+    //     webkitRequestAnimationFrame(draw);
+    // }
 }
 
 player.onload = function () {
@@ -146,11 +146,13 @@ player.onload = function () {
         }
     }
 
-    if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)){
-        requestAnimationFrame(draw);
-    }else{
-        webkitRequestAnimationFrame(draw);
-    }
+    // if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)){
+    //     requestAnimationFrame(draw);
+    // }else{
+    //     webkitRequestAnimationFrame(draw);
+    // }
+    draw()
+    setInterval(draw, 16.7)
 };
 
 
