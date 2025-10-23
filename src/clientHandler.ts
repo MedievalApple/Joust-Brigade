@@ -55,6 +55,16 @@ export interface ServerEvents extends SharedEvents {
 export const socket: Socket<ServerEvents, ClientEvents> = io(SERVER_ADDRESS);
 console.log(SERVER_ADDRESS);
 
+function addEvent(element: any, eventName: any, callback: (e: any) => void) {
+    if (element.addEventListener) {
+        element.addEventListener(eventName, callback, false);
+    } else if (element.attachEvent) {
+        element.attachEvent("on" + eventName, callback);
+    }
+}
+
+
+
 socket.on("connect", () => {
     advancedLog("Connected to server!", "#32a852", "🚀");
     socket.emit("playerJoined", PLAYER_USERNAME);
@@ -72,22 +82,17 @@ socket.on("connect", () => {
             310,
             PLAYER_WIDTH,
             PLAYER_HEIGHT,
-            "yellow",
+            "green",
             PLAYER_USERNAME,
             socket.id
         );
 
-        new InputHandler({
-            a: {
-                keydown: LOCAL_PLAYER.handleLeft.bind(LOCAL_PLAYER),
-            },
-            d: {
-                keydown: LOCAL_PLAYER.handleRight.bind(LOCAL_PLAYER),
-            },
-            w: {
-                keydown: LOCAL_PLAYER.jumpKeyDown.bind(LOCAL_PLAYER),
-                keyup: LOCAL_PLAYER.jumpKeyUp.bind(LOCAL_PLAYER),
-            },
+        addEvent(window, "keydown", (e: KeyboardEvent) => {
+            LOCAL_PLAYER.heldKeys.add(e.key);
+        });
+        
+        addEvent(window, "keyup", (e: KeyboardEvent) => {
+            LOCAL_PLAYER.heldKeys.delete(e.key);
         });
     } else {
         LOCAL_PLAYER.name = PLAYER_USERNAME;

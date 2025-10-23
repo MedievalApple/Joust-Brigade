@@ -15,6 +15,7 @@ import { Direction } from "./enums";
 import { LOCAL_PLAYER, socket } from "./clientHandler";
 let timeElapsed = 0;
 export class Player {
+    id: string = "";
     private _dead: boolean = false;
     currentAnimation: Sprite | null;
     animations: { [key: string]: Sprite };
@@ -24,17 +25,17 @@ export class Player {
     gravity: number = 0.05;
     friction: number = 0.4;
     xAccel: number = 0;
-    maxSpeed: Vector = new Vector(3, 5);
+    maxSpeed: Vector = new Vector(3, 5000);
     color: string;
     direction: Direction = Direction.Right;
     isJumping: boolean = false;
+    jumpDebounce = false;
     position: Vector;
     oldSize: Vector = new Vector();
     collider: Collider;
     collisionObjects: Array<ICollisionObject> = [];
     debugColor: string = "red";
-    jumpDebounce: boolean;
-    id: string = "";
+    heldKeys: Set<string> = new Set();
 
     constructor(
         x: number,
@@ -208,6 +209,8 @@ export class Player {
         this.updateCollider(this.position);
         this.velocity.y += this.gravity;
         this.velocity.x += this.xAccel;
+        
+        this.handleInputs()
 
         if (Math.abs(this.velocity.x) > this.maxSpeed.x) {
             this.velocity.x = this.maxSpeed.x * Math.sign(this.velocity.x);
@@ -275,24 +278,36 @@ export class Player {
         this.sendData();
     }
 
-    jumpKeyDown() {
-        if (!this.jumpDebounce) {
-            this.isJumping = true;
-            this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
+    handleJump() {
+        if (this.jumpDebounce) return;
+        
+        this.isJumping = true;
+        this.velocity.y = constrain(this.velocity.y - 2, -2, 2);
 
-            if (this.currentAnimation instanceof AniSprite) {
-                this.currentAnimation.next();
-            }
-
-            this.jumpDebounce = true;
+        if (this.currentAnimation instanceof AniSprite) {
+            this.currentAnimation.next();
         }
-
-        this.sendData();
-    }
-
-    jumpKeyUp() {
+        
         this.jumpDebounce = false;
         this.sendData();
+    }
+    
+    handleInputs() {
+        for (const key of this.heldKeys) {
+            switch (key) {
+                case "a":
+                    this.handleLeft();
+                    break;
+                case "d":
+                    this.handleRight();
+                    break;
+                case "w":
+                    this.handleJump();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     drawDebugVisuals() {
