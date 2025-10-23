@@ -8,7 +8,6 @@ import {
 } from "./joust";
 import { Enemy, Player, UnmountedAI } from "./player";
 import { advancedLog } from "./utils";
-import { InputHandler } from "./controls";
 import { Direction } from "./enums";
 import { AniSprite, ImgSprite } from "./sprite";
 import { Vector } from "./vector";
@@ -82,7 +81,7 @@ socket.on("connect", () => {
             310,
             PLAYER_WIDTH,
             PLAYER_HEIGHT,
-            "green",
+            "yellow",
             PLAYER_USERNAME,
             socket.id
         );
@@ -142,10 +141,10 @@ socket.on("playerJoined", (id, player) => {
     );
 });
 
-socket.on("enemyJoined", (id, name) => {
-    advancedLog(`AI ${name} joined!`, "#32a852", "🚀");
-    GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "red", id, name));
-});
+// socket.on("enemyJoined", (id, name) => {
+//     advancedLog(`AI ${name} joined!`, "#32a852", "🚀");
+//     GAME_OBJECTS.set(id, new Enemy(50, 310, -100, -100, "red", id, name));
+// });
 
 socket.on(
     "playerMoved",
@@ -202,13 +201,13 @@ socket.on("flip", (playerID: string) => {
     }
 });
 
-socket.on("dead", (playerID: string) => {
-    const player = GAME_OBJECTS.get(playerID);
-    if (player instanceof Player) {
-        player.position = new Vector(200, 310);
-        advancedLog(`${player.name} Died!`, "red", "🚀");
-    }
-});
+// socket.on("dead", (playerID: string) => {
+//     const player = GAME_OBJECTS.get(playerID);
+//     if (player instanceof Player) {
+//         player.position = new Vector(200, 310);
+//         advancedLog(`${player.name} Died!`, "red", "🚀");
+//     }
+// });
 
 socket.on("connect_error", (err) => {
     advancedLog(`connect_error due to ${err.message}`, "red", "🚀");
